@@ -9,6 +9,7 @@ abstract class BaseFileHandler {
         const val inputFileExtension = ".txt"
         const val sampleFileName = "sample"
         const val actualTestFileName = "test"
+        private const val DEFAULT_EMPTY_FILE_NAME_SUFFIX = ""
     }
 
     abstract fun getCurrentPackageName(): String
@@ -25,19 +26,11 @@ abstract class BaseFileHandler {
         getResourceDirectoryForPackage()
             .resolve(getClassName().lowercase())
 
-    fun getSampleFile(): File =
-        getResourceDirectoryForClass()
-            .resolve("$sampleFileName$inputFileExtension")
-
-    fun getSampleFile(suffix: String): File =
+    fun getSampleFile(suffix: String = DEFAULT_EMPTY_FILE_NAME_SUFFIX): File =
         getResourceDirectoryForClass()
             .resolve("$sampleFileName$suffix$inputFileExtension")
 
-    fun getActualTestFile(): File =
-        getResourceDirectoryForClass()
-            .resolve("$actualTestFileName$inputFileExtension")
-
-    fun getActualTestFile(suffix: String): File =
+    fun getActualTestFile(suffix: String = DEFAULT_EMPTY_FILE_NAME_SUFFIX): File =
         getResourceDirectoryForClass()
             .resolve("$actualTestFileName$suffix$inputFileExtension")
 }
