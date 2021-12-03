@@ -113,7 +113,7 @@ private class Shuttle private constructor(
 
     // For Part-1
     fun getNextTimestampWithBusId(): Pair<Int, Int> = whileLoop(
-        loopCounter = earliestDepartureTimestamp,
+        loopStartCounter = earliestDepartureTimestamp,
         { _, lastIterationResult: Pair<Int, Int?>? ->
             lastIterationResult?.second != null
         }
@@ -126,7 +126,7 @@ private class Shuttle private constructor(
 
     // For Part-2: Brute Force method
     fun getEarliestOffsetTimestampFromStartByBruteForce(): Long = whileLoop(
-        loopCounter = zeroOffsetOperationalBusId.toLong(),
+        loopStartCounter = zeroOffsetOperationalBusId.toLong(),
         { _, lastIterationResult: Pair<Long, Boolean>? ->
             lastIterationResult?.second == true
         }
