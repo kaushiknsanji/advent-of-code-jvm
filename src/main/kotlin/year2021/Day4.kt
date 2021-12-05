@@ -63,13 +63,16 @@ private data class BingoNumber(val number: Int, var markedState: Boolean = false
 
 private class BingoBoard(input: List<String>) {
     private val boardGrid: List<List<BingoNumber>> = input.map { rowString ->
-        rowString.split("""\s+""".toRegex()).map { rowNumberString -> BingoNumber(rowNumberString.toInt()) }
+        rowString.split("""\s+""".toRegex())
+            .filterNot { it.isEmpty() }
+            .map { rowNumberString -> BingoNumber(rowNumberString.toInt()) }
     }
 
-    private val transposedBoardGridMap: Map<Int, List<BingoNumber>> =
+    private val transposedBoardGrid: Collection<List<BingoNumber>> =
         boardGrid.flatMap { bingoNumbers -> bingoNumbers.withIndex() }
             .groupBy { indexedBingoNumbers -> indexedBingoNumbers.index }
             .mapValues { (_, indexedBingoNumbersAtSameColumn) -> indexedBingoNumbersAtSameColumn.map { it.value } }
+            .values
 
     private val isAnyEntireRowMarked: () -> Boolean = {
         boardGrid.any { rowBingoNumbers ->
@@ -78,7 +81,7 @@ private class BingoBoard(input: List<String>) {
     }
 
     private val isAnyEntireColumnMarked: () -> Boolean = {
-        transposedBoardGridMap.any { (_, columnBingoNumbers) ->
+        transposedBoardGrid.any { columnBingoNumbers ->
             columnBingoNumbers.all { bingoNumber: BingoNumber -> bingoNumber.markedState }
         }
     }
@@ -101,32 +104,13 @@ private class BingoGame private constructor(
     private val bingoBoards: List<BingoBoard>
 ) {
     companion object {
-        fun parse(input: List<String>): BingoGame {
-            val numbersDrawn = mutableListOf<Int>()
-            val bingoBoards = mutableListOf<BingoBoard>()
-            val currentBoardData = mutableListOf<String>()
-
-            val buildBingoBoardList: (bingoBoardData: List<String>) -> Unit = { bingoBoardData ->
-                if (bingoBoardData.isNotEmpty()) {
-                    bingoBoards.add(BingoBoard(bingoBoardData))
-                }
-            }
-
-            input.forEach { line ->
-                if (line.contains(",")) {
-                    line.split(",").mapTo(numbersDrawn, String::toInt)
-                } else if (line.isBlank() || line.isEmpty()) {
-                    buildBingoBoardList(currentBoardData)
-                    currentBoardData.clear()
-                } else {
-                    currentBoardData.add(line.trim())
-                }
-            }
-
-            buildBingoBoardList(currentBoardData)
-
-            return BingoGame(numbersDrawn, bingoBoards)
-        }
+        fun parse(input: List<String>): BingoGame = BingoGame(
+            numbersDrawn = input.take(1).flatMap { line -> line.split(",") }.map(String::toInt),
+            bingoBoards = input.drop(1)
+                .filterNot { line -> line.isEmpty() }
+                .chunked(5)
+                .map { bingoBoardData: List<String> -> BingoBoard(bingoBoardData) }
+        )
     }
 
     /**
