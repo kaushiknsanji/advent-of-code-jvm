@@ -159,6 +159,11 @@ private class HydrothermalVents private constructor(
         }
     }
 
+    /**
+     * [Solution for Part-1 and Part-2]
+     * Increments value at the Points falling in Horizontal and Vertical segments of the field grid
+     * to determine their overlaps.
+     */
     fun processHorizontalAndVerticalSegments(): HydrothermalVents = this.apply {
         horizontalAndVerticalSegments.forEach { lineSegment ->
             xCoordinateRange(lineSegment).forEach { x ->
@@ -169,6 +174,11 @@ private class HydrothermalVents private constructor(
         }
     }
 
+    /**
+     * [Solution for Part-2]
+     * Increments value at the Points falling in Diagonal segments of the field grid
+     * to determine their overlaps.
+     */
     fun processDiagonalSegments(): HydrothermalVents = this.apply {
         diagonalSegments.forEach { lineSegment ->
             val xCoordinates = xCoordinateRange(lineSegment).toList()
