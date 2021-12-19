@@ -8,6 +8,7 @@
 package year2021
 
 import base.BaseFileHandler
+import utils.grid.Point2d
 import kotlin.math.absoluteValue
 
 private class Day5 {
@@ -58,16 +59,12 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private data class Point(val x: Int, val y: Int) {
+private class Point(val x: Int, val y: Int) : Point2d<Int>(x, y) {
     companion object {
         fun parse(pointStr: String): Point = pointStr.split(",").let { coordinates: List<String> ->
             Point(coordinates.first().toInt(), coordinates.last().toInt())
         }
     }
-
-    fun toCoordinatesList(): List<Int> = listOf(x, y)
-
-    override fun toString(): String = "($x,$y)"
 }
 
 private class CoordinateGrid(val xyMin: Int, xyMax: Int) {

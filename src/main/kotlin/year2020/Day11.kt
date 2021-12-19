@@ -8,6 +8,8 @@
 package year2020
 
 import base.BaseFileHandler
+import utils.grid.OmniDirection.*
+import utils.grid.OmniDirection as Direction
 
 private class Day11 {
     companion object : BaseFileHandler() {
@@ -56,10 +58,6 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private enum class Direction {
-    TOP, BOTTOM, RIGHT, LEFT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
-}
-
 private data class SeatCell(val x: Int, val y: Int)
 
 private interface ISeatGrid {
@@ -101,14 +99,14 @@ private class SeatGrid(val rows: Int, val columns: Int) : ISeatGrid {
     override fun getAllSeatCells(): Collection<SeatCell> = seatGridMap.values.flatten()
 
     override fun SeatCell.getNeighbour(direction: Direction): SeatCell? = when (direction) {
-        Direction.TOP -> getSeatCellOrNull(this.x - 1, this.y)
-        Direction.BOTTOM -> getSeatCellOrNull(this.x + 1, this.y)
-        Direction.RIGHT -> getSeatCellOrNull(this.x, this.y + 1)
-        Direction.LEFT -> getSeatCellOrNull(this.x, this.y - 1)
-        Direction.TOP_LEFT -> getSeatCellOrNull(this.x - 1, this.y - 1)
-        Direction.TOP_RIGHT -> getSeatCellOrNull(this.x - 1, this.y + 1)
-        Direction.BOTTOM_LEFT -> getSeatCellOrNull(this.x + 1, this.y - 1)
-        Direction.BOTTOM_RIGHT -> getSeatCellOrNull(this.x + 1, this.y + 1)
+        TOP -> getSeatCellOrNull(this.x - 1, this.y)
+        BOTTOM -> getSeatCellOrNull(this.x + 1, this.y)
+        RIGHT -> getSeatCellOrNull(this.x, this.y + 1)
+        LEFT -> getSeatCellOrNull(this.x, this.y - 1)
+        TOP_LEFT -> getSeatCellOrNull(this.x - 1, this.y - 1)
+        TOP_RIGHT -> getSeatCellOrNull(this.x - 1, this.y + 1)
+        BOTTOM_LEFT -> getSeatCellOrNull(this.x + 1, this.y - 1)
+        BOTTOM_RIGHT -> getSeatCellOrNull(this.x + 1, this.y + 1)
     }
 
     override fun SeatCell.getAllNeighbours(): Collection<SeatCell?> =
@@ -121,28 +119,28 @@ private class SeatGrid(val rows: Int, val columns: Int) : ISeatGrid {
                 var (x: Int, y: Int) = immediateNeighbour
 
                 when (direction) {
-                    Direction.TOP -> while (x >= 0) {
+                    TOP -> while (x >= 0) {
                         add(getSeatCell(x--, y))
                     }
-                    Direction.BOTTOM -> while (x < xMax) {
+                    BOTTOM -> while (x < xMax) {
                         add(getSeatCell(x++, y))
                     }
-                    Direction.RIGHT -> while (y < yMax) {
+                    RIGHT -> while (y < yMax) {
                         add(getSeatCell(x, y++))
                     }
-                    Direction.LEFT -> while (y >= 0) {
+                    LEFT -> while (y >= 0) {
                         add(getSeatCell(x, y--))
                     }
-                    Direction.TOP_LEFT -> while (x >= 0 && y >= 0) {
+                    TOP_LEFT -> while (x >= 0 && y >= 0) {
                         add(getSeatCell(x--, y--))
                     }
-                    Direction.TOP_RIGHT -> while (x >= 0 && y < yMax) {
+                    TOP_RIGHT -> while (x >= 0 && y < yMax) {
                         add(getSeatCell(x--, y++))
                     }
-                    Direction.BOTTOM_LEFT -> while (x < xMax && y >= 0) {
+                    BOTTOM_LEFT -> while (x < xMax && y >= 0) {
                         add(getSeatCell(x++, y--))
                     }
-                    Direction.BOTTOM_RIGHT -> while (x < xMax && y < yMax) {
+                    BOTTOM_RIGHT -> while (x < xMax && y < yMax) {
                         add(getSeatCell(x++, y++))
                     }
                 }
