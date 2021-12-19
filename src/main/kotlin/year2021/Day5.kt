@@ -2,7 +2,7 @@
  * Problem: Day5: Hydrothermal Venture
  * https://adventofcode.com/2021/day/5
  *
- * @author Kaushik N Sanji (kaushiknsanji@gmail.com)
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
 
 package year2021
@@ -67,17 +67,22 @@ private class Point(val x: Int, val y: Int) : Point2d<Int>(x, y) {
     }
 }
 
-private class CoordinateGrid(val xyMin: Int, xyMax: Int) {
-    private val coordinateGridMap: Map<Int, List<Point>> = mutableListOf<Point>().apply {
-        (xyMin..xyMax).forEach { x: Int ->
-            (xyMin..xyMax).forEach { y: Int ->
-                add(Point(x, y))
-            }
+private class CoordinateGrid private constructor(val xyMin: Int, xyMax: Int) {
+    companion object {
+        fun parse(lineSegments: List<Pair<Point, Point>>): CoordinateGrid = lineSegments.flatMap { lineSegment ->
+            lineSegment.first.toCoordinateList() + lineSegment.second.toCoordinateList()
+        }.let { coordinates ->
+            CoordinateGrid(coordinates.minOrNull()!!, coordinates.maxOrNull()!!)
         }
     }
-        .groupBy { point: Point ->
-            point.x
+
+    private val coordinateGridMap: Map<Int, List<Point>> = (xyMin..xyMax).flatMap { x: Int ->
+        (xyMin..xyMax).map { y: Int ->
+            Point(x, y)
         }
+    }.groupBy { point: Point ->
+        point.x
+    }
 
     private val coordinateGridValueMap: MutableMap<Point, Int> = getAllPointsInGrid().associateWith { 0 }.toMutableMap()
 
@@ -91,11 +96,15 @@ private class CoordinateGrid(val xyMin: Int, xyMax: Int) {
 
     operator fun get(point: Point): Int = coordinateGridValueMap[point]!!
 
-    fun getPointOrNull(x: Int, y: Int): Point? = coordinateGridMap[x]?.get(y - xyMin)
+    fun getPointOrNull(x: Int, y: Int): Point? = try {
+        coordinateGridMap[x]?.get(y - xyMin)
+    } catch (e: IndexOutOfBoundsException) {
+        null
+    }
 
     fun getPoint(x: Int, y: Int): Point =
         getPointOrNull(x, y) ?: throw IllegalArgumentException(
-            "${this.javaClass.simpleName} does not have a ${Point::class.simpleName} at the given coordinates ($x, $y)"
+            "${this::class.simpleName} does not have a ${Point::class.simpleName} at the given coordinates ($x, $y)"
         )
 }
 
@@ -104,21 +113,14 @@ private class HydrothermalVents private constructor(
     private val coordinateGrid: CoordinateGrid
 ) {
     companion object {
-        fun parse(input: List<String>): HydrothermalVents {
-            val lineSegments = mutableListOf<Pair<Point, Point>>()
-            input.forEach { line ->
-                with(line.split(" -> ")) {
-                    Point.parse(this.first()) to Point.parse(this.last())
-                }.also { lineSegments.add(it) }
+        fun parse(input: List<String>): HydrothermalVents = input.map { line ->
+            with(line.split(" -> ")) {
+                Point.parse(this.first()) to Point.parse(this.last())
             }
-
-            val coordinatesExtentPair: Pair<Int, Int> = lineSegments.flatMap { segmentPair ->
-                segmentPair.first.toCoordinatesList() + segmentPair.second.toCoordinatesList()
-            }.let { coordinates -> coordinates.minOrNull()!! to coordinates.maxOrNull()!! }
-
-            return HydrothermalVents(
+        }.let { lineSegments: List<Pair<Point, Point>> ->
+            HydrothermalVents(
                 lineSegments,
-                CoordinateGrid(coordinatesExtentPair.first, coordinatesExtentPair.second)
+                CoordinateGrid.parse(lineSegments)
             )
         }
     }
