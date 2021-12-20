@@ -19,13 +19,13 @@ private class Day11 {
 }
 
 fun main() {
-    solveSample(1)
+    solveSample(1)  // 37
     println("=====")
-    solveActual(1)
+    solveActual(1)  // 2406
     println("=====")
-    solveSample(2)
+    solveSample(2)  // 26
     println("=====")
-    solveActual(2)
+    solveActual(2)  // 2149
     println("=====")
 }
 
@@ -45,45 +45,60 @@ private fun execute(input: List<String>, executeProblemPart: Int) {
 }
 
 private fun doPart1(input: List<String>) {
-    SeatLayout(input)
+    SeatLayout.parse(input)
         .simulateSeatingForPart1()
         .getCountOfSeatsOccupied()
         .also { println(it) }
 }
 
 private fun doPart2(input: List<String>) {
-    SeatLayout(input)
+    SeatLayout.parse(input)
         .simulateSeatingForPart2()
         .getCountOfSeatsOccupied()
         .also { println(it) }
 }
 
-private data class SeatCell(val x: Int, val y: Int)
+private class SeatCell(val x: Int, val y: Int)
 
 private interface ISeatGrid {
     fun getSeatCellOrNull(row: Int, column: Int): SeatCell?
     fun getSeatCell(row: Int, column: Int): SeatCell
     fun getAllSeatCells(): Collection<SeatCell>
     fun SeatCell.getNeighbour(direction: Direction): SeatCell?
-    fun SeatCell.getAllNeighbours(): Collection<SeatCell?>
-    fun SeatCell.getSeatCellsInDirection(direction: Direction): Collection<SeatCell>
-    fun SeatCell.getSeatCellsInAllDirections(): Map<Direction, Collection<SeatCell>>
+    fun SeatCell.getAllNeighbours(): Collection<SeatCell>
+    fun SeatCell.getSeatCellsInDirection(direction: Direction): Sequence<SeatCell>
+    fun SeatCell.getSeatCellsInAllDirections(): Map<Direction, Sequence<SeatCell>>
+    fun SeatCell.noneNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Boolean
+    fun SeatCell.countNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Int
+    fun SeatCell.noneNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Boolean
+    fun SeatCell.countNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Int
+    fun SeatCell.isOccupied(): Boolean
+    fun SeatCell.isVacant(): Boolean
+    fun isSameSeating(other: Map<SeatCell, Char>?): Boolean
+    fun forEach(action: (Map.Entry<SeatCell, Char>) -> Unit)
+    fun Map<SeatCell, Char>.toSeatPattern(): String
 }
 
-private class SeatGrid(val rows: Int, val columns: Int) : ISeatGrid {
-    private val seatGridMap: Map<Int, List<SeatCell>> = mutableListOf<SeatCell>().apply {
-        (0 until rows).forEach { x: Int ->
-            (0 until columns).forEach { y: Int ->
-                add(SeatCell(x, y))
-            }
-        }
-    }
-        .groupBy { seatCell: SeatCell ->
-            seatCell.x
-        }
+private class SeatGrid private constructor(rows: Int, columns: Int, seatPatternList: List<String>) : ISeatGrid {
 
-    val xMax: Int get() = seatGridMap.size
-    val yMax: Int get() = seatGridMap[0]?.size ?: 0
+    constructor(seatPatternList: List<String>) : this(
+        seatPatternList.size,
+        seatPatternList[0].length,
+        seatPatternList
+    )
+
+    private val seatGridMap: Map<Int, List<SeatCell>> = (0 until rows).flatMap { x: Int ->
+        (0 until columns).map { y: Int ->
+            SeatCell(x, y)
+        }
+    }.groupBy { seatCell: SeatCell -> seatCell.x }
+
+    private val seatGridValueMap: MutableMap<SeatCell, Char> =
+        seatPatternList.flatMapIndexed { x: Int, rowSeatsPattern: String ->
+            rowSeatsPattern.mapIndexed { y: Int, seat: Char ->
+                getSeatCell(x, y) to seat
+            }
+        }.toMap(mutableMapOf())
 
     override fun getSeatCellOrNull(row: Int, column: Int): SeatCell? = try {
         seatGridMap[row]?.get(column)
@@ -93,10 +108,16 @@ private class SeatGrid(val rows: Int, val columns: Int) : ISeatGrid {
 
     override fun getSeatCell(row: Int, column: Int): SeatCell =
         getSeatCellOrNull(row, column) ?: throw IllegalArgumentException(
-            "${this.javaClass.simpleName} does not have a ${SeatCell::class.simpleName} at the given location ($row, $column)"
+            "${this::class.simpleName} does not have a ${SeatCell::class.simpleName} at the given location ($row, $column)"
         )
 
     override fun getAllSeatCells(): Collection<SeatCell> = seatGridMap.values.flatten()
+
+    operator fun get(seatCell: SeatCell): Char = seatGridValueMap[seatCell] ?: SeatLayout.WALL
+
+    operator fun set(seatCell: SeatCell, value: Char) {
+        seatGridValueMap[seatCell] = value
+    }
 
     override fun SeatCell.getNeighbour(direction: Direction): SeatCell? = when (direction) {
         TOP -> getSeatCellOrNull(this.x - 1, this.y)
@@ -109,53 +130,60 @@ private class SeatGrid(val rows: Int, val columns: Int) : ISeatGrid {
         BOTTOM_RIGHT -> getSeatCellOrNull(this.x + 1, this.y + 1)
     }
 
-    override fun SeatCell.getAllNeighbours(): Collection<SeatCell?> =
-        Direction.values().map { direction: Direction -> getNeighbour(direction) }
+    override fun SeatCell.getAllNeighbours(): Collection<SeatCell> =
+        Direction.values().mapNotNull { direction: Direction -> getNeighbour(direction) }
 
-    override fun SeatCell.getSeatCellsInDirection(direction: Direction): Collection<SeatCell> =
-        mutableListOf<SeatCell>().apply {
-            val immediateNeighbour = this@getSeatCellsInDirection.getNeighbour(direction)
-            if (immediateNeighbour != null) {
-                var (x: Int, y: Int) = immediateNeighbour
+    override fun SeatCell.getSeatCellsInDirection(direction: Direction): Sequence<SeatCell> =
+        generateSequence(this) { previousSeatCell ->
+            previousSeatCell.getNeighbour(direction)
+        }.drop(1)
 
-                when (direction) {
-                    TOP -> while (x >= 0) {
-                        add(getSeatCell(x--, y))
-                    }
-                    BOTTOM -> while (x < xMax) {
-                        add(getSeatCell(x++, y))
-                    }
-                    RIGHT -> while (y < yMax) {
-                        add(getSeatCell(x, y++))
-                    }
-                    LEFT -> while (y >= 0) {
-                        add(getSeatCell(x, y--))
-                    }
-                    TOP_LEFT -> while (x >= 0 && y >= 0) {
-                        add(getSeatCell(x--, y--))
-                    }
-                    TOP_RIGHT -> while (x >= 0 && y < yMax) {
-                        add(getSeatCell(x--, y++))
-                    }
-                    BOTTOM_LEFT -> while (x < xMax && y >= 0) {
-                        add(getSeatCell(x++, y--))
-                    }
-                    BOTTOM_RIGHT -> while (x < xMax && y < yMax) {
-                        add(getSeatCell(x++, y++))
-                    }
-                }
-            }
-
-        }
-
-    override fun SeatCell.getSeatCellsInAllDirections(): Map<Direction, Collection<SeatCell>> =
+    override fun SeatCell.getSeatCellsInAllDirections(): Map<Direction, Sequence<SeatCell>> =
         Direction.values().associateWith { direction -> this.getSeatCellsInDirection(direction) }
 
+    override fun SeatCell.noneNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Boolean =
+        getAllNeighbours().none(predicate)
+
+    override fun SeatCell.countNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Int =
+        getAllNeighbours().count(predicate)
+
+    override fun SeatCell.noneNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Boolean =
+        getSeatCellsInAllDirections().none { (_: Direction, seatCells: Sequence<SeatCell>) ->
+            seatCells.indexOfFirst(predicate).takeUnless { it == -1 }?.let { index ->
+                val value = get(seatCells.elementAt(index))
+                val blockingSeatIndex = seatCells.indexOfFirst { get(it) != value && get(it) != SeatLayout.FLOOR }
+                !(blockingSeatIndex > -1 && blockingSeatIndex < index)
+            } ?: false
+        }
+
+    override fun SeatCell.countNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Int =
+        getSeatCellsInAllDirections().count { (_: Direction, seatCells: Sequence<SeatCell>) ->
+            seatCells.indexOfFirst(predicate).takeUnless { it == -1 }?.let { index ->
+                val value = get(seatCells.elementAt(index))
+                val blockingSeatIndex = seatCells.indexOfFirst { get(it) != value && get(it) != SeatLayout.FLOOR }
+                !(blockingSeatIndex > -1 && blockingSeatIndex < index)
+            } ?: false
+        }
+
+    override fun SeatCell.isOccupied(): Boolean = get(this) == SeatLayout.SEAT_OCCUPIED
+
+    override fun SeatCell.isVacant(): Boolean = get(this) == SeatLayout.SEAT_VACANT
+
+    override fun isSameSeating(other: Map<SeatCell, Char>?): Boolean = seatGridValueMap == other
+
+    override fun forEach(action: (Map.Entry<SeatCell, Char>) -> Unit) = seatGridValueMap.entries.forEach(action)
+
+    override fun Map<SeatCell, Char>.toSeatPattern(): String =
+        this.entries.groupBy { (seatCell: SeatCell, _: Char) -> seatCell.x }
+            .map { (_, list) -> list.map { it.value }.joinToString(separator = "") }
+            .joinToString(separator = System.lineSeparator())
+
+    override fun toString(): String = seatGridValueMap.toSeatPattern()
 }
 
-private class SeatLayout(
-    val allRowsSeatPattern: List<String>
-) : ISeatGrid by SeatGrid(allRowsSeatPattern.size, allRowsSeatPattern[0].length) {
+private class SeatLayout private constructor(
+    val seatGrid: SeatGrid
+) : ISeatGrid by seatGrid {
 
     companion object {
         const val FLOOR = '.'
@@ -165,65 +193,25 @@ private class SeatLayout(
 
         const val MAX_EMPTY_NEIGHBOURS = 4
         const val MAX_EMPTY_NEARBY = 5
+
+        fun parse(input: List<String>): SeatLayout = SeatLayout(SeatGrid(input))
     }
-
-    private val seatGridValueMap: MutableMap<SeatCell, Char> = mutableMapOf<SeatCell, Char>().apply {
-        allRowsSeatPattern.forEachIndexed { rowIndex, rowSeatsPattern ->
-            rowSeatsPattern.forEachIndexed { columnIndex, seat: Char ->
-                this[getSeatCell(rowIndex, columnIndex)] = seat
-            }
-        }
-    }
-
-    operator fun get(seatCell: SeatCell?): Char = seatCell?.let { cell: SeatCell -> seatGridValueMap[cell]!! } ?: WALL
-
-    operator fun set(seatCell: SeatCell, value: Char) {
-        seatGridValueMap[seatCell] = value
-    }
-
-    fun SeatCell.noneNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Boolean =
-        getAllNeighbours().filterNotNull().none(predicate)
-
-    fun SeatCell.countNeighbour(predicate: (seatCell: SeatCell) -> Boolean): Int =
-        getAllNeighbours().filterNotNull().count(predicate)
-
-    fun SeatCell.noneNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Boolean =
-        getSeatCellsInAllDirections().none { (_: Direction, seatCells: Collection<SeatCell>) ->
-            seatCells.indexOfFirst(predicate).takeUnless { it == -1 }?.let { index ->
-                val value = get(seatCells.toList()[index])
-                val blockingSeatIndex = seatCells.indexOfFirst { get(it) != value && get(it) != FLOOR }
-                !(blockingSeatIndex > -1 && blockingSeatIndex < index)
-            } ?: false
-        }
-
-    fun SeatCell.countNearbyVisibleSeatCellsInAllDirections(predicate: (seatCell: SeatCell) -> Boolean): Int =
-        getSeatCellsInAllDirections().count { (_: Direction, seatCells: Collection<SeatCell>) ->
-            seatCells.indexOfFirst(predicate).takeUnless { it == -1 }?.let { index ->
-                val value = get(seatCells.toList()[index])
-                val blockingSeatIndex = seatCells.indexOfFirst { get(it) != value && get(it) != FLOOR }
-                !(blockingSeatIndex > -1 && blockingSeatIndex < index)
-            } ?: false
-        }
-
-    fun SeatCell.isOccupied(): Boolean = get(this) == SEAT_OCCUPIED
-
-    fun SeatCell.isVacant(): Boolean = get(this) == SEAT_VACANT
 
     fun getCountOfSeatsOccupied(): Int = getAllSeatCells().count { seatCell: SeatCell -> seatCell.isOccupied() }
 
-    fun simulateSeatingForPart1(): SeatLayout {
+    fun simulateSeatingForPart1(): SeatLayout = this.apply {
         var nextSeatingMap: Map<SeatCell, Char>? = null
 
-        while (seatGridValueMap != nextSeatingMap) {
-            nextSeatingMap?.forEach { (seatCell: SeatCell, value: Char) -> this[seatCell] = value }
+        while (!seatGrid.isSameSeating(nextSeatingMap)) {
+            // Save previous seating state in the seat grid
+            nextSeatingMap?.forEach { (seatCell: SeatCell, value: Char) -> seatGrid[seatCell] = value }
+            // Get the next seating state
             nextSeatingMap = changeSeatStateForPart1()
         }
-
-        return this
     }
 
     fun changeSeatStateForPart1(): Map<SeatCell, Char> = mutableMapOf<SeatCell, Char>().apply {
-        seatGridValueMap.forEach { (seatCell: SeatCell, value: Char) ->
+        seatGrid.forEach { (seatCell: SeatCell, value: Char) ->
             if (seatCell.isVacant() && seatCell.noneNeighbour { it.isOccupied() }) {
                 this[seatCell] = SEAT_OCCUPIED
             } else if (seatCell.isOccupied() && seatCell.countNeighbour { it.isOccupied() } >= MAX_EMPTY_NEIGHBOURS) {
@@ -234,19 +222,19 @@ private class SeatLayout(
         }
     }
 
-    fun simulateSeatingForPart2(): SeatLayout {
+    fun simulateSeatingForPart2(): SeatLayout = this.apply {
         var nextSeatingMap: Map<SeatCell, Char>? = null
 
-        while (seatGridValueMap != nextSeatingMap) {
-            nextSeatingMap?.forEach { (seatCell: SeatCell, value: Char) -> this[seatCell] = value }
+        while (!seatGrid.isSameSeating(nextSeatingMap)) {
+            // Save previous seating state in the seat grid
+            nextSeatingMap?.forEach { (seatCell: SeatCell, value: Char) -> seatGrid[seatCell] = value }
+            // Get the next seating state
             nextSeatingMap = changeSeatStateForPart2()
         }
-
-        return this
     }
 
     fun changeSeatStateForPart2(): Map<SeatCell, Char> = mutableMapOf<SeatCell, Char>().apply {
-        seatGridValueMap.forEach { (seatCell: SeatCell, value: Char) ->
+        seatGrid.forEach { (seatCell: SeatCell, value: Char) ->
             if (seatCell.isVacant() && seatCell.noneNearbyVisibleSeatCellsInAllDirections { it.isOccupied() }) {
                 this[seatCell] = SEAT_OCCUPIED
             } else if (seatCell.isOccupied() && seatCell.countNearbyVisibleSeatCellsInAllDirections { it.isOccupied() } >= MAX_EMPTY_NEARBY) {
@@ -256,10 +244,5 @@ private class SeatLayout(
             }
         }
     }
-
-    fun Map<SeatCell, Char>.toSeatPattern(): String =
-        this.entries.groupBy { (seatCell: SeatCell, _: Char) -> seatCell.x }
-            .map { (_, list) -> list.map { it.value }.joinToString(separator = "") }
-            .joinToString(separator = System.lineSeparator())
 
 }
