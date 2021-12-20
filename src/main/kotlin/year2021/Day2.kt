@@ -2,7 +2,7 @@
  * Problem: Day2: Dive!
  * https://adventofcode.com/2021/day/2
  *
- * @author Kaushik N Sanji (kaushiknsanji@gmail.com)
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
 
 package year2021

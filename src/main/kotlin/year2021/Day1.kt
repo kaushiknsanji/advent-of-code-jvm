@@ -2,7 +2,7 @@
  * Problem: Day1: Sonar Sweep
  * https://adventofcode.com/2021/day/1
  *
- * @author Kaushik N Sanji (kaushiknsanji@gmail.com)
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
 
 package year2021

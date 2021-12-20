@@ -2,7 +2,7 @@
  * Problem: Day4: Giant Squid
  * https://adventofcode.com/2021/day/4
  *
- * @author Kaushik N Sanji (kaushiknsanji@gmail.com)
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
 
 package year2021
