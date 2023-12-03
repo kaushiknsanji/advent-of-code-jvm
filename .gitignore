@@ -172,4 +172,7 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+### Project Specific ###
+src/main/resources/**/**/test*.txt
+
 # End of https://www.toptal.com/developers/gitignore/api/kotlin,java,gradle,jetbrains
