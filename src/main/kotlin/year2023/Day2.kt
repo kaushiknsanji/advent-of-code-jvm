@@ -135,11 +135,11 @@ private class TripleCubeGameProcessor private constructor(
     /**
      * [Solution for Part-2]
      * Returns a possible [TripleCube] game configuration that can be played
-     * for the current game [revealedCubesList] by selecting fewer cubes.
+     * for the current game [revealedCubesList] by selecting fewer/required cubes.
      */
     fun possibleGameWithFewerCubes(): TripleCube = TripleCube(
-        red = revealedCubesList.maxByOrNull { tripleCube -> tripleCube.red }?.red ?: 0,
-        green = revealedCubesList.maxByOrNull { tripleCube -> tripleCube.green }?.green ?: 0,
-        blue = revealedCubesList.maxByOrNull { tripleCube -> tripleCube.blue }?.blue ?: 0
+        red = revealedCubesList.maxOf { tripleCube -> tripleCube.red },
+        green = revealedCubesList.maxOf { tripleCube -> tripleCube.green },
+        blue = revealedCubesList.maxOf { tripleCube -> tripleCube.blue }
     )
 }
