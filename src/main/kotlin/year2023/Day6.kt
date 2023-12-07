@@ -9,6 +9,7 @@ package year2023
 
 import base.BaseFileHandler
 import extensions.product
+import kotlin.math.abs
 
 private class Day6 {
     companion object : BaseFileHandler() {
@@ -71,11 +72,7 @@ private class BoatRaceGame private constructor(
             .let { chargeTime ->
                 // Calculate the number of ways one can beat the record of this game
                 // based on the first occurrence of a possible record
-                if ((raceTime - chargeTime) > chargeTime) {
-                    raceTime - 2 * chargeTime + 1
-                } else {
-                    2 * chargeTime - raceTime + 1
-                }
+                abs(raceTime - 2 * chargeTime) + 1
             }
 
 }
