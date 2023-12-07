@@ -3,17 +3,17 @@ package extensions
 /**
  * Returns the product of all [Int] values in the [Iterable] entity.
  */
-fun Iterable<Int>.product(): Int = reduce { acc: Int, next: Int -> acc * next }
+fun Iterable<Int>.product(): Int = reduce(Int::times)
 
 /**
  * Returns the product of all [Long] values in the [Iterable] entity.
  */
-fun Iterable<Long>.product(): Long = reduce { acc: Long, next: Long -> acc * next }
+fun Iterable<Long>.product(): Long = reduce(Long::times)
 
 /**
  * Returns the difference of all [Int] values in the [Iterable] entity.
  */
-fun Iterable<Int>.difference(): Int = reduce { acc: Int, next: Int -> acc - next }
+fun Iterable<Int>.difference(): Int = reduce(Int::minus)
 
 /**
  * Extension function on [Iterable] entity of type [T] to split the iterable collection
