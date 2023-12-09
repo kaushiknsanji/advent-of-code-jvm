@@ -16,6 +16,11 @@ fun Iterable<Long>.product(): Long = reduce(Long::times)
 fun Iterable<Int>.difference(): Int = reduce(Int::minus)
 
 /**
+ * Returns the difference of all [Long] values in the [Iterable] entity.
+ */
+fun Iterable<Long>.difference(): Long = reduce(Long::minus)
+
+/**
  * Extension function on [Iterable] entity of type [T] to split the iterable collection
  * when determined by the [predicate]. If the split item needs to be retained, set [retainSplitItem] to `true`.
  *
