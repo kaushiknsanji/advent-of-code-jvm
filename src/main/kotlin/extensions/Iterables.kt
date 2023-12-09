@@ -1,5 +1,8 @@
 package extensions
 
+import utils.gcd
+import utils.lcm
+
 /**
  * Returns the product of all [Int] values in the [Iterable] entity.
  */
@@ -19,6 +22,26 @@ fun Iterable<Int>.difference(): Int = reduce(Int::minus)
  * Returns the difference of all [Long] values in the [Iterable] entity.
  */
 fun Iterable<Long>.difference(): Long = reduce(Long::minus)
+
+/**
+ * Returns the Greatest Common Divisor of all [Int] values in the [Iterable] entity.
+ */
+fun Iterable<Int>.gcd(): Int = reduce(Int::gcd)
+
+/**
+ * Returns the Least Common Multiple of all [Int] values in the [Iterable] entity.
+ */
+fun Iterable<Int>.lcm(): Int = reduce(Int::lcm)
+
+/**
+ * Returns the Greatest Common Divisor of all [Long] values in the [Iterable] entity.
+ */
+fun Iterable<Long>.gcd(): Long = reduce(Long::gcd)
+
+/**
+ * Returns the Least Common Multiple of all [Long] values in the [Iterable] entity.
+ */
+fun Iterable<Long>.lcm(): Long = reduce(Long::lcm)
 
 /**
  * Extension function on [Iterable] entity of type [T] to split the iterable collection
