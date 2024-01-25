@@ -8,7 +8,9 @@
 package year2023
 
 import base.BaseFileHandler
-import kotlin.math.abs
+import extensions.distinctPairs
+import utils.grid.Point2d
+import utils.grid.manhattanDistance
 
 private class Day11 {
     companion object : BaseFileHandler() {
@@ -57,7 +59,7 @@ private fun doPart2(input: List<String>, expansionRate: Int) {
         .also { println(it) }
 }
 
-private class CosmicLocation(val x: Int, val y: Int)
+private class CosmicLocation(val x: Int, val y: Int) : Point2d<Int>(x, y)
 
 private enum class CosmicType(val type: Char) {
     GALAXY('#'),
@@ -157,20 +159,12 @@ private class CosmicExpansionProcessor private constructor(
     private val emptySpaceColumnIndexes get() = getAllEmptySpaceColumnIndexes()
 
     /**
-     * Returns Galaxies represented by their locations in [Pair]s.
+     * Returns Galaxies represented by their [CosmicLocation]s as distinct [Pair] combinations.
      *
-     * If there are `n` galaxies, then a total of `n*(n-1)/2` galaxy pairs are returned.
+     * If there are `n` galaxies, then a total of `n*(n-1)/2` distinct galaxy pairs are returned.
      */
-    private val galaxyLocationsAsPairs: List<Pair<CosmicLocation, CosmicLocation>>
-        get() = mutableListOf<Pair<CosmicLocation, CosmicLocation>>().apply {
-            allGalaxyLocations.forEachIndexed { currentIndex, currentCosmicLocation ->
-                allGalaxyLocations.withIndex().filter { (otherIndex, _) ->
-                    otherIndex > currentIndex
-                }.forEach { (_, nextCosmicLocation) ->
-                    add(currentCosmicLocation to nextCosmicLocation)
-                }
-            }
-        }
+    private val distinctGalaxyLocationPairs: Collection<Pair<CosmicLocation, CosmicLocation>>
+        get() = allGalaxyLocations.distinctPairs()
 
     /**
      * Returns the total number of empty spaces present between the galaxies represented by their
@@ -199,10 +193,10 @@ private class CosmicExpansionProcessor private constructor(
      * happening between these galaxies based on their [expansionRate] which is caused by the gravitational effects.
      */
     fun getSumOfShortestDistancesBetweenGalaxyPairs(expansionRate: Int): Long =
-        galaxyLocationsAsPairs.map { (start: CosmicLocation, end: CosmicLocation) ->
-            abs(end.x - start.x) + abs(end.y - start.y)
-        }.sumOf { it.toLong() } + galaxyLocationsAsPairs.map { (start: CosmicLocation, end: CosmicLocation) ->
-            getTotalEmptySpacesForGalaxyPairs(start, end)
-        }.sumOf { it.toLong() } * (expansionRate - 1)
+        distinctGalaxyLocationPairs.sumOf { (start: CosmicLocation, end: CosmicLocation) ->
+            start.manhattanDistance(end).toLong()
+        } + distinctGalaxyLocationPairs.sumOf { (start: CosmicLocation, end: CosmicLocation) ->
+            getTotalEmptySpacesForGalaxyPairs(start, end).toLong()
+        } * (expansionRate - 1)
 
 }

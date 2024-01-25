@@ -1,5 +1,6 @@
 package utils.grid
 
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 /**
@@ -41,3 +42,12 @@ fun Sequence<Point2d<Int>>.toShoelacePolygonArea(): Long =
  */
 fun Sequence<Point2d<Int>>.toTotalPointsEnclosedByPolygon(): Long =
     this.toShoelacePolygonArea() + 1 - (this.count() shr 1)
+
+/**
+ * Extension function on [Point2d] of type [Int] to compute Manhattan Distance to the [destination]
+ * from source [this].
+ *
+ * To be used in 2D Grid system where only Cardinal movements are permitted.
+ */
+fun Point2d<Int>.manhattanDistance(destination: Point2d<Int>): Int =
+    abs(destination.xPos - xPos) + abs(destination.yPos - yPos)

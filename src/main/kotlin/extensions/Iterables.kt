@@ -62,3 +62,18 @@ fun <T> Iterable<T>.splitWhen(retainSplitItem: Boolean = false, predicate: (T) -
             }
         }
     }
+
+/**
+ * Extension function on [Iterable] entity of type [T] to return a [Collection] of distinct [Pair]s
+ * of the same elements of type [T].
+ *
+ * If there are `n` elements, then a total of `n*(n-1)/2` distinct element pairs are returned.
+ */
+fun <T> Iterable<T>.distinctPairs(): Collection<Pair<T, T>> =
+    flatMapIndexed { outerIndex: Int, currentElement: T ->
+        filterIndexed { innerIndex: Int, _: T ->
+            innerIndex > outerIndex
+        }.map { nextElement: T ->
+            currentElement to nextElement
+        }
+    }
