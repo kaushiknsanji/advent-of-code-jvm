@@ -125,8 +125,8 @@ private class CosmicGrid private constructor(
         }.groupBy { (rowIndex, _, _) ->
             rowIndex
         }.filterValues { valuesByRowIndex: List<Triple<Int, Int, CosmicType>> ->
-            valuesByRowIndex.all { (_, _, columnValue) ->
-                columnValue == CosmicType.EMPTY_SPACE
+            valuesByRowIndex.all { (_, _, cosmicType) ->
+                cosmicType == CosmicType.EMPTY_SPACE
             }
         }.keys
 
@@ -137,8 +137,8 @@ private class CosmicGrid private constructor(
         }.groupBy { (_, columnIndex, _) ->
             columnIndex
         }.filterValues { valuesByColumnIndex: List<Triple<Int, Int, CosmicType>> ->
-            valuesByColumnIndex.all { (_, _, columnValue) ->
-                columnValue == CosmicType.EMPTY_SPACE
+            valuesByColumnIndex.all { (_, _, cosmicType) ->
+                cosmicType == CosmicType.EMPTY_SPACE
             }
         }.keys
 
@@ -152,19 +152,24 @@ private class CosmicExpansionProcessor private constructor(
         fun parse(input: List<String>): CosmicExpansionProcessor = CosmicExpansionProcessor(CosmicGrid(input))
     }
 
-    private val allGalaxyLocations get() = getAllGalaxyTypeLocations()
+    /**
+     * Returns row indexes of rows having only empty spaces.
+     */
+    private val emptySpaceRowIndexes by lazy { getAllEmptySpaceRowIndexes() }
 
-    private val emptySpaceRowIndexes get() = getAllEmptySpaceRowIndexes()
-
-    private val emptySpaceColumnIndexes get() = getAllEmptySpaceColumnIndexes()
+    /**
+     * Returns column indexes of columns having only empty spaces.
+     */
+    private val emptySpaceColumnIndexes by lazy { getAllEmptySpaceColumnIndexes() }
 
     /**
      * Returns Galaxies represented by their [CosmicLocation]s as distinct [Pair] combinations.
      *
      * If there are `n` galaxies, then a total of `n*(n-1)/2` distinct galaxy pairs are returned.
      */
-    private val distinctGalaxyLocationPairs: Collection<Pair<CosmicLocation, CosmicLocation>>
-        get() = allGalaxyLocations.distinctPairs()
+    private val distinctGalaxyLocationPairs: Collection<Pair<CosmicLocation, CosmicLocation>> by lazy {
+        getAllGalaxyTypeLocations().distinctPairs()
+    }
 
     /**
      * Returns the total number of empty spaces present between the galaxies represented by their
