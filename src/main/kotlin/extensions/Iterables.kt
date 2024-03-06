@@ -5,13 +5,17 @@ import utils.lcm
 
 /**
  * Returns the product of all [Int] values in the [Iterable] entity.
+ *
+ * @throws ArithmeticException when there is [Int] overflow during multiplication.
  */
-fun Iterable<Int>.product(): Int = reduce(Int::times)
+fun Iterable<Int>.product(): Int = reduce(Math::multiplyExact)
 
 /**
  * Returns the product of all [Long] values in the [Iterable] entity.
+ *
+ * @throws ArithmeticException when there is [Long] overflow during multiplication.
  */
-fun Iterable<Long>.product(): Long = reduce(Long::times)
+fun Iterable<Long>.product(): Long = reduce(Math::multiplyExact)
 
 /**
  * Returns the difference of all [Int] values in the [Iterable] entity.
@@ -49,7 +53,10 @@ fun Iterable<Long>.lcm(): Long = reduce(Long::lcm)
  *
  * @return [Iterable] of split [Iterable]s of type [T].
  */
-fun <T> Iterable<T>.splitWhen(retainSplitItem: Boolean = false, predicate: (T) -> Boolean): Iterable<Iterable<T>> =
+inline fun <T> Iterable<T>.splitWhen(
+    retainSplitItem: Boolean = false,
+    predicate: (item: T) -> Boolean
+): Iterable<Iterable<T>> =
     this.fold(mutableListOf(mutableListOf())) { acc: MutableList<MutableList<T>>, item: T ->
         acc.apply {
             if (predicate(item)) {
