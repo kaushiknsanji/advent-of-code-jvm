@@ -109,6 +109,119 @@ fun findTotalCombinationsWithoutRepetition(totalItems: Int, selectCount: Int): L
     }
 
 /**
+ * Extension function on a [Collection] of [Int] to test whether [this] series is Quadratic. Returns `true`
+ * when Quadratic; `false` otherwise.
+ *
+ * @throws IllegalArgumentException when the size of [this] series is less than 4 numbers. Minimum of
+ * 4 numbers are required.
+ */
+fun Collection<Int>.isQuadratic(): Boolean = if (size < 4) {
+    throw IllegalArgumentException(
+        "To determine if the given series is Quadratic, minimum of 4 numbers are required. " +
+                "Found only $size."
+    )
+} else {
+    generateSequence(this) { series: Collection<Int> ->
+        // Along with the given series, every next series of numbers in the sequence will be their
+        // previous series' differences of adjacent numbers
+        series.zipWithNext { currentNumber: Int, nextNumber: Int ->
+            nextNumber - currentNumber
+        }.takeIf { it.isNotEmpty() } // Generate differences at every stage till we have no more numbers
+    }.takeWhile { numbers: Collection<Int> ->
+        // Take all series of numbers except the last series of 0s
+        !numbers.all { it == 0 }
+    }.count() == 3 // Total number of series generated excluding the last series of 0s should be 3 for Quadratic series
+}
+
+/**
+ * Extension function on a [Collection] of [Int] to extract and return the coefficients and constant of [this]
+ * Quadratic series. Returns the result as a [List] of [Int] starting with the leading coefficient and ending with
+ * the constant.
+ *
+ * @throws IllegalArgumentException when the size of [this] series is less than 4 numbers, or when [this] series is
+ * NOT Quadratic.
+ */
+fun Collection<Int>.extractQuadraticCoefficients(): List<Int> = if (isQuadratic()) {
+    generateSequence(this) { series: Collection<Int> ->
+        // Along with the given Quadratic series, every next series of numbers in the sequence will be their
+        // previous series' differences of adjacent numbers
+        series.zipWithNext { currentNumber: Int, nextNumber: Int ->
+            nextNumber - currentNumber
+        }.takeIf { it.isNotEmpty() } // Generate differences at every stage till we have no more numbers
+    }.takeWhile { numbers: Collection<Int> ->
+        // Take all series of numbers except the last series of 0s
+        !numbers.all { it == 0 }
+    }.map { numbers: Collection<Int> ->
+        // Take only the first number of all 3 series of numbers present
+        numbers.first()
+    }.toList().reversed() // Reverse the first numbers
+        .let { firstNumbers: List<Int> ->
+            buildList {
+                // Solve for coefficient 'a' and save it in the result list
+                val aCoefficient = (firstNumbers[0] / 2).also(::add)
+
+                // Solve for coefficient 'b' and save it in the result list
+                val bCoefficient = (firstNumbers[1] - 3 * aCoefficient).also(::add)
+
+                // Solve for constant 'c' and save it in the result list
+                (firstNumbers[2] - aCoefficient - bCoefficient).also(::add)
+            }
+        }
+} else {
+    throw IllegalArgumentException(
+        "Given series is not Quadratic. Hence, cannot extract coefficients."
+    )
+}
+
+/**
+ * Extension function on a [List] of [Int] coefficients and constant of a Quadratic series, to compute and return
+ * the [Int] Quadratic Number of the series for the given ['nth' term number][termNumber].
+ *
+ * @param termNumber Lambda that returns an [Int] 'nth' term number.
+ *
+ * @throws IllegalArgumentException when the total number of coefficients along with constant given in [this] is NOT 3.
+ */
+fun List<Int>.findQuadraticNumber(termNumber: () -> Int): Int = findQuadraticNumber(termNumber())
+
+/**
+ * Extension function on a [List] of [Int] coefficients and constant of a Quadratic series, to compute and return
+ * the [Int] Quadratic Number of the series for the given ['nth' term number][termNumber].
+ *
+ * @throws IllegalArgumentException when the total number of coefficients along with constant given in [this] is NOT 3.
+ */
+fun List<Int>.findQuadraticNumber(termNumber: Int): Int = if (this.size != 3) {
+    throw IllegalArgumentException(
+        "Requires 3 Coefficients to find the Quadratic Number for Term number : $termNumber. Found $size."
+    )
+} else {
+    this[0] * termNumber * termNumber + this[1] * termNumber + this[2]
+}
+
+/**
+ * Extension function on a [List] of [Long] coefficients and constant of a Quadratic series, to compute and return
+ * the [Long] Quadratic Number of the series for the given ['nth' term number][termNumber].
+ *
+ * @param termNumber Lambda that returns an [Int] 'nth' term number.
+ *
+ * @throws IllegalArgumentException when the total number of coefficients along with constant given in [this] is NOT 3.
+ */
+fun List<Long>.findQuadraticNumber(termNumber: () -> Int): Long = findQuadraticNumber(termNumber())
+
+/**
+ * Extension function on a [List] of [Long] coefficients and constant of a Quadratic series, to compute and return
+ * the [Long] Quadratic Number of the series for the given ['nth' term number][termNumber].
+ *
+ * @throws IllegalArgumentException when the total number of coefficients along with constant given in [this] is NOT 3.
+ */
+fun List<Long>.findQuadraticNumber(termNumber: Int): Long = if (this.size != 3) {
+    throw IllegalArgumentException(
+        "Requires 3 Coefficients to find the Quadratic Number for Term number : $termNumber. Found $size."
+    )
+} else {
+    this[0] * termNumber * termNumber + this[1] * termNumber + this[2]
+}
+
+/**
  * Function that computes and returns the [Int] result of the Greatest Common Divisor
  * of [number1] and [number2] values.
  */
