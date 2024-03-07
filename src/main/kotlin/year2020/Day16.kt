@@ -8,7 +8,7 @@
 package year2020
 
 import base.BaseFileHandler
-import extensions.product
+import utils.product
 
 private class Day16 {
     companion object : BaseFileHandler() {

@@ -6,6 +6,8 @@
 
 package extensions
 
+import utils.difference
+
 /**
  * Extension function on [Int] to create an [IntRange] starting with the given [this] number
  * having a length of [countOfNumbers].

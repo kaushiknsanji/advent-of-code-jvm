@@ -8,7 +8,7 @@
 package year2023
 
 import base.BaseFileHandler
-import extensions.lcm
+import utils.lcm
 
 private class Day20 {
     companion object : BaseFileHandler() {

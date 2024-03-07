@@ -8,9 +8,9 @@
 package year2023
 
 import base.BaseFileHandler
-import extensions.lcm
 import extensions.splitWhen
 import extensions.whileLoop
+import utils.lcm
 
 private class Day8 {
     companion object : BaseFileHandler() {

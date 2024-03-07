@@ -8,8 +8,8 @@
 package year2023
 
 import base.BaseFileHandler
-import extensions.product
 import utils.grid.OmniDirection.*
+import utils.product
 import utils.grid.OmniDirection as Direction
 
 private class Day3 {

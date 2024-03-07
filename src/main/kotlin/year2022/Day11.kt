@@ -8,8 +8,8 @@
 package year2022
 
 import base.BaseFileHandler
-import extensions.product
 import extensions.splitWhen
+import utils.product
 import java.math.BigInteger
 
 private class Day11 {

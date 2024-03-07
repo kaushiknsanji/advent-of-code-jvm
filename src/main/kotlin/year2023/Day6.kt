@@ -8,7 +8,7 @@
 package year2023
 
 import base.BaseFileHandler
-import extensions.product
+import utils.product
 import kotlin.math.abs
 
 private class Day6 {

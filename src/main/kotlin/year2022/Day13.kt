@@ -8,9 +8,9 @@
 package year2022
 
 import base.BaseFileHandler
-import extensions.product
 import extensions.splitWhen
 import kotlinx.serialization.json.*
+import utils.product
 import java.util.*
 
 private class Day13 {

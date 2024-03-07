@@ -8,8 +8,8 @@
 package year2020
 
 import base.BaseFileHandler
-import extensions.product
 import extensions.whileLoop
+import utils.product
 
 private class Day10 {
     companion object : BaseFileHandler() {

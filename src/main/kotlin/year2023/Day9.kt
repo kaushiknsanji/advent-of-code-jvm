@@ -8,8 +8,8 @@
 package year2023
 
 import base.BaseFileHandler
-import extensions.difference
 import extensions.reversed
+import utils.difference
 
 private class Day9 {
     companion object : BaseFileHandler() {

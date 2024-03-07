@@ -8,8 +8,8 @@
 package year2021
 
 import base.BaseFileHandler
-import extensions.product
 import utils.grid.TransverseDirection.*
+import utils.product
 import utils.grid.TransverseDirection as Direction
 
 private class Day9 {
