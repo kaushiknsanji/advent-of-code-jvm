@@ -1,5 +1,5 @@
 /**
- * Utility file for working with Kotlin's Ranges.
+ * Kotlin file for working with Kotlin's Ranges.
  *
  * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */

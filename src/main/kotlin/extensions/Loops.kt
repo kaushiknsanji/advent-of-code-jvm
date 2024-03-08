@@ -1,3 +1,9 @@
+/**
+ * Kotlin file for declarative functions on Loop directives.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
+ */
+
 package extensions
 
 /**

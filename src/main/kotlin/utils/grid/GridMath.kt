@@ -1,3 +1,9 @@
+/**
+ * Kotlin file for functions on coordinate grid based mathematical computations.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
+ */
+
 package utils.grid
 
 import kotlin.math.abs

@@ -1,3 +1,9 @@
+/**
+ * Kotlin file for `Sequence` extensions.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
+ */
+
 package extensions
 
 /**

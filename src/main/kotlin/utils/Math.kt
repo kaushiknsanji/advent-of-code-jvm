@@ -1,3 +1,9 @@
+/**
+ * Kotlin file for functions on general mathematical computations.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
+ */
+
 package utils
 
 /**

@@ -1,3 +1,9 @@
+/**
+ * Kotlin file for Enum classes on Directions used in coordinate grid traversal.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
+ */
+
 package utils.grid
 
 enum class VerticalDirection {

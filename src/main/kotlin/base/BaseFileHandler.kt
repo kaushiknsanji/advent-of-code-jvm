@@ -4,7 +4,10 @@ import java.io.File
 
 /**
  * Abstract class to facilitate retrieval of input files for the problem classes that extend this.
+ *
  * Recommended to be extended by the `Companion` of the problem class.
+ *
+ * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
 abstract class BaseFileHandler {
 
