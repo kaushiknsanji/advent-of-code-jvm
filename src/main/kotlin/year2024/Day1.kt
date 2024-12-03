@@ -59,27 +59,21 @@ private class MomentousLocationsAnalyzer private constructor(
     private val leftNumbers: List<Int>,
     private val rightNumbers: List<Int>
 ) {
+
     companion object {
+        // Regular expression to capture numbers
+        val numberRegex = """(\d+)""".toRegex()
 
-        fun parse(input: List<String>): MomentousLocationsAnalyzer {
-            val leftNumbers = mutableListOf<Int>()
-            val rightNumbers = mutableListOf<Int>()
-            val numberRegex = """(\d+)""".toRegex()
-
-            input.forEach { line ->
-                numberRegex.findAll(line).map { matchResult ->
-                    matchResult.groupValues[1].toInt()
-                }.toList().also { numbers ->
-                    leftNumbers.add(numbers.first())
-                    rightNumbers.add(numbers.last())
-                }
+        fun parse(input: List<String>): MomentousLocationsAnalyzer = input.map { line ->
+            numberRegex.findAll(line).map { matchResult ->
+                matchResult.groupValues[1].toInt()
             }
-
-            return MomentousLocationsAnalyzer(
-                leftNumbers = leftNumbers.sorted(),
-                rightNumbers = rightNumbers.sorted()
-            )
+        }.map { lineNumbers: Sequence<Int> ->
+            lineNumbers.first() to lineNumbers.last()
+        }.unzip().let { (leftNumbers: List<Int>, rightNumbers: List<Int>) ->
+            MomentousLocationsAnalyzer(leftNumbers.sorted(), rightNumbers.sorted())
         }
+
     }
 
     // Map of occurrences of each Location ID
