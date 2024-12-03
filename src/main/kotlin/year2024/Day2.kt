@@ -8,6 +8,7 @@
 package year2024
 
 import base.BaseFileHandler
+import utils.Quadruple
 import kotlin.math.absoluteValue
 
 private class Day2 {
@@ -58,22 +59,18 @@ private fun doPart2(input: List<String>) {
 private class NuclearReportsAnalyzer private constructor(
     private val reports: List<List<Int>>
 ) {
+
     companion object {
+        // Regular expression to capture numbers
+        val numberRegex = """(\d+)""".toRegex()
 
-        fun parse(input: List<String>): NuclearReportsAnalyzer {
-            val numbersRegex = """(\d+)""".toRegex()
-            val reports = mutableListOf<List<Int>>()
-
-            input.forEach { line ->
-                numbersRegex.findAll(line).map { matchResult ->
+        fun parse(input: List<String>): NuclearReportsAnalyzer = NuclearReportsAnalyzer(
+            reports = input.map { line ->
+                numberRegex.findAll(line).map { matchResult ->
                     matchResult.groupValues[1].toInt()
-                }.toList().also { reportValues: List<Int> ->
-                    reports.add(reportValues)
-                }
+                }.toList()
             }
-
-            return NuclearReportsAnalyzer(reports)
-        }
+        )
     }
 
     /**
@@ -88,15 +85,10 @@ private class NuclearReportsAnalyzer private constructor(
         reports.count { report ->
             report.zipWithNext { currentNumber, nextNumber ->
                 currentNumber - nextNumber
-            }.let { firstDifferences: List<Int> ->
-                // Count of adjacent decreasing levels
-                val decreaseCount = firstDifferences.count { it > 0 }
-                // Count of adjacent increasing levels
-                val increaseCount = firstDifferences.count { it < 0 }
-                // Count of adjacent levels that did not decrease or increase
-                val zeroCount = firstDifferences.count { it == 0 }
-                // Count of adjacent levels that are not in safe values
-                val unsafeLevels = firstDifferences.count { it.absoluteValue !in 1..3 }
+            }.let { differences: List<Int> ->
+                // Extract Metadata for adjacent level differences
+                val (decreaseCount, increaseCount, zeroCount, unsafeLevels) = extractMetadata(differences)
+
                 // Unsafe when many levels are decreasing and increasing or has many unsafe adjacent levels
                 val isUnsafe = decreaseCount * increaseCount > 0 || unsafeLevels > 0
 
@@ -105,38 +97,49 @@ private class NuclearReportsAnalyzer private constructor(
                     // Excluding more than 1 unsafe adjacent levels and levels that did not decrease or increase,
                     // since they always lead to being unsafe or in other words, cannot be dampened
 
-                    if (decreaseCount == 1) {
-                        // When only 1 adjacent level is decreasing in a report of all increasing levels
+                    when {
+                        decreaseCount == 1 -> {
+                            // When only 1 adjacent level is decreasing in a report of all increasing levels
 
-                        // From the index of such an adjacent level till the last,
-                        // try dampening by removing current level each time and test again for safety
-                        (firstDifferences.indexOfFirst { it > 0 }..report.lastIndex).any { testIndex ->
-                            testSafety(report.toMutableList().apply { removeAt(testIndex) })
+                            // From the index of such an adjacent level till the last,
+                            // try dampening by removing current level each time and test again for safety
+                            (differences.indexOfFirst { it > 0 }..report.lastIndex).any { testIndex ->
+                                testForSafety(report.toMutableList().apply { removeAt(testIndex) })
+                            }
                         }
-                    } else if (increaseCount == 1) {
-                        // When only 1 adjacent level is increasing in a report of all decreasing levels
 
-                        // From the index of such an adjacent level till the last,
-                        // try dampening by removing current level each time and test again for safety
-                        (firstDifferences.indexOfFirst { it < 0 }..report.lastIndex).any { testIndex ->
-                            testSafety(report.toMutableList().apply { removeAt(testIndex) })
+                        increaseCount == 1 -> {
+                            // When only 1 adjacent level is increasing in a report of all decreasing levels
+
+                            // From the index of such an adjacent level till the last,
+                            // try dampening by removing current level each time and test again for safety
+                            (differences.indexOfFirst { it < 0 }..report.lastIndex).any { testIndex ->
+                                testForSafety(report.toMutableList().apply { removeAt(testIndex) })
+                            }
                         }
-                    } else if (increaseCount * decreaseCount > 0) {
-                        // When there are many levels decreasing and increasing, report cannot be dampened
-                        false
-                    } else if (zeroCount == 1) {
-                        // When all levels are either decreasing or increasing, and also has a level
-                        // that did not decrease or increase, report can always be dampened
-                        // by removing the redundant level
-                        true
-                    } else {
-                        // When all levels are either decreasing or increasing, but has a level that is unsafe.
-                        // Such a level when present either at the beginning or end of the report,
-                        // can always be dampened
-                        firstDifferences.indexOfFirst { it.absoluteValue !in 1..3 }.let { index ->
-                            index == 0 || index + 1 == report.lastIndex
+
+                        increaseCount * decreaseCount > 0 -> {
+                            // When there are many levels decreasing and increasing, report cannot be dampened
+                            false
+                        }
+
+                        zeroCount == 1 -> {
+                            // When all levels are either decreasing or increasing, and also has a level
+                            // that did not decrease or increase, report can always be dampened
+                            // by removing the redundant level
+                            true
+                        }
+
+                        else -> {
+                            // When all levels are either decreasing or increasing, but has a level that is unsafe.
+                            // Such a level when present either at the beginning or end of the report,
+                            // can always be dampened
+                            differences.indexOfFirst { it.absoluteValue !in 1..3 }.let { index ->
+                                index == 0 || index + 1 == report.lastIndex
+                            }
                         }
                     }
+
                 } else {
                     !isUnsafe
                 }
@@ -149,19 +152,59 @@ private class NuclearReportsAnalyzer private constructor(
      *
      * Returns `true` when all levels are safe; `false` otherwise.
      */
-    private fun testSafety(adjustedReport: List<Int>): Boolean =
+    private fun testForSafety(adjustedReport: List<Int>): Boolean =
         adjustedReport.zipWithNext { currentNumber, nextNumber ->
             currentNumber - nextNumber
-        }.let { testDifferences: List<Int> ->
-            // Count of adjacent decreasing levels
-            val decreaseCount = testDifferences.count { it > 0 }
-            // Count of adjacent increasing levels
-            val increaseCount = testDifferences.count { it < 0 }
-            // Count of adjacent levels that are not in safe values
-            val unsafeLevels = testDifferences.count { it.absoluteValue !in 1..3 }
+        }.let { differences: List<Int> ->
+
+            // Extract Metadata for adjacent level differences
+            val (decreaseCount, increaseCount, _, unsafeLevels) = extractMetadata(differences)
 
             // Return safe when all levels are either decreasing or increasing without any unsafe adjacent levels
             !(decreaseCount * increaseCount > 0 || unsafeLevels > 0)
         }
+
+    /**
+     * Extracts and returns a [Quadruple] Metadata for the adjacent level [differences] of a report.
+     *
+     * [Quadruple.first] will have the count of adjacent decreasing levels.
+     * [Quadruple.second] will have the count of adjacent increasing levels.
+     * [Quadruple.third] will have the count of adjacent levels that did not decrease or increase.
+     * [Quadruple.fourth] will have the count of adjacent levels that are not in safe values.
+     */
+    private fun extractMetadata(differences: List<Int>): Quadruple<Int, Int, Int, Int> =
+        differences.fold(
+            Quadruple(0, 0, 0, 0)
+        ) { (decreaseCount, increaseCount, zeroCount, unsafeLevels), difference: Int ->
+            when {
+                // When difference of two adjacent levels is decreasing
+                difference > 0 -> Quadruple(
+                    decreaseCount + 1,
+                    increaseCount,
+                    zeroCount,
+                    updateUnsafeLevelCount(unsafeLevels, difference)
+                )
+
+                // When difference of two adjacent levels is increasing
+                difference < 0 -> Quadruple(
+                    decreaseCount,
+                    increaseCount + 1,
+                    zeroCount,
+                    updateUnsafeLevelCount(unsafeLevels, difference)
+                )
+
+                // When difference of two adjacent levels is 0
+                else -> Quadruple(decreaseCount, increaseCount, zeroCount + 1, unsafeLevels + 1)
+            }
+        }
+
+    /**
+     * Calculates and returns an updated [Int] count of unsafe adjacent levels for the provided [difference]
+     * of two adjacent levels in a report.
+     *
+     * @param currentUnsafeCount Current count of adjacent levels that are not in safe values
+     */
+    private fun updateUnsafeLevelCount(currentUnsafeCount: Int, difference: Int): Int =
+        currentUnsafeCount + if (difference.absoluteValue in 1..3) 0 else 1
 
 }
