@@ -82,6 +82,11 @@ private class MomentousLocationsAnalyzer private constructor(
         }
     }
 
+    // Map of occurrences of each Location ID
+    val frequencyMap: Map<Int, Int> by lazy {
+        rightNumbers.groupingBy { it }.eachCount()
+    }
+
     /**
      * [Solution for Part-1]
      *
@@ -98,7 +103,7 @@ private class MomentousLocationsAnalyzer private constructor(
      * the product of their occurrence in [rightNumbers].
      */
     fun getSimilarityScore(): Int = leftNumbers.sumOf { leftId: Int ->
-        leftId * rightNumbers.count { occurrenceLeftId: Int -> leftId == occurrenceLeftId }
+        leftId * frequencyMap.getOrDefault(leftId, 0)
     }
 
 }
