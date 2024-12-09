@@ -57,3 +57,49 @@ fun Sequence<Point2d<Int>>.toTotalPointsEnclosedByPolygon(): Long =
  */
 fun Point2d<Int>.manhattanDistance(destination: Point2d<Int>): Int =
     abs(destination.xPos - xPos) + abs(destination.yPos - yPos)
+
+/**
+ * Extension function on [Point2d] of type [Int] to compute slope with [other] location
+ * in a 2D Grid system.
+ *
+ * @throws IllegalArgumentException when [this] and [other] locations share the same x-coordinate, since slope
+ * of a line connecting such locations is undefined.
+ */
+fun Point2d<Int>.slope(other: Point2d<Int>): Int {
+    require(xPos != other.xPos) {
+        "Slope cannot be determined when two locations have the same x-coordinate = $xPos"
+    }
+
+    return (other.yPos - yPos) / (other.xPos - xPos)
+}
+
+/**
+ * Extension function on [Point2d] of type [Int] to check if [this] is Collinear with the given
+ * two locations [location1] and [location2] in a 2D Grid system.
+ */
+fun Point2d<Int>.isCollinearWith(location1: Point2d<Int>, location2: Point2d<Int>): Boolean =
+    (location2.yPos - location1.yPos) * (xPos - location1.xPos) == (location2.xPos - location1.xPos) * (yPos - location1.yPos)
+
+/**
+ * Extension function on [Point2d] of type [Int] to find locations at the given [manhattanDistance]
+ * with respect to [this] in a 2D Grid system. Locations found can be `null` only when it is out of the Grid range.
+ *
+ * @param T type of [Point2d]
+ * @param manhattanDistance [Int] distance at which new locations needs to be found with respect to [this] location
+ * @param locationProvider Lambda for the instance of a location found in the Grid that is of type [T]. Can be `null`
+ * when it is found to be out of the Grid range.
+ */
+fun <T : Point2d<Int>> T.manhattanDistantLocations(
+    manhattanDistance: Int,
+    locationProvider: (row: Int, column: Int) -> T?
+): Sequence<T?> =
+    sequence {
+        ((xPos - manhattanDistance)..(xPos + manhattanDistance)).forEach { x ->
+            listOf(
+                yPos - (manhattanDistance - (x - xPos).absoluteValue),
+                yPos + (manhattanDistance - (x - xPos).absoluteValue)
+            ).forEach { y ->
+                yield(locationProvider(x, y))
+            }
+        }
+    }
