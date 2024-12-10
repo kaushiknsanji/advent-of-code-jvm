@@ -53,6 +53,12 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     fun P.getAllNeighbours(): Collection<P>
 
     /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [TransverseDirection]s possible.
+     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P>
+
+    /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
     fun P.getLocationsInDirection(direction: TransverseDirection): Sequence<P>
@@ -81,6 +87,12 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
      * Returns a [Collection] of neighbouring locations of [this] location found in all [OmniDirection]s possible
      */
     fun P.getAllNeighbours(): Collection<P>
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [OmniDirection]s possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getAllNeighboursWithDirection(): Map<OmniDirection, P>
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
@@ -224,6 +236,17 @@ abstract class Lattice<P : Point2d<Int>, V>(
         TransverseDirection.entries.mapNotNull { direction: TransverseDirection -> getNeighbour(direction) }
 
     /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [TransverseDirection]s possible.
+     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P> =
+        TransverseDirection.entries.filterNot { direction: TransverseDirection ->
+            getNeighbour(direction) == null
+        }.associateWith { direction: TransverseDirection ->
+            getNeighbour(direction)!!
+        }
+
+    /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
     override fun P.getLocationsInDirection(direction: TransverseDirection): Sequence<P> =
@@ -275,6 +298,17 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
      */
     override fun P.getAllNeighbours(): Collection<P> =
         OmniDirection.entries.mapNotNull { direction: OmniDirection -> getNeighbour(direction) }
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [OmniDirection]s possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getAllNeighboursWithDirection(): Map<OmniDirection, P> =
+        OmniDirection.entries.filterNot { direction: OmniDirection ->
+            getNeighbour(direction) == null
+        }.associateWith { direction: OmniDirection ->
+            getNeighbour(direction)!!
+        }
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
