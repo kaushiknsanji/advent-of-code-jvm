@@ -1,10 +1,10 @@
-package utils.grid
-
 /**
  * Kotlin file for working with Two Dimensional Grid Graphs.
  *
  * @author <a href="kaushiknsanji@gmail.com">Kaushik N Sanji</a>
  */
+
+package utils.grid
 
 /**
  * Interface for Two Dimensional Grid Graph to initialize and get started with.
@@ -14,12 +14,17 @@ package utils.grid
  */
 interface IGrid2dGraph<P : Point2d<Int>, V> {
     /**
-     * Returns location if present at given [row] and [column] in the grid; otherwise `null`
+     * Returns location if present at given [row] and [column] in the grid; otherwise `null`.
+     *
+     * @throws NoSuchElementException when a location for the given [row] is NOT found, or
+     * when the given [row] is found, but NOT the given [column] in the grid.
      */
     fun getLocationOrNull(row: Int, column: Int): P?
 
     /**
      * Returns location for given [row] and [column] in the grid
+     *
+     * @throws IllegalArgumentException when a location for given [row] and [column] does not exist in the grid.
      */
     fun getLocation(row: Int, column: Int): P
 
@@ -33,6 +38,18 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
      * returns the provided [defaultValue].
      */
     fun getOrDefault(location: P, defaultValue: V): V
+
+    /**
+     * Returns value found at [this] location in the grid
+     */
+    fun P.toValue(): V
+
+    /**
+     * Returns this Grid Graph with current values as a [String]
+     *
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    fun gridToString(transform: (V) -> Char): String
 }
 
 /**
@@ -57,6 +74,13 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
      * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
      */
     fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P>
+
+    /**
+     * Returns [TransverseDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
+     */
+    fun P.getDirectionToNeighbourOrNull(nextLocation: P): TransverseDirection?
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
@@ -93,6 +117,13 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
      * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
      */
     fun P.getAllNeighboursWithDirection(): Map<OmniDirection, P>
+
+    /**
+     * Returns [OmniDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
+     */
+    fun P.getDirectionToNeighbourOrNull(nextLocation: P): OmniDirection?
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
@@ -144,7 +175,10 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     }.toMap().toMutableMap()
 
     /**
-     * Returns location if present at given [row] and [column] in the grid; otherwise `null`
+     * Returns location if present at given [row] and [column] in the grid; otherwise `null`.
+     *
+     * @throws NoSuchElementException when a location for the given [row] is NOT found, or
+     * when the given [row] is found, but NOT the given [column] in the grid.
      */
     override fun getLocationOrNull(row: Int, column: Int): P? = try {
         if (!gridMap.containsKey(row)) {
@@ -158,6 +192,8 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
 
     /**
      * Returns location for given [row] and [column] in the grid
+     *
+     * @throws IllegalArgumentException when a location for given [row] and [column] does not exist in the grid.
      */
     override fun getLocation(row: Int, column: Int): P =
         getLocationOrNull(row, column) ?: throw IllegalArgumentException(
@@ -188,6 +224,23 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
      */
     override fun getOrDefault(location: P, defaultValue: V): V =
         get(location) ?: defaultValue
+
+    /**
+     * Returns value found at [this] location in the grid
+     */
+    override fun P.toValue(): V = get(this)
+
+    /**
+     * Returns this Grid Graph with current values as a [String]
+     *
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    override fun gridToString(transform: (V) -> Char): String =
+        gridMap.entries.joinToString("\n") { (_: Int, rowLocations: List<P>) ->
+            rowLocations.map { location: P ->
+                transform(get(location))
+            }.joinToString("")
+        }
 
     /**
      * Returns location to be used in the grid.
@@ -245,6 +298,16 @@ abstract class Lattice<P : Point2d<Int>, V>(
         }.associateWith { direction: TransverseDirection ->
             getNeighbour(direction)!!
         }
+
+    /**
+     * Returns [TransverseDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
+     */
+    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): TransverseDirection? =
+        getAllNeighboursWithDirection().filterValues { location: P ->
+            location == nextLocation
+        }.keys.singleOrNull()
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
@@ -309,6 +372,16 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
         }.associateWith { direction: OmniDirection ->
             getNeighbour(direction)!!
         }
+
+    /**
+     * Returns [OmniDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
+     */
+    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): OmniDirection? =
+        getAllNeighboursWithDirection().filterValues { location: P ->
+            location == nextLocation
+        }.keys.singleOrNull()
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
