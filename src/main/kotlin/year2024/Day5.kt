@@ -7,52 +7,49 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
+import base.BaseProblemHandler
+import utils.findAllInt
+import utils.splitWhenLineBlankOrEmpty
 
-private class Day5 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day5 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        PrintQueueProcessor.parse(input)
+            .getSumOfCorrectlyOrderedMiddlePageNumbers()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        PrintQueueProcessor.parse(input)
+            .getSumOfRectifiedIncorrectlyOrderedMiddlePageNumbers()
+
 }
 
 fun main() {
-    solveSample(1)      // 143
-    println("=====")
-    solveActual(1)      // 5509
-    println("=====")
-    solveSample(2)      // 123
-    println("=====")
-    solveActual(2)      // 4407
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day5.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day5.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day5()) {
+        solveSample(1, false, 0, 143)
+        solveActual(1, false, 0, 5509)
+        solveSample(2, false, 0, 123)
+        solveActual(2, false, 0, 4407)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    PrintQueueProcessor.parse(input)
-        .getSumOfCorrectlyOrderedMiddlePageNumbers()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    PrintQueueProcessor.parse(input)
-        .getSumOfRectifiedIncorrectlyOrderedMiddlePageNumbers()
-        .also(::println)
 }
 
 private class PrintQueueProcessor private constructor(
@@ -61,33 +58,20 @@ private class PrintQueueProcessor private constructor(
 ) {
 
     companion object {
-        // Regular expression to capture numbers
-        private val numberRegex = """(\d+)""".toRegex()
-
-        private const val COMMA = ','
 
         fun parse(input: List<String>): PrintQueueProcessor =
-            input.splitWhen { line -> line.isEmpty() || line.isBlank() }
-                .partition { lines: Iterable<String> -> lines.any { line -> line.contains(COMMA) } }
-                .let { (pageNumberLines: List<Iterable<String>>, ruleLines: List<Iterable<String>>) ->
+            input.splitWhenLineBlankOrEmpty()
+                .let { splitBlocks: Iterable<Iterable<String>> ->
                     PrintQueueProcessor(
-                        orderingRulesMap = ruleLines.single()
-                            .map { ruleLine ->
-                                numberRegex.findAll(ruleLine).map { ruleNumberMatchResult ->
-                                    ruleNumberMatchResult.groupValues[1].toInt()
-                                }.toList()
-                            }.groupBy { ruleNumbers: List<Int> ->
-                                ruleNumbers.first()
-                            }.mapValues { (_: Int, value: List<List<Int>>) ->
-                                value.map { ruleNumbers: List<Int> -> ruleNumbers.last() }.toSet()
+                        orderingRulesMap = splitBlocks.first()
+                            .map(String::findAllInt)
+                            .groupBy(List<Int>::first)
+                            .mapValues { (_: Int, value: List<List<Int>>) ->
+                                value.map(List<Int>::last).toSet()
                             },
 
-                        pagesToProduce = pageNumberLines.single()
-                            .map { pageNumberLine ->
-                                numberRegex.findAll(pageNumberLine).map { pageNumberMatchResult ->
-                                    pageNumberMatchResult.groupValues[1].toInt()
-                                }.toList()
-                            }
+                        pagesToProduce = splitBlocks.last()
+                            .map(String::findAllInt)
                     )
                 }
 
