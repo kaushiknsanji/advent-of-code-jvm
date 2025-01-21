@@ -7,58 +7,48 @@
 
 package year2024
 
-import base.BaseFileHandler
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
 
-private class Day22 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day22 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        SecretNumberAnalyzer.parse(input)
+            .getTotalOfAllSecretNumbers(2000)
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        SecretNumberAnalyzer.parse(input)
+            .getMaxCountOfBananasPossible(2000)
+
 }
 
 fun main() {
-    listOf(
-        ::solveSamplePart1 to arrayOf<Any?>(1, 37327623L),
-        ::solveActual to arrayOf<Any?>(1, 17960270302L),
-        ::solveSamplePart2 to arrayOf<Any?>(2, 23),
-        ::solveActual to arrayOf<Any?>(2, 2042)
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(args[0] as Int).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day22()) {
+        solveSample(1, true, 0, 37327623L)
+        solveActual(1, false, 0, 17960270302L)
+        solveSample(2, true, 0, 23)
+        solveActual(2, false, 0, 2042)
     }
 }
-
-private fun solveSamplePart1(executeProblemPart: Int): Any =
-    execute(Day22.getSampleFile("_part1").readLines(), executeProblemPart)
-
-private fun solveSamplePart2(executeProblemPart: Int): Any =
-    execute(Day22.getSampleFile("_part2").readLines(), executeProblemPart)
-
-private fun solveActual(executeProblemPart: Int): Any =
-    execute(Day22.getActualTestFile().readLines(), executeProblemPart)
-
-private fun execute(input: List<String>, executeProblemPart: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>): Any =
-    SecretNumberAnalyzer.parse(input)
-        .getTotalOfAllSecretNumbers(2000)
-
-private fun doPart2(input: List<String>): Any =
-    SecretNumberAnalyzer.parse(input)
-        .getMaxCountOfBananasPossible(2000)
-
 
 private class SecretNumberAnalyzer private constructor(
     private val initialSecretNumbers: List<Long>
