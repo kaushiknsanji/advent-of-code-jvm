@@ -7,117 +7,99 @@
 
 package year2024
 
-import base.BaseFileHandler
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
+import utils.Constants.DOT_CHAR
+import utils.Constants.E_CAP_CHAR
+import utils.Constants.HASH_CHAR
+import utils.Constants.S_CAP_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.manhattanDistance
 
-private class Day20 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day20 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        RaceTrackAnalyzer.parse(input)
+            .getCountOfCheatsForSavingTime(
+                otherArgs[0] as Int,
+                2,
+                otherArgs[1] as (Int, Int) -> Boolean
+            )
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    @Suppress("UNCHECKED_CAST")
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        RaceTrackAnalyzer.parse(input)
+            .getCountOfCheatsForSavingTime(
+                otherArgs[0] as Int,
+                20,
+                otherArgs[1] as (Int, Int) -> Boolean
+            )
+
 }
 
 fun main() {
-    val timeComparisonAtLeast: (timeSaved: Int, timeToSave: Int) -> Boolean = { timeSaved, timeToSave ->
-        timeSaved >= timeToSave
-    }
-
-    listOf(
-        ::solveSample to arrayOf<Any?>(1, 2, Int::equals, 14),
-        ::solveSample to arrayOf<Any?>(1, 4, Int::equals, 14),
-        ::solveSample to arrayOf<Any?>(1, 6, Int::equals, 2),
-        ::solveSample to arrayOf<Any?>(1, 8, Int::equals, 4),
-        ::solveSample to arrayOf<Any?>(1, 10, Int::equals, 2),
-        ::solveSample to arrayOf<Any?>(1, 12, Int::equals, 3),
-        ::solveSample to arrayOf<Any?>(1, 20, Int::equals, 1),
-        ::solveSample to arrayOf<Any?>(1, 36, Int::equals, 1),
-        ::solveSample to arrayOf<Any?>(1, 38, Int::equals, 1),
-        ::solveSample to arrayOf<Any?>(1, 40, Int::equals, 1),
-        ::solveSample to arrayOf<Any?>(1, 64, Int::equals, 1),
-        ::solveActual to arrayOf<Any?>(1, 100, timeComparisonAtLeast, 1459),
-        ::solveSample to arrayOf<Any?>(2, 50, Int::equals, 32),
-        ::solveSample to arrayOf<Any?>(2, 52, Int::equals, 31),
-        ::solveSample to arrayOf<Any?>(2, 54, Int::equals, 29),
-        ::solveSample to arrayOf<Any?>(2, 56, Int::equals, 39),
-        ::solveSample to arrayOf<Any?>(2, 58, Int::equals, 25),
-        ::solveSample to arrayOf<Any?>(2, 60, Int::equals, 23),
-        ::solveSample to arrayOf<Any?>(2, 62, Int::equals, 20),
-        ::solveSample to arrayOf<Any?>(2, 64, Int::equals, 19),
-        ::solveSample to arrayOf<Any?>(2, 66, Int::equals, 12),
-        ::solveSample to arrayOf<Any?>(2, 68, Int::equals, 14),
-        ::solveSample to arrayOf<Any?>(2, 70, Int::equals, 12),
-        ::solveSample to arrayOf<Any?>(2, 72, Int::equals, 22),
-        ::solveSample to arrayOf<Any?>(2, 74, Int::equals, 4),
-        ::solveSample to arrayOf<Any?>(2, 76, Int::equals, 3),
-        ::solveActual to arrayOf<Any?>(2, 100, timeComparisonAtLeast, 1016066)
-    ).forEach { (solver, args: Array<Any?>) ->
-        @Suppress("UNCHECKED_CAST") val result = solver(
-            args[0] as Int,
-            args[1] as Int,
-            args[2] as (Int, Int) -> Boolean,
-        ).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
+    with(Day20()) {
+        val timeComparisonAtLeast: (timeSaved: Int, timeToSave: Int) -> Boolean = { timeSaved, timeToSave ->
+            timeSaved >= timeToSave
         }
-        println("=====")
+
+        solveSample(1, false, 0, 14, 2, Int::equals)
+        solveSample(1, false, 0, 14, 4, Int::equals)
+        solveSample(1, false, 0, 2, 6, Int::equals)
+        solveSample(1, false, 0, 4, 8, Int::equals)
+        solveSample(1, false, 0, 2, 10, Int::equals)
+        solveSample(1, false, 0, 3, 12, Int::equals)
+        solveSample(1, false, 0, 1, 20, Int::equals)
+        solveSample(1, false, 0, 1, 36, Int::equals)
+        solveSample(1, false, 0, 1, 38, Int::equals)
+        solveSample(1, false, 0, 1, 40, Int::equals)
+        solveSample(1, false, 0, 1, 64, Int::equals)
+        solveActual(1, false, 0, 1459, 100, timeComparisonAtLeast)
+        solveSample(2, false, 0, 32, 50, Int::equals)
+        solveSample(2, false, 0, 31, 52, Int::equals)
+        solveSample(2, false, 0, 29, 54, Int::equals)
+        solveSample(2, false, 0, 39, 56, Int::equals)
+        solveSample(2, false, 0, 25, 58, Int::equals)
+        solveSample(2, false, 0, 23, 60, Int::equals)
+        solveSample(2, false, 0, 20, 62, Int::equals)
+        solveSample(2, false, 0, 19, 64, Int::equals)
+        solveSample(2, false, 0, 12, 66, Int::equals)
+        solveSample(2, false, 0, 14, 68, Int::equals)
+        solveSample(2, false, 0, 12, 70, Int::equals)
+        solveSample(2, false, 0, 22, 72, Int::equals)
+        solveSample(2, false, 0, 4, 74, Int::equals)
+        solveSample(2, false, 0, 3, 76, Int::equals)
+        solveActual(2, false, 0, 1016066, 100, timeComparisonAtLeast)
     }
 }
 
-private fun solveSample(
-    executeProblemPart: Int,
-    timeToSave: Int,
-    comparison: (timeSaved: Int, timeToSave: Int) -> Boolean
-): Any =
-    execute(Day20.getSampleFile().readLines(), executeProblemPart, timeToSave, comparison)
-
-private fun solveActual(
-    executeProblemPart: Int,
-    timeToSave: Int,
-    comparison: (timeSaved: Int, timeToSave: Int) -> Boolean
-): Any =
-    execute(Day20.getActualTestFile().readLines(), executeProblemPart, timeToSave, comparison)
-
-private fun execute(
-    input: List<String>,
-    executeProblemPart: Int,
-    timeToSave: Int,
-    comparison: (timeSaved: Int, timeToSave: Int) -> Boolean
-): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input, timeToSave, comparison)
-        2 -> doPart2(input, timeToSave, comparison)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(
-    input: List<String>,
-    timeToSave: Int,
-    comparison: (timeSaved: Int, timeToSave: Int) -> Boolean
-): Any =
-    RaceTrackAnalyzer.parse(input)
-        .getCountOfCheatsForSavingTime(timeToSave, 2, comparison)
-
-private fun doPart2(
-    input: List<String>,
-    timeToSave: Int,
-    comparison: (timeSaved: Int, timeToSave: Int) -> Boolean
-): Any =
-    RaceTrackAnalyzer.parse(input)
-        .getCountOfCheatsForSavingTime(timeToSave, 20, comparison)
-
-
 private enum class RaceTrackType(val type: Char) {
-    START('S'),
-    END('E'),
-    WALL('#'),
-    TRACK('.');
+    START(S_CAP_CHAR),
+    END(E_CAP_CHAR),
+    WALL(HASH_CHAR),
+    TRACK(DOT_CHAR);
 
     companion object {
         private val typeMap = entries.associateBy(RaceTrackType::type)
@@ -135,8 +117,8 @@ private class RaceTrackGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): RaceTrackLocation =
         RaceTrackLocation(row, column)
