@@ -7,52 +7,52 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import extensions.distinctPairs
+import extensions.generateRotations
+import utils.Constants.COMMA_STRING
+import utils.Constants.HYPHEN_STRING
+import utils.Constants.T_SMALL_STRING
 
-private class Day23 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day23 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ComputerNetworkAnalyzer.parse(input)
+            .getCountOfThreeInterConnectedSetsWithComputerT()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ComputerNetworkAnalyzer.parse(input)
+            .getPassword()
+
 }
 
 fun main() {
-    solveSample(1)      // 7
-    println("=====")
-    solveActual(1)      // 1344
-    println("=====")
-    solveSample(2)      // co,de,ka,ta
-    println("=====")
-    solveActual(2)      // ab,al,cq,cr,da,db,dr,fw,ly,mn,od,py,uh
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day23.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day23.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day23()) {
+        solveSample(1, false, 0, 7)
+        solveActual(1, false, 0, 1344)
+        solveSample(2, false, 0, "co,de,ka,ta")
+        solveActual(2, false, 0, "ab,al,cq,cr,da,db,dr,fw,ly,mn,od,py,uh")
     }
-}
-
-private fun doPart1(input: List<String>) {
-    ComputerNetworkAnalyzer.parse(input)
-        .getCountOfThreeInterConnectedSetsWithComputerT()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    ComputerNetworkAnalyzer.parse(input)
-        .getPassword()
-        .also(::println)
 }
 
 /**
@@ -98,7 +98,7 @@ private class ComputerNetworkAnalyzer private constructor(
 
         fun parse(input: List<String>): ComputerNetworkAnalyzer = buildMap<String, ComputerNode> {
             input.forEach { line ->
-                val (nameOfNode1, nameOfNode2) = line.split("-")
+                val (nameOfNode1, nameOfNode2) = line.split(HYPHEN_STRING)
                 val node1 = getOrPut(nameOfNode1) { ComputerNode(nameOfNode1) }
                 val node2 = getOrPut(nameOfNode2) { ComputerNode(nameOfNode2) }
                 // Add bidirectional connection
@@ -115,13 +115,12 @@ private class ComputerNetworkAnalyzer private constructor(
      * where every [ComputerNode] is connected to two other [ComputerNode]s present in [this].
      */
     private fun List<ComputerNode>.areThreeNodesInterConnected(): Boolean =
-        this.indices.map { index ->
+        this.generateRotations().any { computerNodes: List<ComputerNode> ->
             // Rotate list by [this.size - 1] number of times, to get different arrangements
             // when we take distinct pairs of the same
-            this.drop(index) + this.take(index)
-        }.any { computerNodes: List<ComputerNode> ->
-            // Returns true when a particular arrangement shows all three are interconnected as per requirement
 
+            // Returns true when distinct pairs of a particular arrangement
+            // shows all three are interconnected as per requirement
             computerNodes.distinctPairs()
                 .all { computerNodePairs ->
                     // For this arrangement of [ComputerNode]s, verify that all of its distinct pairs
@@ -138,7 +137,7 @@ private class ComputerNetworkAnalyzer private constructor(
     fun getCountOfThreeInterConnectedSetsWithComputerT(): Int =
         nameToNodeMap.keys.asSequence().filter { computerName: String ->
             // Select computer names starting with 't'
-            computerName.startsWith("t")
+            computerName.startsWith(T_SMALL_STRING)
         }.map { tComputerName: String ->
             // Get their computer nodes
             nameToNodeMap[tComputerName]!!
@@ -236,10 +235,8 @@ private class ComputerNetworkAnalyzer private constructor(
      * Returns Password to get into the LAN party retrieved from the Largest Maximal Clique
      * found in the computer network.
      */
-    fun getPassword(): String = findMaximalCliques().maxBy { clique ->
-        clique.size
-    }.sortedBy { node ->
-        node.name
-    }.joinToString(",")
+    fun getPassword(): String = findMaximalCliques().maxBy(Set<ComputerNode>::size)
+        .sortedBy(ComputerNode::name)
+        .joinToString(COMMA_STRING)
 
 }
