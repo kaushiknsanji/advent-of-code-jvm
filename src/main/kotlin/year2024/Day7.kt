@@ -7,52 +7,51 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import utils.Constants.COLON_CHAR
+import utils.Constants.NO_0_CHAR
+import utils.findAllLong
 import kotlin.math.pow
 
-private class Day7 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day7 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        BridgeRepairProcessor.parse(input)
+            .getTotalCalibratedResult()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        BridgeRepairProcessor.parse(input)
+            .getTotalCalibratedResult(operatorTypesCount = 3)
+
 }
 
 fun main() {
-    solveSample(1)      // 3749
-    println("=====")
-    solveActual(1)      // 3119088655389
-    println("=====")
-    solveSample(2)      // 11387
-    println("=====")
-    solveActual(2)      // 264184041398847
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day7.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day7.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day7()) {
+        solveSample(1, false, 0, 3749L)
+        solveActual(1, false, 0, 3119088655389L)
+        solveSample(2, false, 0, 11387L)
+        solveActual(2, false, 0, 264184041398847L)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    BridgeRepairProcessor.parse(input)
-        .getTotalCalibratedResult()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    BridgeRepairProcessor.parse(input)
-        .getTotalCalibratedResult(operatorTypesCount = 3)
-        .also(::println)
 }
 
 private class BridgeRepairProcessor private constructor(
@@ -60,13 +59,11 @@ private class BridgeRepairProcessor private constructor(
 ) {
 
     companion object {
-        private const val COLON = ':'
-        private const val SPACE = ' '
 
         fun parse(input: List<String>): BridgeRepairProcessor = BridgeRepairProcessor(
             calibrationMap = input.associate { line ->
-                line.substringBefore(COLON).toLong() to
-                        line.substringAfter(COLON).split(SPACE).filterNot { it.isEmpty() }.map { it.toLong() }
+                line.substringBefore(COLON_CHAR).toLong() to
+                        line.substringAfter(COLON_CHAR).findAllLong()
             }
         )
     }
@@ -101,12 +98,12 @@ private class BridgeRepairProcessor private constructor(
                 1 shl operatorCount
             }
 
-            (0 until operatorCombinations).forEach { decimalNumber ->
+            repeat(operatorCombinations) { decimalNumber ->
                 yield(
                     // Get the representation of this number according to the number of operator types chosen
                     // and then convert each digit in the representation into its corresponding lambda based operator
-                    decimalNumber.toString(operatorTypesCount).padStart(operatorCount, '0')
-                        .map { it.digitToInt() }
+                    decimalNumber.toString(operatorTypesCount).padStart(operatorCount, NO_0_CHAR)
+                        .map(Char::digitToInt)
                         .map { operatorTypeNumber ->
                             operators[operatorTypeNumber]
                         }
