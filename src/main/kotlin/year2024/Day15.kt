@@ -7,66 +7,76 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
+import base.BaseProblemHandler
+import utils.Constants.AT_CHAR
+import utils.Constants.DOT_CHAR
+import utils.Constants.EMPTY
+import utils.Constants.HASH_CHAR
+import utils.Constants.O_CAP_CHAR
+import utils.Constants.SQUARE_CLOSE_BRACE_CHAR
+import utils.Constants.SQUARE_OPEN_BRACE_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.TransverseDirection.*
+import utils.grid.toTransverseDirection
+import utils.splitWhenLineBlankOrEmpty
 import utils.grid.TransverseDirection as Direction
 
-private class Day15 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day15 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        FishWarehouseAnalyzer.parse(input)
+            .getTotalBoxGPSCoordinates()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        FishWarehouseAnalyzer.parse(input, isWarehouseWide = true)
+            .getTotalBoxGPSCoordinates()
+
 }
 
 fun main() {
-    solveSample(1)      // 10092
-    println("=====")
-    solveActual(1)      // 1526673
-    println("=====")
-    solveSample(2)      // 9021
-    println("=====")
-    solveActual(2)      // 1535509
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day15.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day15.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day15()) {
+        solveSample(1, false, 0, 10092)
+        solveActual(1, false, 0, 1526673)
+        solveSample(2, false, 0, 9021)
+        solveActual(2, false, 0, 1535509)
     }
 }
 
-private fun doPart1(input: List<String>) {
-    FishWarehouseAnalyzer.parse(input)
-        .getTotalBoxGPSCoordinates()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    FishWarehouseAnalyzer.parse(input, isWarehouseWide = true)
-        .getTotalBoxGPSCoordinates()
-        .also(::println)
-}
-
 private enum class FishWarehouseType(val type: Char) {
-    ROBOT('@'),
-    BOX('O'),
-    BOX_LEFT('['),
-    BOX_RIGHT(']'),
-    WALL('#'),
-    SPACE('.'),
+    ROBOT(AT_CHAR),
+    BOX(O_CAP_CHAR),
+    BOX_LEFT(SQUARE_OPEN_BRACE_CHAR),
+    BOX_RIGHT(SQUARE_CLOSE_BRACE_CHAR),
+    WALL(HASH_CHAR),
+    SPACE(DOT_CHAR);
+
+    companion object {
+        private val typeMap = entries.associateBy(FishWarehouseType::type)
+
+        fun fromType(type: Char): FishWarehouseType = typeMap[type]!!
+    }
 }
 
 private class FishWarehouseLocation(x: Int, y: Int) : Point2d<Int>(x, y)
@@ -78,8 +88,8 @@ private class FishWarehouseGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): FishWarehouseLocation =
         FishWarehouseLocation(row, column)
@@ -87,12 +97,10 @@ private class FishWarehouseGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): FishWarehouseType =
-        FishWarehouseType.entries.single { fishWarehouseType: FishWarehouseType ->
-            fishWarehouseType.type == locationChar
-        }
+        FishWarehouseType.fromType(locationChar)
 
 }
 
@@ -104,28 +112,18 @@ private class FishWarehouseAnalyzer private constructor(
 
     companion object {
 
-        // Map to transform Robot directions' character to actual Direction enum
-        private val robotDirectionMap = mapOf(
-            '^' to TOP,
-            '>' to RIGHT,
-            '<' to LEFT,
-            'v' to BOTTOM
-        )
-
         // Map to expand the grid for when the Warehouse is set to be twice as wide
         private val gridExpansionMap = mapOf(
-            '#' to "##",
-            'O' to "[]",
-            '.' to "..",
-            '@' to "@."
+            HASH_CHAR to "${HASH_CHAR}${HASH_CHAR}",
+            O_CAP_CHAR to "${SQUARE_OPEN_BRACE_CHAR}${SQUARE_CLOSE_BRACE_CHAR}",
+            DOT_CHAR to "${DOT_CHAR}${DOT_CHAR}",
+            AT_CHAR to "${AT_CHAR}${DOT_CHAR}"
         )
 
         fun parse(input: List<String>, isWarehouseWide: Boolean = false): FishWarehouseAnalyzer =
-            input.splitWhen { line ->
-                line.isEmpty() || line.isBlank()
-            }.let { groupedLines: Iterable<Iterable<String>> ->
+            input.splitWhenLineBlankOrEmpty().let { splitBlocks: Iterable<Iterable<String>> ->
                 FishWarehouseAnalyzer(
-                    fishWarehouseGrid = groupedLines.first().toList().let { pattern: List<String> ->
+                    fishWarehouseGrid = splitBlocks.first().toList().let { pattern: List<String> ->
                         if (isWarehouseWide) {
                             // When Warehouse is said to be twice as wide, expand characters in the pattern
                             // as per the [gridExpansionMap]
@@ -133,7 +131,7 @@ private class FishWarehouseAnalyzer private constructor(
                                 pattern.map { patternLine: String ->
                                     patternLine.map { valueChar ->
                                         gridExpansionMap[valueChar]!!
-                                    }.joinToString("")
+                                    }.joinToString(EMPTY)
                                 }
                             )
                         } else {
@@ -142,11 +140,7 @@ private class FishWarehouseAnalyzer private constructor(
                         }
                     },
 
-                    robotDirections = groupedLines.last().joinToString("").map { directionChar: Char ->
-                        // Convert Robot directions to actual Direction enum
-                        robotDirectionMap[directionChar]!!
-                    },
-
+                    robotDirections = splitBlocks.last().joinToString(EMPTY).map(Char::toTransverseDirection),
                     isWarehouseWide
                 )
             }
@@ -159,20 +153,15 @@ private class FishWarehouseAnalyzer private constructor(
     )
 
     /**
-     * Returns [FishWarehouseType] of [this] in [fishWarehouseGrid].
-     */
-    private fun FishWarehouseLocation.toType(): FishWarehouseType = fishWarehouseGrid[this]
-
-    /**
      * Returns all current [FishWarehouseType.BOX] or [FishWarehouseType.BOX_LEFT] locations present
      * in the [fishWarehouseGrid] depending on [isWarehouseWide].
      */
     private fun getAllBoxLocations(): List<FishWarehouseLocation> =
         getAllLocations().filter { location ->
             if (isWarehouseWide) {
-                location.toType() == FishWarehouseType.BOX_LEFT
+                location.toValue() == FishWarehouseType.BOX_LEFT
             } else {
-                location.toType() == FishWarehouseType.BOX
+                location.toValue() == FishWarehouseType.BOX
             }
         }
 
@@ -184,12 +173,8 @@ private class FishWarehouseAnalyzer private constructor(
     private fun moveRobotIntoSpace(
         robotLocation: FishWarehouseLocation,
         directionToMove: Direction
-    ): FishWarehouseLocation {
-        fishWarehouseGrid[robotLocation] = FishWarehouseType.SPACE
-        val newRobotLocation = robotLocation.getNeighbour(directionToMove)!!
-        fishWarehouseGrid[newRobotLocation] = FishWarehouseType.ROBOT
-
-        return newRobotLocation
+    ): FishWarehouseLocation = robotLocation.getNeighbourOrNull(directionToMove)!!.apply {
+        swap(robotLocation, this)
     }
 
     /**
@@ -218,29 +203,17 @@ private class FishWarehouseAnalyzer private constructor(
         // Get all boxes in direction till we hit a WALL or find a SPACE
         val boxes = robotLocation.getLocationsInDirection(directionToMove).drop(1)
             .takeWhile { fishWarehouseLocation ->
-                fishWarehouseLocation.toType() != FishWarehouseType.WALL &&
-                        fishWarehouseLocation.toType() != FishWarehouseType.SPACE
+                fishWarehouseLocation.toValue() != FishWarehouseType.WALL &&
+                        fishWarehouseLocation.toValue() != FishWarehouseType.SPACE
             }.toList()
 
-        return if (boxes.last().getNeighbour(directionToMove)!!.toType() == FishWarehouseType.WALL) {
+        return if (boxes.last().getNeighbourOrNull(directionToMove)!!.toValue() == FishWarehouseType.WALL) {
             // Return NULL if the next neighbour of last box found is a WALL, as boxes cannot be pushed
             null
         } else {
             // Return all boxes found if the next neighbour of last box found is a SPACE, as boxes can be pushed
             boxes
         }
-    }
-
-    /**
-     * Swap contents of [currentLocation] with the [nextLocation].
-     */
-    private fun swap(
-        currentLocation: FishWarehouseLocation,
-        nextLocation: FishWarehouseLocation
-    ) {
-        val temp = fishWarehouseGrid[nextLocation]
-        fishWarehouseGrid[nextLocation] = fishWarehouseGrid[currentLocation]
-        fishWarehouseGrid[currentLocation] = temp
     }
 
     /**
@@ -252,14 +225,14 @@ private class FishWarehouseAnalyzer private constructor(
     private fun getExpandedBoxAsPair(
         boxPartLocation: FishWarehouseLocation
     ): Pair<FishWarehouseLocation, FishWarehouseLocation> {
-        require(boxPartLocation.toType() in boxPartLocationTypes) {
-            "ERROR: Location $boxPartLocation is not part of a box, rather it is a ${boxPartLocation.toType()}"
+        require(boxPartLocation.toValue() in boxPartLocationTypes) {
+            "ERROR: Location $boxPartLocation is not part of a box, rather it is a ${boxPartLocation.toValue()}"
         }
 
-        return if (boxPartLocation.toType() == FishWarehouseType.BOX_LEFT) {
-            boxPartLocation to boxPartLocation.getNeighbour(RIGHT)!!
+        return if (boxPartLocation.toValue() == FishWarehouseType.BOX_LEFT) {
+            boxPartLocation to boxPartLocation.getNeighbourOrNull(RIGHT)!!
         } else {
-            boxPartLocation.getNeighbour(LEFT)!! to boxPartLocation
+            boxPartLocation.getNeighbourOrNull(LEFT)!! to boxPartLocation
         }
     }
 
@@ -276,7 +249,7 @@ private class FishWarehouseAnalyzer private constructor(
     ): List<Pair<FishWarehouseLocation, FishWarehouseLocation>>? {
         // Get the first Box location pair from the current [robotLocation] in the direction [directionToMove]
         val firstBoxPair: Pair<FishWarehouseLocation, FishWarehouseLocation> =
-            getExpandedBoxAsPair(robotLocation.getNeighbour(directionToMove)!!)
+            getExpandedBoxAsPair(robotLocation.getNeighbourOrNull(directionToMove)!!)
 
         // Using two Lists for Frontier instead of a Queue as it is faster since Queue would be just
         // holding Box Location Pairs that are at a distance of 'd' and 'd+1' only.
@@ -292,7 +265,7 @@ private class FishWarehouseAnalyzer private constructor(
 
         // Lambda to update 'nextFrontier' with Box Location Pairs of the given 'location'
         val updateNextFrontier: (location: FishWarehouseLocation) -> Unit = { location: FishWarehouseLocation ->
-            if (location.toType() in boxPartLocationTypes) {
+            if (location.toValue() in boxPartLocationTypes) {
                 // When 'location' contains part of a Box, get the complete Box locations as Pair
                 // and update it to 'nextFrontier'
                 nextFrontier.add(getExpandedBoxAsPair(location))
@@ -308,26 +281,26 @@ private class FishWarehouseAnalyzer private constructor(
         // Loop till the Frontier holds any Box location Pairs at distance 'd'
         while (
             currentFrontier.flatMap { boxPair -> boxPair.toList() }.any { location ->
-                location.toType() in boxPartLocationTypes
+                location.toValue() in boxPartLocationTypes
             }
         ) {
             currentFrontier.filterNot { boxPair ->
                 // Evaluate only those box location pairs that are not yet visited
                 boxPair in boxVisitedSet
             }.forEach { (leftLocation, rightLocation) ->
-                if (leftLocation.toType() !in boxPartLocationTypes) {
+                if (leftLocation.toValue() !in boxPartLocationTypes) {
                     // When 'leftLocation' does not contain any part of a Box, just add it to 'nextFrontier'
                     // as it will be needed to find if any of such locations contain a WALL
                     updateNextFrontier(leftLocation)
                 } else {
                     // When 'leftLocation' contains part of a Box, extract complete Box locations as Pair
                     // for both 'leftLocation' and 'rightLocation', and then update it to 'nextFrontier'
-                    updateNextFrontier(leftLocation.getNeighbour(directionToMove)!!)
-                    updateNextFrontier(rightLocation.getNeighbour(directionToMove)!!)
+                    updateNextFrontier(leftLocation.getNeighbourOrNull(directionToMove)!!)
+                    updateNextFrontier(rightLocation.getNeighbourOrNull(directionToMove)!!)
                 }
 
                 // When 'leftLocation' contains part of a Box, mark these Box location Pairs as visited
-                if (leftLocation.toType() in boxPartLocationTypes) {
+                if (leftLocation.toValue() in boxPartLocationTypes) {
                     boxVisitedSet.add(leftLocation to rightLocation)
                 }
             }
@@ -339,7 +312,7 @@ private class FishWarehouseAnalyzer private constructor(
 
         return if (
             currentFrontier.flatMap { boxPair -> boxPair.toList() }.any { location ->
-                location.toType() == FishWarehouseType.WALL
+                location.toValue() == FishWarehouseType.WALL
             }
         ) {
             // Return NULL if any of the next neighbour of the group of boxes found is a WALL,
@@ -363,7 +336,7 @@ private class FishWarehouseAnalyzer private constructor(
 
         robotDirections.forEach { directionToMove: Direction ->
             // For each direction, take action based on the content of the next neighbour of current robot location
-            when (currentRobotLocation.getNeighbour(directionToMove)!!.toType()) {
+            when (currentRobotLocation.getNeighbourOrNull(directionToMove)!!.toValue()) {
                 FishWarehouseType.SPACE -> {
                     // When next location is a Space, move Robot into this location
                     currentRobotLocation = moveRobotIntoSpace(currentRobotLocation, directionToMove)
@@ -383,7 +356,7 @@ private class FishWarehouseAnalyzer private constructor(
                             // swap each location content with its next neighbour in the direction of 'directionToMove'
                             (boxPairs.lastIndex downTo 0).forEach { index ->
                                 boxPairs[index].toList().forEach { boxPartLocation ->
-                                    swap(boxPartLocation, boxPartLocation.getNeighbour(directionToMove)!!)
+                                    swap(boxPartLocation, boxPartLocation.getNeighbourOrNull(directionToMove)!!)
                                 }
                             }
 
@@ -401,7 +374,7 @@ private class FishWarehouseAnalyzer private constructor(
                             // When Robot can push the boxes found, start from last box location and
                             // swap each location content with its next neighbour in the direction of 'directionToMove'
                             (boxes.lastIndex downTo 0).forEach { index ->
-                                swap(boxes[index], boxes[index].getNeighbour(directionToMove)!!)
+                                swap(boxes[index], boxes[index].getNeighbourOrNull(directionToMove)!!)
                             }
 
                             // Next location will be a Space after above swap, so move Robot into this location
@@ -428,7 +401,7 @@ private class FishWarehouseAnalyzer private constructor(
      * Returns the total of all Boxes' GPS coordinates.
      */
     fun getTotalBoxGPSCoordinates(): Int =
-        getAllLocations().single { location -> location.toType() == FishWarehouseType.ROBOT }
+        getAllLocations().single { location -> location.toValue() == FishWarehouseType.ROBOT }
             .let { robotLocation ->
 
                 // Let Robot do the work as per its sequence of directions
