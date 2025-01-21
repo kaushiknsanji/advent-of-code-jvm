@@ -7,53 +7,50 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
+import base.BaseProblemHandler
+import utils.findAllLong
 import utils.grid.Point2d
+import utils.splitWhenLineBlankOrEmpty
 
-private class Day13 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day13 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ClawMachineAnalyzer.parse(input)
+            .getFewestTokensSpentToWin()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ClawMachineAnalyzer.parse(input)
+            .getFewestTokensSpentToWin(prizeOffset = 10000000000000L)
+
 }
 
 fun main() {
-    solveSample(1)      // 480
-    println("=====")
-    solveActual(1)      // 30413
-    println("=====")
-    solveSample(2)      // 875318608908
-    println("=====")
-    solveActual(2)      // 92827349540204
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day13.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day13.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day13()) {
+        solveSample(1, false, 0, 480L)
+        solveActual(1, false, 0, 30413L)
+        solveSample(2, false, 0, 875318608908L)
+        solveActual(2, false, 0, 92827349540204L)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    ClawMachineAnalyzer.parse(input)
-        .getFewestTokensSpentToWin()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    ClawMachineAnalyzer.parse(input)
-        .getFewestTokensSpentToWin(prizeOffset = 10000000000000L)
-        .also(::println)
 }
 
 private class ClawLocation(x: Long, y: Long) : Point2d<Long>(x, y)
@@ -62,15 +59,11 @@ private class ClawMachineAnalyzer private constructor(
     private val buttonBehaviors: List<Triple<ClawLocation, ClawLocation, ClawLocation>>
 ) {
     companion object {
-        // Regular expression to capture numbers
-        val numberRegex = """(\d+)""".toRegex()
 
-        fun parse(input: List<String>): ClawMachineAnalyzer = input.splitWhen { it.isEmpty() || it.isBlank() }
+        fun parse(input: List<String>): ClawMachineAnalyzer = input.splitWhenLineBlankOrEmpty()
             .map { lines: Iterable<String> ->
                 lines.map { line: String ->
-                    numberRegex.findAll(line).map { matchResult ->
-                        matchResult.groupValues[1].toLong()
-                    }.toList().let { values: List<Long> ->
+                    line.findAllLong().let { values: List<Long> ->
                         ClawLocation(values[0], values[1])
                     }
                 }.let { locations: List<ClawLocation> ->
@@ -145,6 +138,8 @@ private class ClawMachineAnalyzer private constructor(
         }
 
     /**
+     * [Solution for Part 1 and 2]
+     *
      * Returns fewest tokens that would have to be spent to win all prizes.
      *
      * @param prizeOffset [Long] value to be added to both X and Y coordinate values of every Prize location.
