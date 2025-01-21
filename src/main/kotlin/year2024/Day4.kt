@@ -7,69 +7,66 @@
 
 package year2024
 
-import base.BaseFileHandler
-import utils.grid.DiagonalLattice
-import utils.grid.IDiagonalLattice
+import base.BaseProblemHandler
+import utils.Constants.A_CAP_CHAR
+import utils.Constants.EMPTY
+import utils.Constants.X_CAP_CHAR
+import utils.grid.IOmniLattice
 import utils.grid.OmniDirection.*
+import utils.grid.OmniLattice
 import utils.grid.Point2d
 import utils.grid.OmniDirection as Direction
 
-private class Day4 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day4 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        WordSearcher.parse(input).getCountOfXMAS()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        WordSearcher.parse(input).getCountOfXShapedMAS()
+
 }
 
 fun main() {
-    solveSample(1)      // 18
-    println("=====")
-    solveActual(1)      // 2549
-    println("=====")
-    solveSample(2)      // 9
-    println("=====")
-    solveActual(2)      // 2003
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day4.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day4.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day4()) {
+        solveSample(1, false, 0, 18)
+        solveActual(1, false, 0, 2549)
+        solveSample(2, false, 0, 9)
+        solveActual(2, false, 0, 2003)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    WordSearcher.parse(input)
-        .getCountOfXMAS()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    WordSearcher.parse(input)
-        .getCountOfXShapedMAS()
-        .also(::println)
 }
 
 private class XmasLetterCell(x: Int, y: Int) : Point2d<Int>(x, y)
 
 private class XmasLetterGrid(
     xmasPattern: List<String>
-) : DiagonalLattice<XmasLetterCell, Char>(xmasPattern) {
+) : OmniLattice<XmasLetterCell, Char>(xmasPattern) {
 
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): XmasLetterCell =
         XmasLetterCell(row, column)
@@ -77,7 +74,7 @@ private class XmasLetterGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): Char = locationChar
 
@@ -85,7 +82,7 @@ private class XmasLetterGrid(
 
 private class WordSearcher private constructor(
     private val xmasLetterGrid: XmasLetterGrid
-) : IDiagonalLattice<XmasLetterCell, Char> by xmasLetterGrid {
+) : IOmniLattice<XmasLetterCell, Char> by xmasLetterGrid {
 
     companion object {
         private const val XMAS = "XMAS"
@@ -101,25 +98,15 @@ private class WordSearcher private constructor(
      * Returns all [XmasLetterCell]s having character 'X'
      */
     private fun getAllXCharCells(): Collection<XmasLetterCell> = getAllLocations().filter { letterCell ->
-        xmasLetterGrid[letterCell] == 'X'
+        letterCell.toValue() == X_CAP_CHAR
     }
 
     /**
      * Returns all [XmasLetterCell]s having character 'A'
      */
     private fun getAllACharCells(): Collection<XmasLetterCell> = getAllLocations().filter { letterCell ->
-        xmasLetterGrid[letterCell] == 'A'
+        letterCell.toValue() == A_CAP_CHAR
     }
-
-    /**
-     * Returns a [Map] of Diagonal neighbours of [this], with Keys as their [Direction]
-     */
-    private fun XmasLetterCell.getDiagonalNeighbours(): Map<Direction, XmasLetterCell?> =
-        Direction.entries.filter { direction: Direction ->
-            direction in listOf(TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT, TOP_RIGHT)
-        }.associateWith { direction: Direction ->
-            getNeighbour(direction)
-        }
 
     /**
      * [Solution for Part-1]
@@ -130,8 +117,8 @@ private class WordSearcher private constructor(
         getAllXCharCells().sumOf { letterCell ->
             letterCell.getLocationsInAllDirections().values.map { letterCellsSequence: Sequence<XmasLetterCell> ->
                 letterCellsSequence.take(4).map { letterCell ->
-                    xmasLetterGrid[letterCell]
-                }.joinToString("")
+                    letterCell.toValue()
+                }.joinToString(EMPTY)
             }.count { word: String ->
                 word == XMAS
             }
@@ -142,16 +129,28 @@ private class WordSearcher private constructor(
      *
      * Returns the number of times "MAS" word appears in the shape of X in the word search puzzle.
      */
-    fun getCountOfXShapedMAS() =
+    fun getCountOfXShapedMAS(): Int =
         getAllACharCells().map { letterCell ->
-            letterCell.getDiagonalNeighbours().let { diagonalNeighbours: Map<Direction, XmasLetterCell?> ->
+            letterCell.getOrdinalNeighboursWithDirection().let { ordinalNeighbours: Map<Direction, XmasLetterCell> ->
                 buildList {
-                    add(listOf(diagonalNeighbours[TOP_LEFT], letterCell, diagonalNeighbours[BOTTOM_RIGHT]))
-                    add(listOf(diagonalNeighbours[BOTTOM_LEFT], letterCell, diagonalNeighbours[TOP_RIGHT]))
+                    add(
+                        listOf(
+                            ordinalNeighbours.getOrDefault(TOP_LEFT, null),
+                            letterCell,
+                            ordinalNeighbours.getOrDefault(BOTTOM_RIGHT, null)
+                        )
+                    )
+                    add(
+                        listOf(
+                            ordinalNeighbours.getOrDefault(BOTTOM_LEFT, null),
+                            letterCell,
+                            ordinalNeighbours.getOrDefault(TOP_RIGHT, null)
+                        )
+                    )
                 }.map { letterCellsList: List<XmasLetterCell?> ->
                     letterCellsList.filterNotNull().map { letterCell ->
-                        xmasLetterGrid[letterCell]
-                    }.joinToString("")
+                        letterCell.toValue()
+                    }.joinToString(EMPTY)
                 }.count { word: String ->
                     word == MAS || word == MAS_REVERSE
                 }
