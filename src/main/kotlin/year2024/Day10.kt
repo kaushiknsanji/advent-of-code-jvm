@@ -7,54 +7,50 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 
-private class Day10 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day10 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        HikingTrailBuilder.parse(input)
+            .getTotalScoreOfAllTrailheads()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        HikingTrailBuilder.parse(input)
+            .getTotalRatingOfAllTrailheads()
+
 }
 
 fun main() {
-    solveSample(1)      // 36
-    println("=====")
-    solveActual(1)      // 717
-    println("=====")
-    solveSample(2)      // 81
-    println("=====")
-    solveActual(2)      // 1686
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day10.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day10.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day10()) {
+        solveSample(1, false, 0, 36)
+        solveActual(1, false, 0, 717)
+        solveSample(2, false, 0, 81)
+        solveActual(2, false, 0, 1686)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    HikingTrailBuilder.parse(input)
-        .getTotalScoreOfAllTrailheads()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    HikingTrailBuilder.parse(input)
-        .getTotalRatingOfAllTrailheads()
-        .also(::println)
 }
 
 private class TrailLocation(x: Int, y: Int) : Point2d<Int>(x, y)
@@ -66,8 +62,8 @@ private class HikingTrailGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): TrailLocation =
         TrailLocation(row, column)
@@ -75,7 +71,7 @@ private class HikingTrailGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): Int = locationChar.digitToInt()
 
@@ -90,15 +86,10 @@ private class HikingTrailBuilder private constructor(
         fun parse(input: List<String>): HikingTrailBuilder = HikingTrailBuilder(HikingTrailGrid(input))
     }
 
-    /**
-     * Returns height of the trail at [this] location.
-     */
-    private fun TrailLocation.toHeight() = hikingTrailGrid[this]
-
     // All Trailheads on the topographic map which are locations with the height of 0
     private val trailHeads: Collection<TrailLocation> by lazy {
         getAllLocations().filter { location: TrailLocation ->
-            location.toHeight() == 0
+            location.toValue() == 0
         }
     }
 
@@ -107,7 +98,7 @@ private class HikingTrailBuilder private constructor(
      */
     private fun TrailLocation.getNextNeighbours(): Collection<TrailLocation> =
         getAllNeighbours().filter { location: TrailLocation ->
-            location.toHeight() - this.toHeight() == 1
+            location.toValue() - this.toValue() == 1
         }
 
     /**
@@ -134,7 +125,7 @@ private class HikingTrailBuilder private constructor(
             currentFrontier.forEach { current: TrailLocation ->
                 current.getNextNeighbours()
                     .forEach { nextTrailLocation: TrailLocation ->
-                        if (nextTrailLocation.toHeight() == 9) {
+                        if (nextTrailLocation.toValue() == 9) {
                             // When the Next Trail location is the Peak, add it to the set of Peaks
                             trailPeaksReached.add(nextTrailLocation)
                             // Increment the path counter
