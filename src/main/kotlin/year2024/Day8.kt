@@ -7,53 +7,50 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import extensions.distinctPairs
+import utils.Constants.DOT_CHAR
 import utils.grid.*
 
-private class Day8 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day8 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        AntennaAntinodeAnalyzer.parse(input)
+            .getDistinctCountOfAntinodes(isDistanceBased = true)
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        AntennaAntinodeAnalyzer.parse(input)
+            .getDistinctCountOfAntinodes(isDistanceBased = false)
+
 }
 
 fun main() {
-    solveSample(1)      // 14
-    println("=====")
-    solveActual(1)      // 299
-    println("=====")
-    solveSample(2)      // 34
-    println("=====")
-    solveActual(2)      // 1032
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day8.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day8.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day8()) {
+        solveSample(1, false, 0, 14)
+        solveActual(1, false, 0, 299)
+        solveSample(2, false, 0, 34)
+        solveActual(2, false, 0, 1032)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    AntennaAntinodeAnalyzer.parse(input)
-        .getDistinctCountOfAntinodes(isDistanceBased = true)
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    AntennaAntinodeAnalyzer.parse(input)
-        .getDistinctCountOfAntinodes(isDistanceBased = false)
-        .also(::println)
 }
 
 private class AntennaCell(x: Int, y: Int) : Point2d<Int>(x, y)
@@ -65,17 +62,16 @@ private class AntennaGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): AntennaCell =
         AntennaCell(row, column)
 
-
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): Char = locationChar
 
@@ -86,19 +82,18 @@ private class AntennaAntinodeAnalyzer private constructor(
 ) : IGrid2dGraph<AntennaCell, Char> by antennaGrid {
 
     companion object {
-        private const val NO_ANTENNA = '.'
 
         fun parse(input: List<String>): AntennaAntinodeAnalyzer = AntennaAntinodeAnalyzer(AntennaGrid(input))
     }
 
     // Locations of all different Antennas in the Grid
     private val allAntennaLocations: Collection<AntennaCell> = getAllLocations().filterNot { cell: AntennaCell ->
-        antennaGrid[cell] == NO_ANTENNA
+        cell.toValue() == DOT_CHAR
     }
 
     // Map of Antennas for each distinct frequency as key
     private val frequencyToLocationsMap: Map<Char, List<AntennaCell>> by lazy {
-        allAntennaLocations.groupBy { cell: AntennaCell -> antennaGrid[cell] }
+        allAntennaLocations.groupBy { cell: AntennaCell -> cell.toValue() }
     }
 
     // Distinct Pairs of Antennas having the same frequency
@@ -159,17 +154,20 @@ private class AntennaAntinodeAnalyzer private constructor(
      * between Antennas of the same frequency.
      */
     fun getDistinctCountOfAntinodes(isDistanceBased: Boolean): Int =
-        if (isDistanceBased) {
-            // Part-1: Use Manhattan distance between Antennas of the same frequency to determine Antinode locations
-            frequencyBasedDistinctAntennaPairs.flatMap { (antenna1: AntennaCell, antenna2: AntennaCell) ->
-                findAntinodes(antenna1, antenna2, antenna1.manhattanDistance(antenna2))
-            }
-        } else {
-            // Part-2: Determine Antinode locations irrespective of the distance between Antennas
-            // of the same frequency by passing 0 for the distance
-            frequencyBasedDistinctAntennaPairs.flatMap { (antenna1: AntennaCell, antenna2: AntennaCell) ->
-                findAntinodes(antenna1, antenna2, 0)
-            }
+        frequencyBasedDistinctAntennaPairs.flatMap { (antenna1: AntennaCell, antenna2: AntennaCell) ->
+            findAntinodes(
+                antenna1,
+                antenna2,
+                if (isDistanceBased) {
+                    // Part-1: Use Manhattan distance between Antennas of the same frequency
+                    // to determine Antinode locations
+                    antenna1.manhattanDistance(antenna2)
+                } else {
+                    // Part-2: Determine Antinode locations irrespective of the distance between Antennas
+                    // of the same frequency by passing 0 for the distance
+                    0
+                }
+            )
         }.distinct().size
 
 }
