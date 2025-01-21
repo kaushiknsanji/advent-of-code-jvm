@@ -7,51 +7,48 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import utils.splitContentByWhitespaces
 
-private class Day11 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day11 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        PebbleProcessor.parse(input)
+            .getCountOfPebbles(25)
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        PebbleProcessor.parse(input)
+            .getCountOfPebbles(75)
+
 }
 
 fun main() {
-    solveSample(1)      // 55312
-    println("=====")
-    solveActual(1)      // 229043
-    println("=====")
-    solveSample(2)      // 65601038650482
-    println("=====")
-    solveActual(2)      // 272673043446478
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day11.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day11.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day11()) {
+        solveSample(1, false, 0, 55312L)
+        solveActual(1, false, 0, 229043L)
+        solveSample(2, false, 0, 65601038650482L)
+        solveActual(2, false, 0, 272673043446478L)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    PebbleProcessor.parse(input)
-        .getCountOfPebbles(25)
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    PebbleProcessor.parse(input)
-        .getCountOfPebbles(75)
-        .also(::println)
 }
 
 private class PebbleProcessor private constructor(
@@ -61,7 +58,7 @@ private class PebbleProcessor private constructor(
     companion object {
 
         fun parse(input: List<String>): PebbleProcessor = PebbleProcessor(
-            pebbles = input.single().split(" ").map(String::toLong)
+            pebbles = input.single().splitContentByWhitespaces().map(String::toLong)
         )
     }
 
