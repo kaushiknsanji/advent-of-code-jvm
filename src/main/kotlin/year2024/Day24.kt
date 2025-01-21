@@ -7,52 +7,62 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
+import base.BaseProblemHandler
 import extensions.toIntRanges
+import utils.Constants.AND_GATE
+import utils.Constants.COLON_STRING
+import utils.Constants.COMMA_STRING
+import utils.Constants.EMPTY
+import utils.Constants.NO_0_CHAR
+import utils.Constants.NO_1_CHAR
+import utils.Constants.OR_GATE
+import utils.Constants.RIGHT_ARROW
+import utils.Constants.XOR_GATE
+import utils.Constants.X_SMALL_STRING
+import utils.Constants.Y_SMALL_STRING
+import utils.Constants.Z_SMALL_STRING
+import utils.splitContentByWhitespaces
+import utils.splitWhenLineBlankOrEmpty
 import java.math.BigInteger
 
-private class Day24 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day24 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MonitoringDeviceAnalyzer.parse(input)
+            .getZWiresDecimalNumber()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MonitoringDeviceAnalyzer.parse(input)
+            .getOrderedNamesOfWiresInvolvedInASwap()
+
 }
 
 fun main() {
-    solveSample()      // 2024
-    println("=====")
-    solveActual(1)      // 51107420031718
-    println("=====")
-    solveActual(2)      // cpm,ghp,gpr,krs,nks,z10,z21,z33
-    println("=====")
-}
-
-private fun solveSample() {
-    execute(Day24.getSampleFile().readLines(), 1)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day24.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day24()) {
+        solveSample(1, false, 0, BigInteger.valueOf(2024L))
+        solveActual(1, false, 0, BigInteger.valueOf(51107420031718L))
+        solveActual(2, false, 0, "cpm,ghp,gpr,krs,nks,z10,z21,z33")
     }
-}
-
-private fun doPart1(input: List<String>) {
-    MonitoringDeviceAnalyzer.parse(input)
-        .getZWiresDecimalNumber()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    MonitoringDeviceAnalyzer.parse(input)
-        .getOrderedNamesOfWiresInvolvedInASwap()
-        .also(::println)
 }
 
 /**
@@ -79,9 +89,9 @@ private data class Gate(
      */
     fun execute(getValue: (wireName: String) -> Int): Int =
         when (gateName) {
-            MonitoringDeviceAnalyzer.OR -> getValue(wire1Name) or getValue(wire2Name)
-            MonitoringDeviceAnalyzer.XOR -> getValue(wire1Name) xor getValue(wire2Name)
-            MonitoringDeviceAnalyzer.AND -> getValue(wire1Name) and getValue(wire2Name)
+            OR_GATE -> getValue(wire1Name) or getValue(wire2Name)
+            XOR_GATE -> getValue(wire1Name) xor getValue(wire2Name)
+            AND_GATE -> getValue(wire1Name) and getValue(wire2Name)
             else -> throw Error("Unidentified Gate '$gateName' found!")
         }
 
@@ -97,38 +107,30 @@ private class MonitoringDeviceAnalyzer private constructor(
 ) {
 
     companion object {
-        const val AND = "AND"
-        const val XOR = "XOR"
-        const val OR = "OR"
-        private const val WIRE_X = "x"
-        private const val WIRE_Y = "y"
-        private const val WIRE_Z = "z"
-        private const val COLON = ":"
-        private const val ARROW = "->"
-        private const val SPACE = " "
-        private const val COMMA = ","
+        private const val WIRE_X = X_SMALL_STRING
+        private const val WIRE_Y = Y_SMALL_STRING
+        private const val WIRE_Z = Z_SMALL_STRING
 
-        fun parse(input: List<String>): MonitoringDeviceAnalyzer = input.splitWhen { line ->
-            line.isEmpty() || line.isBlank()
-        }.let { splitBlocks: Iterable<Iterable<String>> ->
-            MonitoringDeviceAnalyzer(
-                wireMap = splitBlocks.first().associate { line ->
-                    val (wireName, wireStringValue) = line.split(COLON)
-                    wireName to wireStringValue.trim().toInt(radix = 2)
-                }.toMutableMap(),
+        fun parse(input: List<String>): MonitoringDeviceAnalyzer =
+            input.splitWhenLineBlankOrEmpty().let { splitBlocks: Iterable<Iterable<String>> ->
+                MonitoringDeviceAnalyzer(
+                    wireMap = splitBlocks.first().associate { line ->
+                        val (wireName, wireStringValue) = line.split(COLON_STRING)
+                        wireName to wireStringValue.trim().toInt()
+                    }.toMutableMap(),
 
-                gates = splitBlocks.last().map { line ->
-                    val (operationString, outputWireName) = line.split(ARROW)
-                    val (wire1Name, gateName, wire2Name) = operationString.trim().split(SPACE)
-                    Gate(
-                        wire1Name,
-                        wire2Name,
-                        gateName,
-                        outputWireName.trim()
-                    )
-                }
-            )
-        }
+                    gates = splitBlocks.last().map { line ->
+                        val (operationString, outputWireName) = line.split(RIGHT_ARROW)
+                        val (wire1Name, gateName, wire2Name) = operationString.splitContentByWhitespaces()
+                        Gate(
+                            wire1Name,
+                            wire2Name,
+                            gateName,
+                            outputWireName.trim()
+                        )
+                    }
+                )
+            }
 
     }
 
@@ -178,7 +180,7 @@ private class MonitoringDeviceAnalyzer private constructor(
             wireName.startsWith(wireIdentifier)
         }.sortedDescending().map { wireName ->
             wireMap[wireName]!!
-        }.joinToString("").let { binaryNumberString ->
+        }.joinToString(EMPTY).let { binaryNumberString ->
             BigInteger(binaryNumberString, 2)
         }
 
@@ -243,7 +245,7 @@ private class MonitoringDeviceAnalyzer private constructor(
         // In other words, convert incorrect indices to ranges and take the first index of each range
         for (indexToResolve in incorrectIndices.toIntRanges().map { range -> range.first }) {
             // Bit identifier of the index being resolved
-            val idString = indexToResolve.toString().padStart(padSize, '0')
+            val idString = indexToResolve.toString().padStart(padSize, NO_0_CHAR)
 
             // X, Y and Z wire names of the current bit being resolved
             val xWireName = "$WIRE_X$idString"
@@ -251,9 +253,9 @@ private class MonitoringDeviceAnalyzer private constructor(
             val zWireName = "$WIRE_Z$idString"
 
             // AND Gate of the First Half Adder
-            val xyAndGate = getGate(AND, xWireName, yWireName)
+            val xyAndGate = getGate(AND_GATE, xWireName, yWireName)
             // XOR Gate of the First Half Adder
-            val xyXorGate = getGate(XOR, xWireName, yWireName)
+            val xyXorGate = getGate(XOR_GATE, xWireName, yWireName)
 
             // List to save the wires that needs to be swapped for the current bit
             val incorrectWires: MutableSet<String> = mutableSetOf()
@@ -261,7 +263,7 @@ private class MonitoringDeviceAnalyzer private constructor(
             // The Carry-In wire name for the Carry coming in from the previous bit addition
             val carryInWireName = try {
                 // Get the name of the carry-in wire
-                getOtherInputWireForGateWithInput(AND, xyXorGate.outputWireName)
+                getOtherInputWireForGateWithInput(AND_GATE, xyXorGate.outputWireName)
             } catch (e: NoSuchElementException) {
                 // Exception occurs when the output wire of First Half Adder XOR Gate was not one of the inputs of
                 // the second Half Adder's AND Gate. Mark this as one of the pair of incorrect wires causing problems.
@@ -271,36 +273,42 @@ private class MonitoringDeviceAnalyzer private constructor(
                 // the previous bit addition which does not have any such problems
 
                 // Previous Bit identifier
-                val idPreviousString = (indexToResolve - 1).toString().padStart(padSize, '0')
+                val idPreviousString = (indexToResolve - 1).toString().padStart(padSize, NO_0_CHAR)
                 // X and Y wire names of the previous bit
                 val xPreviousWireName = "$WIRE_X$idPreviousString"
                 val yPreviousWireName = "$WIRE_Y$idPreviousString"
 
                 // AND Gate of the previous bit's First Half Adder
-                val xyPreviousAndGate = getGate(AND, xPreviousWireName, yPreviousWireName)
+                val xyPreviousAndGate = getGate(AND_GATE, xPreviousWireName, yPreviousWireName)
                 // XOR Gate of the previous bit's First Half Adder
-                val xyPreviousXorGate = getGate(XOR, xPreviousWireName, yPreviousWireName)
+                val xyPreviousXorGate = getGate(XOR_GATE, xPreviousWireName, yPreviousWireName)
 
                 // The Carry-In wire name for the Carry coming in from the previous to previous bit addition
-                val previousCarryInWireName = getOtherInputWireForGateWithInput(AND, xyPreviousXorGate.outputWireName)
+                val previousCarryInWireName = getOtherInputWireForGateWithInput(
+                    AND_GATE,
+                    xyPreviousXorGate.outputWireName
+                )
 
                 // Half Carry AND Gate of the second Half Adder of the previous bit
                 val previousOtherHalfAdderCarryOutAndGate = getGate(
-                    AND,
+                    AND_GATE,
                     xyPreviousXorGate.outputWireName,
                     previousCarryInWireName
                 )
 
                 // Full Carry OR Gate of the previous bit
                 val previousCarryOutOrGate = getGate(
-                    OR,
+                    OR_GATE,
                     xyPreviousAndGate.outputWireName,
                     previousOtherHalfAdderCarryOutAndGate.outputWireName
                 )
 
                 // With the Carry-in coming from the previous bit addition, get the other input wire causing problems
                 // on the second Half Adder's AND Gate
-                val otherWire = getOtherInputWireForGateWithInput(AND, previousCarryOutOrGate.outputWireName)
+                val otherWire = getOtherInputWireForGateWithInput(
+                    AND_GATE,
+                    previousCarryOutOrGate.outputWireName
+                )
 
                 // Mark the other input wire found as one of the other pair of incorrect wires causing problems
                 incorrectWires.add(otherWire)
@@ -319,10 +327,10 @@ private class MonitoringDeviceAnalyzer private constructor(
             }
 
             // Full Sum XOR Gate
-            val sumOutXorGate = getGate(XOR, xyXorGate.outputWireName, carryInWireName)
+            val sumOutXorGate = getGate(XOR_GATE, xyXorGate.outputWireName, carryInWireName)
 
             // Half Carry AND Gate of the second Half Adder
-            val otherHalfAdderCarryOutAndGate = getGate(AND, xyXorGate.outputWireName, carryInWireName)
+            val otherHalfAdderCarryOutAndGate = getGate(AND_GATE, xyXorGate.outputWireName, carryInWireName)
 
             // Full Carry OR Gate
             // Incorrect input wires to this OR Gate can only be caused by the output wires of both the
@@ -333,7 +341,10 @@ private class MonitoringDeviceAnalyzer private constructor(
 
                 // Get the actual output wire of first Half Adder's AND Gate using the output wire
                 // of second Half Adder's AND Gate which is one of the correct input wire to this Full Carry OR Gate
-                val actualWire = getOtherInputWireForGateWithInput(OR, otherHalfAdderCarryOutAndGate.outputWireName)
+                val actualWire = getOtherInputWireForGateWithInput(
+                    OR_GATE,
+                    otherHalfAdderCarryOutAndGate.outputWireName
+                )
 
                 // Mark this actual output wire along with the current bit's Z-wire as the pair of
                 // incorrect wires causing problems
@@ -341,14 +352,14 @@ private class MonitoringDeviceAnalyzer private constructor(
                 incorrectWires.add(zWireName)
 
                 // Get the Full Carry OR Gate using the above actual wire
-                getGate(OR, actualWire, otherHalfAdderCarryOutAndGate.outputWireName)
+                getGate(OR_GATE, actualWire, otherHalfAdderCarryOutAndGate.outputWireName)
 
             } else if (otherHalfAdderCarryOutAndGate.outputWireName == zWireName) {
                 // When the output wire of the second Half Adder's AND Gate is the current bit's Z-wire
 
                 // Get the actual output wire of second Half Adder's AND Gate using the output wire
                 // of first Half Adder's AND Gate which is one of the correct input wire to this Full Carry OR Gate
-                val actualWire = getOtherInputWireForGateWithInput(OR, xyAndGate.outputWireName)
+                val actualWire = getOtherInputWireForGateWithInput(OR_GATE, xyAndGate.outputWireName)
 
                 // Mark this actual output wire along with the current bit's Z-wire as the pair of
                 // incorrect wires causing problems
@@ -356,11 +367,11 @@ private class MonitoringDeviceAnalyzer private constructor(
                 incorrectWires.add(zWireName)
 
                 // Get the Full Carry OR Gate using the above actual wire
-                getGate(OR, xyAndGate.outputWireName, actualWire)
+                getGate(OR_GATE, xyAndGate.outputWireName, actualWire)
 
             } else {
                 // When both input wires are correct, get the Full Carry OR Gate using those input wires
-                getGate(OR, xyAndGate.outputWireName, otherHalfAdderCarryOutAndGate.outputWireName)
+                getGate(OR_GATE, xyAndGate.outputWireName, otherHalfAdderCarryOutAndGate.outputWireName)
             }
 
             // When the output wire of Full Sum XOR Gate is not the required current bit's Z-wire, then mark it as
@@ -417,13 +428,13 @@ private class MonitoringDeviceAnalyzer private constructor(
             .reversed()
             .withIndex()
             .filter { (_, bitChar) ->
-                bitChar == '1'
+                bitChar == NO_1_CHAR
             }.map { (index, _) ->
                 index
             }.let { incorrectIndices: List<Int> ->
                 getPairsOfWiresToBeSwapped(incorrectIndices).flatMap { wirePairs ->
                     wirePairs.toList()
-                }.sorted().joinToString(COMMA)
+                }.sorted().joinToString(COMMA_STRING)
             }
 
 }
