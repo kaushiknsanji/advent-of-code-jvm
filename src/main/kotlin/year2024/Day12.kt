@@ -7,7 +7,7 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import extensions.toIntRanges
 import utils.grid.ILattice
 import utils.grid.Lattice
@@ -16,77 +16,51 @@ import utils.grid.TransverseDirection
 import utils.grid.TransverseDirection.*
 import utils.grid.TransverseDirection as Direction
 
-private class Day12 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day12 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        GardenFenceAnalyzer.parse(input)
+            .getTotalFencingPriceForAllRegions()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        GardenFenceAnalyzer.parse(input)
+            .getTotalFencingPriceForAllRegions(isDiscounted = true)
+
 }
 
 fun main() {
-    solveSampleType1(1)     // 140
-    println("=====")
-    solveSampleType2(1)     // 772
-    println("=====")
-    solveSampleType3(1)     // 1930
-    println("=====")
-    solveActual(1)      // 1424006
-    println("=====")
-    solveSampleType1(2)     // 80
-    println("=====")
-    solveSampleType2(2)     // 436
-    println("=====")
-    solveSampleType3(2)     // 1206
-    println("=====")
-    solveSamplePart2Type1()     // 236
-    println("=====")
-    solveSamplePart2Type2()     // 368
-    println("=====")
-    solveActual(2)      // 858684
-    println("=====")
-}
-
-private fun solveSampleType1(executeProblemPart: Int) {
-    execute(Day12.getSampleFile("_1").readLines(), executeProblemPart)
-}
-
-private fun solveSampleType2(executeProblemPart: Int) {
-    execute(Day12.getSampleFile("_2").readLines(), executeProblemPart)
-}
-
-private fun solveSampleType3(executeProblemPart: Int) {
-    execute(Day12.getSampleFile("_3").readLines(), executeProblemPart)
-}
-
-private fun solveSamplePart2Type1(executeProblemPart: Int = 2) {
-    execute(Day12.getSampleFile("_part2_1").readLines(), executeProblemPart)
-}
-
-private fun solveSamplePart2Type2(executeProblemPart: Int = 2) {
-    execute(Day12.getSampleFile("_part2_2").readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day12.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day12()) {
+        solveSample(1, false, 1, 140)
+        solveSample(1, false, 2, 772)
+        solveSample(1, false, 3, 1930)
+        solveActual(1, false, 0, 1424006)
+        solveSample(2, false, 1, 80)
+        solveSample(2, false, 2, 436)
+        solveSample(2, false, 3, 1206)
+        solveSample(2, true, 1, 236)
+        solveSample(2, true, 2, 368)
+        solveActual(2, false, 0, 858684)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    GardenFenceAnalyzer.parse(input)
-        .getTotalFencingPriceForAllRegions()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    GardenFenceAnalyzer.parse(input)
-        .getTotalFencingPriceForAllRegions(isDiscounted = true)
-        .also(::println)
 }
 
 private class GardenPlot(x: Int, y: Int) : Point2d<Int>(x, y)
@@ -98,8 +72,8 @@ private class GardenPlotGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): GardenPlot =
         GardenPlot(row, column)
@@ -107,7 +81,7 @@ private class GardenPlotGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): Char = locationChar
 
@@ -122,14 +96,9 @@ private class GardenFenceAnalyzer private constructor(
         fun parse(input: List<String>): GardenFenceAnalyzer = GardenFenceAnalyzer(GardenPlotGrid(input))
     }
 
-    /**
-     * Returns plant type at [this] in [gardenPlotGrid].
-     */
-    private fun GardenPlot.toPlant(): Char = gardenPlotGrid[this]
-
     // Map of Garden plots for each plant type
     private val plantTypesToPlotsMap: Map<Char, List<GardenPlot>> by lazy {
-        getAllLocations().groupBy { it.toPlant() }
+        getAllLocations().groupBy { plot: GardenPlot -> plot.toValue() }
     }
 
     /**
@@ -148,7 +117,7 @@ private class GardenFenceAnalyzer private constructor(
          */
         fun dfs(plot: GardenPlot, region: MutableList<GardenPlot>) {
             // Return when base conditions are met
-            if (visitedSet.contains(plot) || plot.toPlant() != plant) {
+            if (visitedSet.contains(plot) || plot.toValue() != plant) {
                 // Return if current [plot] is already visited or is not of the same plant type
                 return
             }
@@ -188,8 +157,8 @@ private class GardenFenceAnalyzer private constructor(
      * of different plant type.
      */
     private fun GardenPlot.toPerimeter(): Int =
-        Direction.entries.map { direction -> getNeighbour(direction) }
-            .count { plot: GardenPlot? -> plot == null || plot.toPlant() != this.toPlant() }
+        Direction.entries.map { direction -> getNeighbourOrNull(direction) }
+            .count { plot: GardenPlot? -> plot == null || plot.toValue() != this.toValue() }
 
     /**
      * Returns Area of [this] region determined by its number of plots.
@@ -197,7 +166,7 @@ private class GardenFenceAnalyzer private constructor(
      * @throws IllegalArgumentException when [this] region is found to contain a plant of some other type.
      */
     private fun List<GardenPlot>.regionToArea(): Int {
-        require(this.map { it.toPlant() }.distinct().count() == 1) {
+        require(this.map { it.toValue() }.distinct().count() == 1) {
             "Area Error: Region $this seems to also contain some other plant"
         }
 
@@ -211,7 +180,7 @@ private class GardenFenceAnalyzer private constructor(
      * @throws IllegalArgumentException when [this] region is found to contain a plant of some other type.
      */
     private fun List<GardenPlot>.regionToPerimeter(): Int {
-        require(this.map { it.toPlant() }.distinct().count() == 1) {
+        require(this.map { it.toValue() }.distinct().count() == 1) {
             "Perimeter Error: Region $this seems to also contain some other plant"
         }
 
@@ -222,18 +191,18 @@ private class GardenFenceAnalyzer private constructor(
      * Returns number of Sides formed by [this] region of Garden plots.
      */
     private fun List<GardenPlot>.regionToSides(): Int =
-        this.first().toPlant().let { plant ->
+        this.first().toValue().let { plant ->
             // Pick only the plots that are bordering with their neighbours of different plant type
             this.filter { plot: GardenPlot ->
                 Direction.entries.any { direction ->
-                    plot.getNeighbour(direction) == null ||
-                            plot.getNeighbour(direction)!!.toPlant() != plant
+                    plot.getNeighbourOrNull(direction) == null ||
+                            plot.getNeighbourOrNull(direction)!!.toValue() != plant
                 }
             }.flatMap { plot: GardenPlot ->
                 // Get directions where the border is with respect to the plot and return as pairs
                 Direction.entries.filter { direction ->
-                    plot.getNeighbour(direction) == null ||
-                            plot.getNeighbour(direction)!!.toPlant() != plant
+                    plot.getNeighbourOrNull(direction) == null ||
+                            plot.getNeighbourOrNull(direction)!!.toValue() != plant
                 }.map { direction ->
                     direction to plot
                 }
