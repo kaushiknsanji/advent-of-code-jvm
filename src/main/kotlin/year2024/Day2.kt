@@ -7,53 +7,50 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import utils.Quadruple
+import utils.findAllInt
 import kotlin.math.absoluteValue
 
-private class Day2 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day2 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        NuclearReportsAnalyzer.parse(input)
+            .getTotalSafeReports()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        NuclearReportsAnalyzer.parse(input)
+            .getTotalSafeReports(hasDampener = true)
+
 }
 
 fun main() {
-    solveSample(1)      // 2
-    println("=====")
-    solveActual(1)      // 598
-    println("=====")
-    solveSample(2)      // 4
-    println("=====")
-    solveActual(2)      // 634
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day2.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day2.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day2()) {
+        solveSample(1, false, 0, 2)
+        solveActual(1, false, 0, 598)
+        solveSample(2, false, 0, 4)
+        solveActual(2, false, 0, 634)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    NuclearReportsAnalyzer.parse(input)
-        .getTotalSafeReports()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    NuclearReportsAnalyzer.parse(input)
-        .getTotalSafeReports(hasDampener = true)
-        .also(::println)
 }
 
 private class NuclearReportsAnalyzer private constructor(
@@ -61,15 +58,9 @@ private class NuclearReportsAnalyzer private constructor(
 ) {
 
     companion object {
-        // Regular expression to capture numbers
-        val numberRegex = """(\d+)""".toRegex()
 
         fun parse(input: List<String>): NuclearReportsAnalyzer = NuclearReportsAnalyzer(
-            reports = input.map { line ->
-                numberRegex.findAll(line).map { matchResult ->
-                    matchResult.groupValues[1].toInt()
-                }.toList()
-            }
+            reports = input.map(String::findAllInt)
         )
     }
 
