@@ -7,60 +7,58 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import extensions.swap
+import utils.Constants.DOT_STRING
 
-private class Day9 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day9 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        DiskDefragmenter.parse(input)
+            .getFilesystemChecksum()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        DiskDefragmenter.parse(input)
+            .getFilesystemChecksum(moveWholeBlocks = true)
+
 }
 
 fun main() {
-    solveSample(1)      // 1928
-    println("=====")
-    solveActual(1)      // 6154342787400
-    println("=====")
-    solveSample(2)      // 2858
-    println("=====")
-    solveActual(2)      // 6183632723350
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day9.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day9.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day9()) {
+        solveSample(1, false, 0, 1928L)
+        solveActual(1, false, 0, 6154342787400L)
+        solveSample(2, false, 0, 2858L)
+        solveActual(2, false, 0, 6183632723350L)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    DiskDefragmenter.parse(input)
-        .getFilesystemChecksum()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    DiskDefragmenter.parse(input)
-        .getFilesystemChecksum(moveWholeBlocks = true)
-        .also(::println)
 }
 
 private class DiskDefragmenter private constructor(
     private val denseDiskLayout: List<Int>
 ) {
     companion object {
-        private const val FREE_SPACE = "."
+        private const val FREE_SPACE = DOT_STRING
 
-        fun parse(input: List<String>): DiskDefragmenter = DiskDefragmenter(input.single().map { it.digitToInt() })
+        fun parse(input: List<String>): DiskDefragmenter = DiskDefragmenter(input.single().map(Char::digitToInt))
     }
 
     /**
@@ -95,13 +93,6 @@ private class DiskDefragmenter private constructor(
      */
     private fun compactFilesystem(sparseDiskLayout: List<String>, moveWholeBlocks: Boolean): Array<String> =
         sparseDiskLayout.toTypedArray().apply {
-
-            // Lambda to swap values at the given indices
-            val swap: (index1: Int, index2: Int) -> Unit = { index1, index2 ->
-                val temp = this[index1]
-                this[index1] = this[index2]
-                this[index2] = temp
-            }
 
             if (moveWholeBlocks) {
                 // Part-2: Moves file blocks of the same ID together
