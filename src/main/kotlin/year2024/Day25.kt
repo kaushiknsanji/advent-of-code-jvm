@@ -7,43 +7,53 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
+import base.BaseProblemHandler
+import utils.Constants.DOT_CHAR
+import utils.Constants.HASH_CHAR
 import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.TransverseDirection.*
+import utils.splitWhenLineBlankOrEmpty
 
-private class Day25 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day25 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        TumblerLockAndKeyAnalyzer.parse(input)
+            .getCountOfCompatibleLockKeyPairs()
+
 }
 
 fun main() {
-    solveSample()      // 3
-    println("=====")
-    solveActual()      // 2824
-    println("=====")
-}
-
-private fun solveSample() {
-    doPart1(Day25.getSampleFile().readLines())
-}
-
-private fun solveActual() {
-    doPart1(Day25.getActualTestFile().readLines())
-}
-
-private fun doPart1(input: List<String>) {
-    TumblerLockAndKeyAnalyzer.parse(input)
-        .getCountOfCompatibleLockKeyPairs()
-        .also(::println)
+    with(Day25()) {
+        solveSample(1, false, 0, 3)
+        solveActual(1, false, 0, 2824)
+    }
 }
 
 private enum class LockKeySchemaType(val type: Char) {
-    EMPTY('.'),
-    FILLED('#')
+    EMPTY(DOT_CHAR),
+    FILLED(HASH_CHAR);
+
+    companion object {
+        private val typeMap = entries.associateBy(LockKeySchemaType::type)
+
+        fun fromType(type: Char): LockKeySchemaType = typeMap[type]!!
+    }
 }
 
 private class LockKeySchemaPin(x: Int, y: Int) : Point2d<Int>(x, y)
@@ -63,8 +73,8 @@ private class LockKeySchemaGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): LockKeySchemaPin =
         LockKeySchemaPin(row, column)
@@ -72,12 +82,10 @@ private class LockKeySchemaGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): LockKeySchemaType =
-        LockKeySchemaType.entries.single { lockKeySchemaType ->
-            lockKeySchemaType.type == locationChar
-        }
+        LockKeySchemaType.fromType(locationChar)
 
     /**
      * Returns heights of [LockKeySchemaType.FILLED] content along the columns.
@@ -112,16 +120,15 @@ private class TumblerLockAndKeyAnalyzer private constructor(
 
     companion object {
 
-        fun parse(input: List<String>): TumblerLockAndKeyAnalyzer = input.splitWhen { line ->
-            line.isEmpty() || line.isBlank()
-        }.partition { pattern: Iterable<String> ->
-            pattern.first().all { it == LockKeySchemaType.FILLED.type }
-        }.let { (locks: List<Iterable<String>>, keys: List<Iterable<String>>) ->
-            TumblerLockAndKeyAnalyzer(
-                locks = locks.map { pattern -> LockKeySchemaGrid(pattern.toList()) },
-                keys = keys.map { pattern -> LockKeySchemaGrid(pattern.toList()) }
-            )
-        }
+        fun parse(input: List<String>): TumblerLockAndKeyAnalyzer =
+            input.splitWhenLineBlankOrEmpty().partition { pattern: Iterable<String> ->
+                pattern.first().all { it == LockKeySchemaType.FILLED.type }
+            }.let { (locks: List<Iterable<String>>, keys: List<Iterable<String>>) ->
+                TumblerLockAndKeyAnalyzer(
+                    locks = locks.map { pattern -> LockKeySchemaGrid(pattern.toList()) },
+                    keys = keys.map { pattern -> LockKeySchemaGrid(pattern.toList()) }
+                )
+            }
     }
 
     /**
