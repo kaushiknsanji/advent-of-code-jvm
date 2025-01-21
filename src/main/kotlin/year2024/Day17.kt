@@ -7,60 +7,52 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 import extensions.createRange
-import extensions.splitWhen
-import org.junit.jupiter.api.Assertions.assertEquals
+import utils.Constants.COMMA_STRING
+import utils.findAllInt
+import utils.splitWhenLineBlankOrEmpty
 
-private class Day17 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day17 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ComputerDebugger.parse(input)
+            .getOutputAsString()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ComputerDebugger.parse(input)
+            .getProgramReplicatingLowestRegisterA()
+
 }
 
 fun main() {
-    listOf(
-        ::solveSample to arrayOf<Any?>(1, "4,6,3,5,6,3,5,2,1,0"),
-        ::solveActual to arrayOf<Any?>(1, "6,5,4,7,1,6,0,3,1"),
-        ::solveSamplePart2 to arrayOf<Any?>(2, 117440L),
-        ::solveActual to arrayOf<Any?>(2, 106086382266778L)
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(args[0] as Int).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day17()) {
+        solveSample(1, false, 0, "4,6,3,5,6,3,5,2,1,0")
+        solveActual(1, false, 0, "6,5,4,7,1,6,0,3,1")
+        solveSample(2, true, 0, 117440L)
+        solveActual(2, false, 0, 106086382266778L)
     }
 }
-
-private fun solveSample(executeProblemPart: Int): Any =
-    execute(Day17.getSampleFile().readLines(), executeProblemPart)
-
-private fun solveSamplePart2(executeProblemPart: Int): Any =
-    execute(Day17.getSampleFile("_part2").readLines(), executeProblemPart)
-
-private fun solveActual(executeProblemPart: Int): Any =
-    execute(Day17.getActualTestFile().readLines(), executeProblemPart)
-
-private fun execute(input: List<String>, executeProblemPart: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>): Any =
-    ComputerDebugger.parse(input)
-        .getOutputAsString()
-
-private fun doPart2(input: List<String>): Any =
-    ComputerDebugger.parse(input)
-        .getProgramReplicatingLowestRegisterA()
-
 
 private class ComputerDebugger private constructor(
     private var registerA: Long,
@@ -70,35 +62,28 @@ private class ComputerDebugger private constructor(
 ) {
 
     companion object {
-        // Regular expression to capture numbers
-        private val numberRegex = """(\d+)""".toRegex()
 
-        fun parse(input: List<String>): ComputerDebugger = input.splitWhen { line ->
-            line.isEmpty() || line.isBlank()
-        }.let { splitBlocks: Iterable<Iterable<String>> ->
-            splitBlocks.flatMap { lines ->
-                lines.flatMap { line ->
-                    numberRegex.findAll(line).map { matchResult ->
-                        matchResult.groupValues[1].toInt()
-                    }
+        fun parse(input: List<String>): ComputerDebugger =
+            input.splitWhenLineBlankOrEmpty().let { splitBlocks: Iterable<Iterable<String>> ->
+                splitBlocks.flatMap { lines ->
+                    lines.flatMap(String::findAllInt)
+                }.let { numbers: List<Int> ->
+                    ComputerDebugger(
+                        registerA = numbers[0].toLong(),
+                        registerB = numbers[1].toLong(),
+                        registerC = numbers[2].toLong(),
+                        instructions = numbers.subList(3, numbers.size)
+                    )
                 }
-            }.let { numbers: List<Int> ->
-                ComputerDebugger(
-                    registerA = numbers[0].toLong(),
-                    registerB = numbers[1].toLong(),
-                    registerC = numbers[2].toLong(),
-                    instructions = numbers.subList(3, numbers.size)
-                )
             }
-        }
     }
 
     // Array of Combo operands
     private val comboArray: Array<() -> Long> = arrayOf(
-        { 0 },
-        { 1 },
-        { 2 },
-        { 3 },
+        { 0L },
+        { 1L },
+        { 2L },
+        { 3L },
         { registerA },
         { registerB },
         { registerC },
@@ -214,7 +199,7 @@ private class ComputerDebugger private constructor(
                 }
             } else {
                 // Throw an Error if pointer incorrectly got updated to an odd number
-                throw Error("Pointer moved to odd number")
+                throw Error("Pointer moved to an odd number")
             }
         }
     }
@@ -238,7 +223,7 @@ private class ComputerDebugger private constructor(
      */
     fun getOutputAsString(): String =
         processInstructions().let {
-            outputNumbers.joinToString(",")
+            outputNumbers.joinToString(COMMA_STRING)
         }
 
     /**
