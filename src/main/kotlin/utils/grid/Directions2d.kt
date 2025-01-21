@@ -6,6 +6,11 @@
 
 package utils.grid
 
+import utils.Constants.CARET_CHAR
+import utils.Constants.GREATER_CHAR
+import utils.Constants.LESSER_CHAR
+import utils.Constants.V_SMALL_CHAR
+
 enum class VerticalDirection {
     TOP, BOTTOM
 }
@@ -23,7 +28,21 @@ enum class DiagonalDirection {
 }
 
 enum class OmniDirection {
-    TOP, BOTTOM, RIGHT, LEFT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+    TOP, BOTTOM, RIGHT, LEFT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;
+
+    companion object {
+        /**
+         * Returns a [List] of Cardinal Directions only
+         */
+        fun getCardinalDirections(): List<OmniDirection> =
+            listOf(TOP, BOTTOM, RIGHT, LEFT)
+
+        /**
+         * Returns a [List] of Ordinal Directions only
+         */
+        fun getOrdinalDirections(): List<OmniDirection> =
+            listOf(TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT)
+    }
 }
 
 /**
@@ -77,8 +96,20 @@ fun TransverseDirection.isHalfTurnTo(currentDirection: TransverseDirection): Boo
  */
 fun TransverseDirection.toDirectionalChar(): Char =
     when (this) {
-        TransverseDirection.TOP -> '^'
-        TransverseDirection.BOTTOM -> 'v'
-        TransverseDirection.RIGHT -> '>'
-        TransverseDirection.LEFT -> '<'
+        TransverseDirection.TOP -> CARET_CHAR
+        TransverseDirection.BOTTOM -> V_SMALL_CHAR
+        TransverseDirection.RIGHT -> GREATER_CHAR
+        TransverseDirection.LEFT -> LESSER_CHAR
+    }
+
+/**
+ * Converts [this] directional [Char] representation to [TransverseDirection].
+ */
+fun Char.toTransverseDirection(): TransverseDirection =
+    when (this) {
+        CARET_CHAR -> TransverseDirection.TOP
+        V_SMALL_CHAR -> TransverseDirection.BOTTOM
+        GREATER_CHAR -> TransverseDirection.RIGHT
+        LESSER_CHAR -> TransverseDirection.LEFT
+        else -> throw Error("Unrecognized Directional character : $this")
     }
