@@ -7,63 +7,70 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import utils.Constants.CARET_CHAR
+import utils.Constants.DOT_CHAR
+import utils.Constants.HASH_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection
+import utils.grid.TransverseDirection.TOP
+import utils.grid.toRightQuarterTurn
+import utils.grid.TransverseDirection as Direction
 
-private class Day6 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day6 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        LabGuardTracer.parse(input)
+            .getCountOfDistinctPositionsVisitedByGuard()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        LabGuardTracer.parse(input)
+            .getCountOfSingleObstructingPositionsThatSetsGuardStuckInLoop()
+
 }
 
 fun main() {
-    solveSample(1)      // 41
-    println("=====")
-    solveActual(1)      // 5177
-    println("=====")
-    solveSample(2)      // 6
-    println("=====")
-    solveActual(2)      // 1686
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day6.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day6.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day6()) {
+        solveSample(1, false, 0, 41)
+        solveActual(1, false, 0, 5177)
+        solveSample(2, false, 0, 6)
+        solveActual(2, false, 0, 1686)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    LabGuardTracer.parse(input)
-        .getCountOfDistinctPositionsVisitedByGuard()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    LabGuardTracer.parse(input)
-        .getCountOfSingleObstructingPositionsThatSetsGuardStuckInLoop()
-        .also(::println)
 }
 
 private class LabLayoutPlanTile(x: Int, y: Int) : Point2d<Int>(x, y)
 
 private enum class LabLayoutPlanTileType(val type: Char) {
-    PATH('.'),
-    BLOCK('#'),
-    GUARD('^')
+    PATH(DOT_CHAR),
+    BLOCK(HASH_CHAR),
+    GUARD(CARET_CHAR);
+
+    companion object {
+        private val typeMap = entries.associateBy(LabLayoutPlanTileType::type)
+
+        fun fromType(type: Char): LabLayoutPlanTileType = typeMap[type]!!
+    }
 }
 
 private class LabLayoutGrid(
@@ -73,8 +80,8 @@ private class LabLayoutGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): LabLayoutPlanTile =
         LabLayoutPlanTile(row, column)
@@ -82,10 +89,10 @@ private class LabLayoutGrid(
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     override fun provideValue(locationChar: Char): LabLayoutPlanTileType =
-        LabLayoutPlanTileType.entries.single { it.type == locationChar }
+        LabLayoutPlanTileType.fromType(locationChar)
 
 }
 
@@ -98,28 +105,13 @@ private class LabGuardTracer private constructor(
         fun parse(input: List<String>): LabGuardTracer = LabGuardTracer(LabLayoutGrid(input))
     }
 
-    /**
-     * Returns [LabLayoutPlanTileType] value found at [this] in the [labLayoutGrid].
-     */
-    private fun LabLayoutPlanTile.toType(): LabLayoutPlanTileType = labLayoutGrid[this]
-
-    /**
-     * Returns a [TransverseDirection] at right angle to [this].
-     */
-    private fun TransverseDirection.nextRightQuarterTurn(): TransverseDirection = when (this) {
-        TransverseDirection.TOP -> TransverseDirection.RIGHT
-        TransverseDirection.BOTTOM -> TransverseDirection.LEFT
-        TransverseDirection.RIGHT -> TransverseDirection.BOTTOM
-        TransverseDirection.LEFT -> TransverseDirection.TOP
-    }
-
     // The start direction of the Patrolling Guard
-    private val startDirection: TransverseDirection = TransverseDirection.TOP
+    private val startDirection = TOP
 
     // The starting [LabLayoutPlanTile] of the Guard in the [labLayoutGrid]
     private val startPosition: LabLayoutPlanTile by lazy {
         getAllLocations().single { tile: LabLayoutPlanTile ->
-            tile.toType() == LabLayoutPlanTileType.GUARD
+            tile.toValue() == LabLayoutPlanTileType.GUARD
         }
     }
 
@@ -134,14 +126,14 @@ private class LabGuardTracer private constructor(
 
             // Keep tracing tiles in the direction only when it has a Block, since without it Guard will exit
             while (position.getLocationsInDirection(direction).any { nextTile ->
-                    nextTile.toType() == LabLayoutPlanTileType.BLOCK
+                    nextTile.toValue() == LabLayoutPlanTileType.BLOCK
                 }) {
 
                 addAll(
                     // Add all tiles till the guard reaches a Block in the same direction. Exclude the first tile
                     // since it has been already added
                     position.getLocationsInDirection(direction).drop(1)
-                        .takeWhile { it.toType() != LabLayoutPlanTileType.BLOCK }
+                        .takeWhile { it.toValue() != LabLayoutPlanTileType.BLOCK }
                         .also { tiles: Sequence<LabLayoutPlanTile> ->
                             // Since guard has reached the last reachable tile in current direction,
                             // pick this last tile as the current position of guard
@@ -150,7 +142,7 @@ private class LabGuardTracer private constructor(
                 )
 
                 // Rotate guard since he has reached a Block
-                direction = direction.nextRightQuarterTurn()
+                direction = direction.toRightQuarterTurn()
             }
 
             // When there are no more Blocks in current direction, the guard exits. Add these remaining tiles.
@@ -183,24 +175,24 @@ private class LabGuardTracer private constructor(
             // Set of Tiles where the Guard makes a quarter turn to the right. Tile visited with entry direction
             // is saved in order to detect if the Guard is in loop when the Guard revisits the same Tile
             // in the same direction as previously logged.
-            val visitedQuarterTurnTiles: MutableSet<Pair<LabLayoutPlanTile, TransverseDirection>> =
+            val visitedQuarterTurnTiles: MutableSet<Pair<LabLayoutPlanTile, Direction>> =
                 mutableSetOf(position to direction)
 
             // Keep tracing tiles in the direction only when there is a Block, since without it Guard will exit
             while (position.getLocationsInDirection(direction).any { nextTile ->
-                    nextTile.toType() == LabLayoutPlanTileType.BLOCK || nextTile == blockTile
+                    nextTile.toValue() == LabLayoutPlanTileType.BLOCK || nextTile == blockTile
                 }) {
 
                 // Get all tiles till the guard reaches a block in the same direction. Exclude the first tile
                 // since it was visited in the previous direction before turning to the current direction.
                 val nextPositions = position.getLocationsInDirection(direction).drop(1)
                     .takeWhile { nextTile ->
-                        nextTile.toType() != LabLayoutPlanTileType.BLOCK && nextTile != blockTile
-                    }
+                        nextTile.toValue() != LabLayoutPlanTileType.BLOCK && nextTile != blockTile
+                    }.toList()
 
                 // Above [nextPositions] can be empty when the very next tile in the direction from the current
                 // [position] happens to be blocked
-                if (nextPositions.iterator().hasNext()) {
+                if (nextPositions.isNotEmpty()) {
                     // When there were tiles in the direction, get the last tile from [nextPositions] as this
                     // is where the Guard will make the next quarter turn to the right as we had already ensured
                     // that the next tile in this direction was blocked.
@@ -216,7 +208,7 @@ private class LabGuardTracer private constructor(
                 }
 
                 // Turn right since this while loop always ensures there is a block in the end
-                direction = direction.nextRightQuarterTurn()
+                direction = direction.toRightQuarterTurn()
             }
 
             // Returns true when the Guard was successfully made to be stuck in a loop
