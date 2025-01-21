@@ -8,45 +8,43 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME}
 #end
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
 
-private class ${NAME} {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class ${NAME} : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        TODO("use input to solve the problem")
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        TODO("use input to solve the problem")
+
 }
 
 fun main() {
-    solveSample(1)
-    println("=====")
-//    solveActual(1)
-//    println("=====")
-//    solveSample(2)
-//    println("=====")
-//    solveActual(2)
-//    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(${NAME}.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(${NAME}.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(${NAME}()) {
+        solveSample(1, false, 0, null)
+//        solveActual(1, false, 0, null)
+//        solveSample(2, false, 0, null)
+//        solveActual(2, false, 0, null)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    TODO("use input to solve the problem")
-}
-
-private fun doPart2(input: List<String>) {
-    TODO("use input to solve the problem")
 }
