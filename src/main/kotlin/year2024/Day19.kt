@@ -7,56 +7,52 @@
 
 package year2024
 
-import base.BaseFileHandler
-import extensions.splitWhen
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
+import utils.Constants.COMMA_CHAR
+import utils.Constants.EMPTY
+import utils.Constants.UNDERSCORE_CHAR
+import utils.splitWhenLineBlankOrEmpty
 
-private class Day19 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day19 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        TowelPatternAnalyzer.parse(input)
+            .getCountOfPossibleDesigns()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        TowelPatternAnalyzer.parse(input)
+            .getTotalCountOfArrangementsOfAllPossibleDesigns()
+
 }
 
 fun main() {
-    listOf(
-        ::solveSample to arrayOf<Any?>(1, 6),
-        ::solveActual to arrayOf<Any?>(1, 365),
-        ::solveSample to arrayOf<Any?>(2, 16L),
-        ::solveActual to arrayOf<Any?>(2, 730121486795169L)
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(args[0] as Int).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day19()) {
+        solveSample(1, false, 0, 6)
+        solveActual(1, false, 0, 365)
+        solveSample(2, false, 0, 16L)
+        solveActual(2, false, 0, 730121486795169L)
     }
 }
-
-private fun solveSample(executeProblemPart: Int): Any =
-    execute(Day19.getSampleFile().readLines(), executeProblemPart)
-
-private fun solveActual(executeProblemPart: Int): Any =
-    execute(Day19.getActualTestFile().readLines(), executeProblemPart)
-
-private fun execute(input: List<String>, executeProblemPart: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>): Any =
-    TowelPatternAnalyzer.parse(input)
-        .getCountOfPossibleDesigns()
-
-private fun doPart2(input: List<String>): Any =
-    TowelPatternAnalyzer.parse(input)
-        .getTotalCountOfArrangementsOfAllPossibleDesigns()
-
 
 private class TowelPatternAnalyzer private constructor(
     private val towelPatterns: List<String>,
@@ -64,19 +60,14 @@ private class TowelPatternAnalyzer private constructor(
 ) {
 
     companion object {
-        private const val COMMA = ','
-        private const val UNDERSCORE = '_'
 
-        fun parse(input: List<String>): TowelPatternAnalyzer = input.splitWhen { line ->
-            line.isEmpty() || line.isBlank()
-        }.let { splitBlocks ->
-            TowelPatternAnalyzer(
-                towelPatterns = splitBlocks.first().single()
-                    .split(COMMA)
-                    .map { pattern -> pattern.trim() },
-                desiredDesigns = splitBlocks.last().toList()
-            )
-        }
+        fun parse(input: List<String>): TowelPatternAnalyzer =
+            input.splitWhenLineBlankOrEmpty().let { splitBlocks ->
+                TowelPatternAnalyzer(
+                    towelPatterns = splitBlocks.first().single().split(COMMA_CHAR).map(String::trim),
+                    desiredDesigns = splitBlocks.last().toList()
+                )
+            }
     }
 
     /**
@@ -105,7 +96,7 @@ private class TowelPatternAnalyzer private constructor(
 
             // When the current iterative design is full of underscores, it means it is completely processed
             // and arranged successfully. Mark the given design as possible to be arranged, and then exit.
-            if (current.all { it == UNDERSCORE }) {
+            if (current.all { it == UNDERSCORE_CHAR }) {
                 isDesignPossible = true
                 break
             }
@@ -115,7 +106,7 @@ private class TowelPatternAnalyzer private constructor(
             if (current in visitedSet) continue
 
             // Get the start index of the next pattern to be arranged
-            val startIndex = current.indexOfFirst { it != UNDERSCORE }
+            val startIndex = current.indexOfFirst { it != UNDERSCORE_CHAR }
 
             usableTowelPatterns.forEach { pattern ->
                 // When the next pattern at start index begins with any of the usable towel patterns, mark this
@@ -126,7 +117,7 @@ private class TowelPatternAnalyzer private constructor(
                         StringBuilder(current).replace(
                             startIndex,
                             startIndex + pattern.length,
-                            List(pattern.length) { UNDERSCORE }.joinToString("")
+                            List(pattern.length) { UNDERSCORE_CHAR }.joinToString(EMPTY)
                         ).toString()
                     )
                 }
