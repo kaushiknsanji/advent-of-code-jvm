@@ -7,68 +7,61 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import utils.findAllInt
 import utils.grid.Point2d
 import utils.product
 
-private class Day14 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day14 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        RobotAnalyzer.parse(input)
+            .getSafetyFactor(
+                yRows = otherArgs[0] as Int,
+                xColumns = otherArgs[1] as Int,
+                elapsedTimeInSeconds = otherArgs[2] as Int
+            )
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        if (otherArgs[2] == 0) {
+            RobotAnalyzer.parse(input)
+                .getFewestSecondsToDisplayChristmasTree(otherArgs[0] as Int, otherArgs[1] as Int)
+        } else {
+            RobotAnalyzer.parse(input)
+                .getSafetyFactor(
+                    yRows = otherArgs[0] as Int,
+                    xColumns = otherArgs[1] as Int,
+                    elapsedTimeInSeconds = otherArgs[2] as Int
+                )
+        }
+
 }
 
 fun main() {
-    solveSample(1, 7, 11, 100)      // 12
-    println("=====")
-    solveActual(1, 103, 101, 100)        // 229632480
-    println("=====")
-    solveActual(2, 103, 101, 0)     // 7051
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int, yRows: Int, xColumns: Int, elapsedTimeInSeconds: Int) {
-    execute(Day14.getSampleFile().readLines(), executeProblemPart, yRows, xColumns, elapsedTimeInSeconds)
-}
-
-private fun solveActual(executeProblemPart: Int, yRows: Int, xColumns: Int, elapsedTimeInSeconds: Int) {
-    execute(Day14.getActualTestFile().readLines(), executeProblemPart, yRows, xColumns, elapsedTimeInSeconds)
-}
-
-private fun execute(
-    input: List<String>,
-    executeProblemPart: Int,
-    yRows: Int,
-    xColumns: Int,
-    elapsedTimeInSeconds: Int
-) {
-    when (executeProblemPart) {
-        1 -> doPart1(input, yRows, xColumns, elapsedTimeInSeconds)
-        2 -> doPart2(input, yRows, xColumns, elapsedTimeInSeconds)
-    }
-}
-
-private fun doPart1(input: List<String>, yRows: Int, xColumns: Int, elapsedTimeInSeconds: Int) {
-    RobotAnalyzer.parse(input)
-        .getSafetyFactor(
-            yRows = yRows,
-            xColumns = xColumns,
-            elapsedTimeInSeconds = elapsedTimeInSeconds
-        ).also(::println)
-}
-
-private fun doPart2(input: List<String>, yRows: Int, xColumns: Int, elapsedTimeInSeconds: Int) {
-    if (elapsedTimeInSeconds == 0) {
-        RobotAnalyzer.parse(input)
-            .getFewestSecondsToDisplayChristmasTree(yRows, xColumns)
-            .also(::println)
-    } else {
-        RobotAnalyzer.parse(input)
-            .getSafetyFactor(
-                yRows = yRows,
-                xColumns = xColumns,
-                elapsedTimeInSeconds = elapsedTimeInSeconds
-            ).also(::println)
+    with(Day14()) {
+        solveSample(1, false, 0, 12, 7, 11, 100)
+        solveActual(1, false, 0, 229632480, 103, 101, 100)
+        solveActual(2, false, 0, 7051, 103, 101, 0)
     }
 }
 
@@ -109,13 +102,9 @@ private class RobotAnalyzer private constructor(
 ) {
 
     companion object {
-        // Regular expression to capture signed numbers
-        val numberRegex = """(-?\d+)""".toRegex()
 
         fun parse(input: List<String>): RobotAnalyzer = input.map { line ->
-            numberRegex.findAll(line).map { matchResult ->
-                matchResult.groupValues[1].toInt()
-            }.toList().let { numbers: List<Int> ->
+            line.findAllInt().let { numbers: List<Int> ->
                 check(numbers.size == 4) {
                     "Error: Parsed number count in the input should be 4, was ${numbers.size}"
                 }
@@ -197,8 +186,8 @@ private class RobotAnalyzer private constructor(
      * @param yRows [Int] number of rows in the grid
      * @param xColumns [Int] number of columns in the grid
      */
-    fun getFewestSecondsToDisplayChristmasTree(yRows: Int, xColumns: Int): Long {
-        var seconds = 0L
+    fun getFewestSecondsToDisplayChristmasTree(yRows: Int, xColumns: Int): Int {
+        var seconds = 0
         var currentRobots = robots
 
         do {
