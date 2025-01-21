@@ -7,94 +7,67 @@
 
 package year2024
 
-import base.BaseFileHandler
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
+import utils.Constants.DOT_CHAR
+import utils.Constants.E_CAP_CHAR
+import utils.Constants.HASH_CHAR
+import utils.Constants.S_CAP_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.TransverseDirection.RIGHT
 import utils.grid.isQuarterTurnTo
 import java.util.*
-import kotlin.collections.ArrayDeque
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.MutableList
-import kotlin.collections.MutableMap
-import kotlin.collections.MutableSet
-import kotlin.collections.associateBy
-import kotlin.collections.count
-import kotlin.collections.distinct
-import kotlin.collections.filter
-import kotlin.collections.filterNot
-import kotlin.collections.forEach
-import kotlin.collections.isNotEmpty
-import kotlin.collections.last
-import kotlin.collections.listOf
-import kotlin.collections.map
-import kotlin.collections.mutableListOf
-import kotlin.collections.mutableMapOf
-import kotlin.collections.mutableSetOf
-import kotlin.collections.set
-import kotlin.collections.single
 import utils.grid.TransverseDirection as Direction
 
-private class Day16 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day16 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ReindeerMazeAnalyzer.parse(input)
+            .getLowestScoreOfReindeer()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        ReindeerMazeAnalyzer.parse(input)
+            .getCountOfTilesAlongBestPaths()
+
 }
 
 fun main() {
-    listOf(
-        ::solveSampleType1 to arrayOf<Any?>(1, 7036),
-        ::solveSampleType2 to arrayOf<Any?>(1, 11048),
-        ::solveActual to arrayOf<Any?>(1, 143580),
-        ::solveSampleType1 to arrayOf<Any?>(2, 45),
-        ::solveSampleType2 to arrayOf<Any?>(2, 64),
-        ::solveActual to arrayOf<Any?>(2, 645)
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(args[0] as Int).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day16()) {
+        solveSample(1, false, 1, 7036)
+        solveSample(1, false, 2, 11048)
+        solveActual(1, false, 0, 143580)
+        solveSample(2, false, 1, 45)
+        solveSample(2, false, 2, 64)
+        solveActual(2, false, 0, 645)
     }
 }
 
-private fun solveSampleType1(executeProblemPart: Int): Any =
-    execute(Day16.getSampleFile("_1").readLines(), executeProblemPart)
-
-private fun solveSampleType2(executeProblemPart: Int): Any =
-    execute(Day16.getSampleFile("_2").readLines(), executeProblemPart)
-
-private fun solveActual(executeProblemPart: Int): Any =
-    execute(Day16.getActualTestFile().readLines(), executeProblemPart)
-
-private fun execute(input: List<String>, executeProblemPart: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>): Any =
-    ReindeerMazeAnalyzer.parse(input)
-        .getLowestScoreOfReindeer()
-
-private fun doPart2(input: List<String>): Any =
-    ReindeerMazeAnalyzer.parse(input)
-        .getCountOfTilesAlongBestPaths()
-
-
 private enum class ReindeerMazeType(val type: Char) {
-    WALL('#'),
-    START('S'),
-    END('E'),
-    SPACE('.');
+    WALL(HASH_CHAR),
+    START(S_CAP_CHAR),
+    END(E_CAP_CHAR),
+    SPACE(DOT_CHAR);
 
     companion object {
         private val typeMap = entries.associateBy(ReindeerMazeType::type)
@@ -112,8 +85,8 @@ private class ReindeerMazeGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): ReindeerMazeTile =
         ReindeerMazeTile(row, column)
