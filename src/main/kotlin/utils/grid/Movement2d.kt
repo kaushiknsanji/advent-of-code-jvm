@@ -6,6 +6,8 @@
 
 package utils.grid
 
+import utils.Constants.EMPTY
+
 /**
  * Interface for Two Dimensional Grid Graph to initialize and get started with.
  *
@@ -45,6 +47,11 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
     fun P.toValue(): V
 
     /**
+     * Swaps value found at [location1] with value found at [location2] in the grid
+     */
+    fun swap(location1: P, location2: P)
+
+    /**
      * Returns this Grid Graph with current values as a [String]
      *
      * @param transform Lambda to transform value stored in type [V] to [Char]
@@ -53,7 +60,7 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
 }
 
 /**
- * Interface for Two Dimensional Lattice to facilitate traversing the Grid in Cardinal directions.
+ * Interface for Two Dimensional Lattice-4 to facilitate traversing the Grid in Cardinal directions.
  *
  * @param P type of [Point2d] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
@@ -62,7 +69,7 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    fun P.getNeighbour(direction: TransverseDirection): P?
+    fun P.getNeighbourOrNull(direction: TransverseDirection): P?
 
     /**
      * Returns a [Collection] of neighbouring locations of [this] location found in all [TransverseDirection]s possible
@@ -95,8 +102,7 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
 }
 
 /**
- * Interface for Two Dimensional Diagonal Lattice to facilitate traversing the Grid in both
- * Cardinal and Ordinal directions.
+ * Interface for Two Dimensional Diagonal Lattice to facilitate traversing the Grid in Ordinal directions only.
  *
  * @param P type of [Point2d] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
@@ -105,7 +111,50 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    fun P.getNeighbour(direction: OmniDirection): P?
+    fun P.getNeighbourOrNull(direction: DiagonalDirection): P?
+
+    /**
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible
+     */
+    fun P.getAllNeighbours(): Collection<P>
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible.
+     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getAllNeighboursWithDirection(): Map<DiagonalDirection, P>
+
+    /**
+     * Returns [DiagonalDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the diagonal neighbouring locations of [this] location.
+     */
+    fun P.getDirectionToNeighbourOrNull(nextLocation: P): DiagonalDirection?
+
+    /**
+     * Returns a [Sequence] of all locations found from [this] location in the given [direction]
+     */
+    fun P.getLocationsInDirection(direction: DiagonalDirection): Sequence<P>
+
+    /**
+     * Returns a [Map] of all locations found from [this] location in every possible [DiagonalDirection].
+     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getLocationsInAllDirections(): Map<DiagonalDirection, Sequence<P>>
+}
+
+/**
+ * Interface for Two Dimensional Lattice-8 to facilitate traversing the Grid in both
+ * Cardinal and Ordinal directions.
+ *
+ * @param P type of [Point2d] representing locations in the Grid.
+ * @param V type of value stored in all locations of the Grid.
+ */
+interface IOmniLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
+    /**
+     * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
+     */
+    fun P.getNeighbourOrNull(direction: OmniDirection): P?
 
     /**
      * Returns a [Collection] of neighbouring locations of [this] location found in all [OmniDirection]s possible
@@ -113,10 +162,36 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     fun P.getAllNeighbours(): Collection<P>
 
     /**
+     * Returns a [Collection] of neighbouring locations of [this] location found only in all
+     * [Cardinal directions][OmniDirection.getCardinalDirections] possible
+     */
+    fun P.getCardinalNeighbours(): Collection<P>
+
+    /**
+     * Returns a [Collection] of neighbouring locations of [this] location found only in all
+     * [Ordinal directions][OmniDirection.getOrdinalDirections] possible
+     */
+    fun P.getOrdinalNeighbours(): Collection<P>
+
+    /**
      * Returns a [Map] of neighbouring locations of [this] location found in all [OmniDirection]s possible.
      * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
      */
     fun P.getAllNeighboursWithDirection(): Map<OmniDirection, P>
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found only in all
+     * [Cardinal directions][OmniDirection.getCardinalDirections] possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getCardinalNeighboursWithDirection(): Map<OmniDirection, P>
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found only in all
+     * [Ordinal directions][OmniDirection.getOrdinalDirections] possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    fun P.getOrdinalNeighboursWithDirection(): Map<OmniDirection, P>
 
     /**
      * Returns [OmniDirection] of travel from [this] location to the [next location][nextLocation].
@@ -231,36 +306,45 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     override fun P.toValue(): V = get(this)
 
     /**
+     * Swaps value found at [location1] with value found at [location2] in the grid
+     */
+    override fun swap(location1: P, location2: P) {
+        val temp = location2.toValue()
+        gridValueMap[location2] = location1.toValue()
+        gridValueMap[location1] = temp
+    }
+
+    /**
      * Returns this Grid Graph with current values as a [String]
      *
      * @param transform Lambda to transform value stored in type [V] to [Char]
      */
     override fun gridToString(transform: (V) -> Char): String =
-        gridMap.entries.joinToString("\n") { (_: Int, rowLocations: List<P>) ->
+        gridMap.entries.joinToString(System.lineSeparator()) { (_: Int, rowLocations: List<P>) ->
             rowLocations.map { location: P ->
-                transform(get(location))
-            }.joinToString("")
+                transform(location.toValue())
+            }.joinToString(EMPTY)
         }
 
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     protected abstract fun provideLocation(row: Int, column: Int): P
 
     /**
      * Returns value to be used in the grid.
      *
-     * @param locationChar Char found at a location in the input pattern
+     * @param locationChar [Char] found at a location in the input pattern
      */
     protected abstract fun provideValue(locationChar: Char): V
 
 }
 
 /**
- * Abstract Lattice class to facilitate traversing the Grid in Cardinal directions.
+ * Abstract Lattice-4 class to facilitate traversing the Grid in Cardinal directions.
  *
  * @param P type of [Point2d] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
@@ -275,7 +359,7 @@ abstract class Lattice<P : Point2d<Int>, V>(
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    override fun P.getNeighbour(direction: TransverseDirection): P? = when (direction) {
+    override fun P.getNeighbourOrNull(direction: TransverseDirection): P? = when (direction) {
         TransverseDirection.TOP -> getLocationOrNull(xPos - 1, yPos)
         TransverseDirection.BOTTOM -> getLocationOrNull(xPos + 1, yPos)
         TransverseDirection.RIGHT -> getLocationOrNull(xPos, yPos + 1)
@@ -286,7 +370,7 @@ abstract class Lattice<P : Point2d<Int>, V>(
      * Returns a [Collection] of neighbouring locations of [this] location found in all [TransverseDirection]s possible
      */
     override fun P.getAllNeighbours(): Collection<P> =
-        TransverseDirection.entries.mapNotNull { direction: TransverseDirection -> getNeighbour(direction) }
+        TransverseDirection.entries.mapNotNull { direction: TransverseDirection -> getNeighbourOrNull(direction) }
 
     /**
      * Returns a [Map] of neighbouring locations of [this] location found in all [TransverseDirection]s possible.
@@ -294,9 +378,9 @@ abstract class Lattice<P : Point2d<Int>, V>(
      */
     override fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P> =
         TransverseDirection.entries.filterNot { direction: TransverseDirection ->
-            getNeighbour(direction) == null
+            getNeighbourOrNull(direction) == null
         }.associateWith { direction: TransverseDirection ->
-            getNeighbour(direction)!!
+            getNeighbourOrNull(direction)!!
         }
 
     /**
@@ -314,7 +398,7 @@ abstract class Lattice<P : Point2d<Int>, V>(
      */
     override fun P.getLocationsInDirection(direction: TransverseDirection): Sequence<P> =
         generateSequence(this) { previousLocation: P ->
-            previousLocation.getNeighbour(direction)
+            previousLocation.getNeighbourOrNull(direction)
         }
 
     /**
@@ -329,8 +413,7 @@ abstract class Lattice<P : Point2d<Int>, V>(
 }
 
 /**
- * Abstract Diagonal Lattice class to facilitate traversing the Grid in both
- * Cardinal and Ordinal directions.
+ * Abstract Diagonal Lattice class to facilitate traversing the Grid in Ordinal directions only.
  *
  * @param P type of [Point2d] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
@@ -345,7 +428,79 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    override fun P.getNeighbour(direction: OmniDirection): P? = when (direction) {
+    override fun P.getNeighbourOrNull(direction: DiagonalDirection): P? = when (direction) {
+        DiagonalDirection.TOP_LEFT -> getLocationOrNull(xPos - 1, yPos - 1)
+        DiagonalDirection.TOP_RIGHT -> getLocationOrNull(xPos - 1, yPos + 1)
+        DiagonalDirection.BOTTOM_LEFT -> getLocationOrNull(xPos + 1, yPos - 1)
+        DiagonalDirection.BOTTOM_RIGHT -> getLocationOrNull(xPos + 1, yPos + 1)
+    }
+
+    /**
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible
+     */
+    override fun P.getAllNeighbours(): Collection<P> =
+        DiagonalDirection.entries.mapNotNull { direction: DiagonalDirection ->
+            getNeighbourOrNull(direction)
+        }
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible.
+     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getAllNeighboursWithDirection(): Map<DiagonalDirection, P> =
+        DiagonalDirection.entries.filterNot { direction: DiagonalDirection ->
+            getNeighbourOrNull(direction) == null
+        }.associateWith { direction: DiagonalDirection ->
+            getNeighbourOrNull(direction)!!
+        }
+
+    /**
+     * Returns [DiagonalDirection] of travel from [this] location to the [next location][nextLocation].
+     *
+     * Can return `null` if [nextLocation] is NOT one of the diagonal neighbouring locations of [this] location.
+     */
+    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): DiagonalDirection? =
+        getAllNeighboursWithDirection().filterValues { location: P ->
+            location == nextLocation
+        }.keys.singleOrNull()
+
+    /**
+     * Returns a [Sequence] of all locations found from [this] location in the given [direction]
+     */
+    override fun P.getLocationsInDirection(direction: DiagonalDirection): Sequence<P> =
+        generateSequence(this) { previousLocation: P ->
+            previousLocation.getNeighbourOrNull(direction)
+        }
+
+    /**
+     * Returns a [Map] of all locations found from [this] location in every possible [DiagonalDirection].
+     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getLocationsInAllDirections(): Map<DiagonalDirection, Sequence<P>> =
+        DiagonalDirection.entries.associateWith { direction: DiagonalDirection ->
+            getLocationsInDirection(direction)
+        }
+
+}
+
+/**
+ * Abstract Lattice-8 class to facilitate traversing the Grid in both
+ * Cardinal and Ordinal directions.
+ *
+ * @param P type of [Point2d] representing locations in the Grid.
+ * @param V type of value stored in all locations of the Grid.
+ * @param pattern [List] of Strings having the input pattern for Two Dimensional Grid construction.
+ *
+ * @constructor Constructs [OmniLattice] using the provided grid `pattern` input.
+ */
+abstract class OmniLattice<P : Point2d<Int>, V>(
+    pattern: List<String>
+) : IOmniLattice<P, V>, Grid2dGraph<P, V>(pattern) {
+
+    /**
+     * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
+     */
+    override fun P.getNeighbourOrNull(direction: OmniDirection): P? = when (direction) {
         OmniDirection.TOP -> getLocationOrNull(xPos - 1, yPos)
         OmniDirection.BOTTOM -> getLocationOrNull(xPos + 1, yPos)
         OmniDirection.RIGHT -> getLocationOrNull(xPos, yPos + 1)
@@ -360,7 +515,27 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
      * Returns a [Collection] of neighbouring locations of [this] location found in all [OmniDirection]s possible
      */
     override fun P.getAllNeighbours(): Collection<P> =
-        OmniDirection.entries.mapNotNull { direction: OmniDirection -> getNeighbour(direction) }
+        OmniDirection.entries.mapNotNull { direction: OmniDirection ->
+            getNeighbourOrNull(direction)
+        }
+
+    /**
+     * Returns a [Collection] of neighbouring locations of [this] location found only in all
+     * [Cardinal directions][OmniDirection.getCardinalDirections] possible
+     */
+    override fun P.getCardinalNeighbours(): Collection<P> =
+        OmniDirection.getCardinalDirections().mapNotNull { direction: OmniDirection ->
+            getNeighbourOrNull(direction)
+        }
+
+    /**
+     * Returns a [Collection] of neighbouring locations of [this] location found only in all
+     * [Ordinal directions][OmniDirection.getOrdinalDirections] possible
+     */
+    override fun P.getOrdinalNeighbours(): Collection<P> =
+        OmniDirection.getOrdinalDirections().mapNotNull { direction: OmniDirection ->
+            getNeighbourOrNull(direction)
+        }
 
     /**
      * Returns a [Map] of neighbouring locations of [this] location found in all [OmniDirection]s possible.
@@ -368,9 +543,33 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
      */
     override fun P.getAllNeighboursWithDirection(): Map<OmniDirection, P> =
         OmniDirection.entries.filterNot { direction: OmniDirection ->
-            getNeighbour(direction) == null
+            getNeighbourOrNull(direction) == null
         }.associateWith { direction: OmniDirection ->
-            getNeighbour(direction)!!
+            getNeighbourOrNull(direction)!!
+        }
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found only in all
+     * [Cardinal directions][OmniDirection.getCardinalDirections] possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getCardinalNeighboursWithDirection(): Map<OmniDirection, P> =
+        OmniDirection.getCardinalDirections().filterNot { direction: OmniDirection ->
+            getNeighbourOrNull(direction) == null
+        }.associateWith { direction: OmniDirection ->
+            getNeighbourOrNull(direction)!!
+        }
+
+    /**
+     * Returns a [Map] of neighbouring locations of [this] location found only in all
+     * [Ordinal directions][OmniDirection.getOrdinalDirections] possible.
+     * [OmniDirection]s will be the [Map.keys] of the [Map] returned.
+     */
+    override fun P.getOrdinalNeighboursWithDirection(): Map<OmniDirection, P> =
+        OmniDirection.getOrdinalDirections().filterNot { direction: OmniDirection ->
+            getNeighbourOrNull(direction) == null
+        }.associateWith { direction: OmniDirection ->
+            getNeighbourOrNull(direction)!!
         }
 
     /**
@@ -388,7 +587,7 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
      */
     override fun P.getLocationsInDirection(direction: OmniDirection): Sequence<P> =
         generateSequence(this) { previousLocation: P ->
-            previousLocation.getNeighbour(direction)
+            previousLocation.getNeighbourOrNull(direction)
         }
 
     /**
