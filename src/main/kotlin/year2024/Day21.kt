@@ -7,8 +7,24 @@
 
 package year2024
 
-import base.BaseFileHandler
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
+import utils.Constants.A_CAP_CHAR
+import utils.Constants.CARET_CHAR
+import utils.Constants.EMPTY
+import utils.Constants.GREATER_CHAR
+import utils.Constants.LESSER_CHAR
+import utils.Constants.NO_0_CHAR
+import utils.Constants.NO_1_CHAR
+import utils.Constants.NO_2_CHAR
+import utils.Constants.NO_3_CHAR
+import utils.Constants.NO_4_CHAR
+import utils.Constants.NO_5_CHAR
+import utils.Constants.NO_6_CHAR
+import utils.Constants.NO_7_CHAR
+import utils.Constants.NO_8_CHAR
+import utils.Constants.NO_9_CHAR
+import utils.Constants.SPACE_CHAR
+import utils.Constants.V_SMALL_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
@@ -18,66 +34,60 @@ import utils.grid.toDirectionalChar
 import java.util.*
 import utils.grid.TransverseDirection as Direction
 
-private class Day21 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day21 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MultiKeypadAnalyzer.parse(input)
+            .getTotalOfAllCodeComplexity(3)
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MultiKeypadAnalyzer.parse(input)
+            .getTotalOfAllCodeComplexity(26)
+
 }
 
 fun main() {
-    listOf(
-        ::solveSample to arrayOf<Any?>(1, 126384L),
-        ::solveActual to arrayOf<Any?>(1, 157230L),
-        ::solveSample to arrayOf<Any?>(2, 154115708116294L),
-        ::solveActual to arrayOf<Any?>(2, 195969155897936L)
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(args[0] as Int).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day21()) {
+        solveSample(1, false, 0, 126384L)
+        solveActual(1, false, 0, 157230L)
+        solveSample(2, false, 0, 154115708116294L)
+        solveActual(2, false, 0, 195969155897936L)
     }
 }
 
-private fun solveSample(executeProblemPart: Int): Any =
-    execute(Day21.getSampleFile().readLines(), executeProblemPart)
-
-private fun solveActual(executeProblemPart: Int): Any =
-    execute(Day21.getActualTestFile().readLines(), executeProblemPart)
-
-private fun execute(input: List<String>, executeProblemPart: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>): Any =
-    MultiKeypadAnalyzer.parse(input)
-        .getTotalOfAllCodeComplexity(3)
-
-private fun doPart2(input: List<String>): Any =
-    MultiKeypadAnalyzer.parse(input)
-        .getTotalOfAllCodeComplexity(26)
-
-
 private enum class NumericKeyType(val type: Char) {
-    KEY_0('0'),
-    KEY_1('1'),
-    KEY_2('2'),
-    KEY_3('3'),
-    KEY_4('4'),
-    KEY_5('5'),
-    KEY_6('6'),
-    KEY_7('7'),
-    KEY_8('8'),
-    KEY_9('9'),
-    KEY_ACTIVATE('A'),
-    NO_KEY(' ');
+    KEY_0(NO_0_CHAR),
+    KEY_1(NO_1_CHAR),
+    KEY_2(NO_2_CHAR),
+    KEY_3(NO_3_CHAR),
+    KEY_4(NO_4_CHAR),
+    KEY_5(NO_5_CHAR),
+    KEY_6(NO_6_CHAR),
+    KEY_7(NO_7_CHAR),
+    KEY_8(NO_8_CHAR),
+    KEY_9(NO_9_CHAR),
+    KEY_ACTIVATE(A_CAP_CHAR),
+    NO_KEY(SPACE_CHAR);
 
     companion object {
         private val typeMap = entries.associateBy(NumericKeyType::type)
@@ -93,7 +103,7 @@ private class NumericKeypadGrid(
         "789",
         "456",
         "123",
-        " 0A",
+        " 0A"
     )
 ) : Lattice<NumericKeypadButtonLocation, NumericKeyType>(pattern) {
 
@@ -147,7 +157,7 @@ private class NumericKeypadProcessor(
     private class TraceData(
         val location: NumericKeypadButtonLocation,
         val direction: Direction = TOP,
-        val code: String = ""
+        val code: String = EMPTY
     )
 
     /**
@@ -259,12 +269,12 @@ private class NumericKeypadProcessor(
 }
 
 private enum class DirectionalKeyType(val type: Char) {
-    NO_KEY(' '),
-    KEY_UP('^'),
-    KEY_ACTIVATE('A'),
-    KEY_LEFT('<'),
-    KEY_DOWN('v'),
-    KEY_RIGHT('>');
+    NO_KEY(SPACE_CHAR),
+    KEY_UP(CARET_CHAR),
+    KEY_ACTIVATE(A_CAP_CHAR),
+    KEY_LEFT(LESSER_CHAR),
+    KEY_DOWN(V_SMALL_CHAR),
+    KEY_RIGHT(GREATER_CHAR);
 
     companion object {
         private val typeMap = entries.associateBy(DirectionalKeyType::type)
@@ -332,7 +342,7 @@ private class DirectionalKeypadProcessor(
     private class TraceData(
         val location: DirectionalKeypadButtonLocation,
         val direction: Direction = BOTTOM,
-        val code: String = ""
+        val code: String = EMPTY
     )
 
     /**
@@ -457,7 +467,7 @@ private class MultiKeypadAnalyzer private constructor(
 ) {
 
     companion object {
-        private const val BUTTON_ACTIVATE = 'A'
+        private const val BUTTON_ACTIVATE = A_CAP_CHAR
 
         fun parse(input: List<String>): MultiKeypadAnalyzer = MultiKeypadAnalyzer(
             doorCodes = input,
