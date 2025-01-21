@@ -7,68 +7,61 @@
 
 package year2024
 
-import base.BaseFileHandler
-import org.junit.jupiter.api.Assertions.assertEquals
+import base.BaseProblemHandler
+import utils.Constants.COMMA_STRING
+import utils.Constants.DOT_CHAR
+import utils.Constants.EMPTY
+import utils.Constants.HASH_CHAR
+import utils.findAllInt
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 import java.util.*
 
-private class Day18 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day18 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MemoryAnalyzer.parse(input, otherArgs[0] as Int, otherArgs[1] as Int)
+            .getMinimumStepsToReachExit(otherArgs[2] as Int)
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MemoryAnalyzer.parse(input, otherArgs[0] as Int, otherArgs[1] as Int)
+            .getFirstBytePositionPreventingExit(otherArgs[2] as Int)
+
 }
 
 fun main() {
-    listOf(
-        ::solveSample to arrayOf<Any?>(1, 7, 7, 12, 22),
-        ::solveActual to arrayOf<Any?>(1, 71, 71, 1024, 302),
-        ::solveSample to arrayOf<Any?>(2, 7, 7, 12, "6,1"),
-        ::solveActual to arrayOf<Any?>(2, 71, 71, 1024, "24,32")
-    ).forEach { (solver, args: Array<Any?>) ->
-        val result = solver(
-            args[0] as Int,
-            args[1] as Int,
-            args[2] as Int,
-            args[3] as Int
-        ).also(::println)
-
-        // Last argument should be the expected value. If unknown, it will be `null`. When known, following statement
-        // asserts the `result` with the expected value.
-        if (args.last() != null) {
-            assertEquals(args.last(), result)
-        }
-        println("=====")
+    with(Day18()) {
+        solveSample(1, false, 0, 22, 7, 7, 12)
+        solveActual(1, false, 0, 302, 71, 71, 1024)
+        solveSample(2, false, 0, "6,1", 7, 7, 12)
+        solveActual(2, false, 0, "24,32", 71, 71, 1024)
     }
 }
 
-private fun solveSample(executeProblemPart: Int, rows: Int, columns: Int, bytesToProcess: Int): Any =
-    execute(Day18.getSampleFile().readLines(), executeProblemPart, rows, columns, bytesToProcess)
-
-private fun solveActual(executeProblemPart: Int, rows: Int, columns: Int, bytesToProcess: Int): Any =
-    execute(Day18.getActualTestFile().readLines(), executeProblemPart, rows, columns, bytesToProcess)
-
-private fun execute(input: List<String>, executeProblemPart: Int, rows: Int, columns: Int, bytesToProcess: Int): Any =
-    when (executeProblemPart) {
-        1 -> doPart1(input, rows, columns, bytesToProcess)
-        2 -> doPart2(input, rows, columns, bytesToProcess)
-        else -> throw Error("Unexpected Problem Part: $executeProblemPart")
-    }
-
-private fun doPart1(input: List<String>, rows: Int, columns: Int, bytesToProcess: Int): Any =
-    MemoryAnalyzer.parse(input, rows, columns)
-        .getMinimumStepsToReachExit(bytesToProcess)
-
-private fun doPart2(input: List<String>, rows: Int, columns: Int, bytesToProcess: Int): Any =
-    MemoryAnalyzer.parse(input, rows, columns)
-        .getFirstBytePositionPreventingExit(bytesToProcess)
-
-
 private enum class MemorySpaceType(val type: Char) {
-    SPACE('.'),
-    CORRUPTED('#');
+    SPACE(DOT_CHAR),
+    CORRUPTED(HASH_CHAR);
 
     companion object {
         private val typeMap = entries.associateBy(MemorySpaceType::type)
@@ -86,8 +79,8 @@ private class MemorySpaceGrid(
     /**
      * Returns location to be used in the grid.
      *
-     * @param row [Int] value location's row
-     * @param column [Int] value location's column
+     * @param row [Int] value of location's row
+     * @param column [Int] value of location's column
      */
     override fun provideLocation(row: Int, column: Int): BytePosition =
         BytePosition(row, column)
@@ -108,13 +101,9 @@ private class MemoryAnalyzer private constructor(
 ) : ILattice<BytePosition, MemorySpaceType> by memorySpaceGrid {
 
     companion object {
-        // Regular expression to capture numbers
-        private val numberRegex = """(\d+)""".toRegex()
 
         fun parse(input: List<String>, rows: Int, columns: Int): MemoryAnalyzer = input.map { line ->
-            numberRegex.findAll(line).map { matchResult ->
-                matchResult.groupValues[1].toInt()
-            }.toList().let { positions: List<Int> ->
+            line.findAllInt().let { positions: List<Int> ->
                 BytePosition(positions[0], positions[1])
             }
         }.let { bytePositions ->
@@ -122,7 +111,7 @@ private class MemoryAnalyzer private constructor(
                 bytePositions,
                 memorySpaceGrid = MemorySpaceGrid(
                     pattern = List(rows) {
-                        List(columns) { '.' }.joinToString("")
+                        List(columns) { DOT_CHAR }.joinToString(EMPTY)
                     }
                 )
             )
@@ -289,7 +278,7 @@ private class MemoryAnalyzer private constructor(
                     // LastIndex of the shortest path list will be negative for an empty list resulting from
                     // the exit being unreachable from the start location.
                     distanceToEnd == -1
-                }.first.toCoordinateList().joinToString(",")
+                }.first.toCoordinateList().joinToString(COMMA_STRING)
         }
 
 }
