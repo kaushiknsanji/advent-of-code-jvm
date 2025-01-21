@@ -7,52 +7,49 @@
 
 package year2024
 
-import base.BaseFileHandler
+import base.BaseProblemHandler
+import utils.findAllInt
 import kotlin.math.absoluteValue
 
-private class Day1 {
-    companion object : BaseFileHandler() {
-        override fun getCurrentPackageName(): String = this::class.java.`package`.name
-        override fun getClassName(): String = this::class.java.declaringClass.simpleName
-    }
+private class Day1 : BaseProblemHandler() {
+
+    /**
+     * Returns the Package name of this problem class
+     */
+    override fun getCurrentPackageName(): String = this::class.java.`package`.name
+
+    /**
+     * Returns the Class name of this problem class
+     */
+    override fun getClassName(): String = this::class.java.simpleName
+
+    /**
+     * Executes "Part-1" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart1(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MomentousLocationsAnalyzer.parse(input)
+            .getTotalDistanceBetweenLists()
+
+    /**
+     * Executes "Part-2" of the problem with the [input] read and [other arguments][otherArgs] if any.
+     *
+     * @return Result of type [Any]
+     */
+    override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
+        MomentousLocationsAnalyzer.parse(input)
+            .getSimilarityScore()
+
 }
 
 fun main() {
-    solveSample(1)      // 11
-    println("=====")
-    solveActual(1)      // 2166959
-    println("=====")
-    solveSample(2)      // 31
-    println("=====")
-    solveActual(2)      // 23741109
-    println("=====")
-}
-
-private fun solveSample(executeProblemPart: Int) {
-    execute(Day1.getSampleFile().readLines(), executeProblemPart)
-}
-
-private fun solveActual(executeProblemPart: Int) {
-    execute(Day1.getActualTestFile().readLines(), executeProblemPart)
-}
-
-private fun execute(input: List<String>, executeProblemPart: Int) {
-    when (executeProblemPart) {
-        1 -> doPart1(input)
-        2 -> doPart2(input)
+    with(Day1()) {
+        solveSample(1, false, 0, 11)
+        solveActual(1, false, 0, 2166959)
+        solveSample(2, false, 0, 31)
+        solveActual(2, false, 0, 23741109)
     }
-}
-
-private fun doPart1(input: List<String>) {
-    MomentousLocationsAnalyzer.parse(input)
-        .getTotalDistanceBetweenLists()
-        .also(::println)
-}
-
-private fun doPart2(input: List<String>) {
-    MomentousLocationsAnalyzer.parse(input)
-        .getSimilarityScore()
-        .also(::println)
 }
 
 private class MomentousLocationsAnalyzer private constructor(
@@ -61,18 +58,13 @@ private class MomentousLocationsAnalyzer private constructor(
 ) {
 
     companion object {
-        // Regular expression to capture numbers
-        val numberRegex = """(\d+)""".toRegex()
 
-        fun parse(input: List<String>): MomentousLocationsAnalyzer = input.map { line ->
-            numberRegex.findAll(line).map { matchResult ->
-                matchResult.groupValues[1].toInt()
-            }
-        }.map { lineNumbers: Sequence<Int> ->
-            lineNumbers.first() to lineNumbers.last()
-        }.unzip().let { (leftNumbers: List<Int>, rightNumbers: List<Int>) ->
-            MomentousLocationsAnalyzer(leftNumbers.sorted(), rightNumbers.sorted())
-        }
+        fun parse(input: List<String>): MomentousLocationsAnalyzer =
+            input.map(String::findAllInt)
+                .flatMap(List<Int>::zipWithNext)
+                .unzip().let { (leftNumbers: List<Int>, rightNumbers: List<Int>) ->
+                    MomentousLocationsAnalyzer(leftNumbers.sorted(), rightNumbers.sorted())
+                }
 
     }
 
