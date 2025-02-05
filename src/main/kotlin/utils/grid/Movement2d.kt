@@ -18,10 +18,26 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
     /**
      * Returns location if present at given [row] and [column] in the grid; otherwise `null`.
      *
-     * @throws NoSuchElementException when a location for the given [row] is NOT found, or
-     * when the given [row] is found, but NOT the given [column] in the grid.
+     * When location is not found in the grid, it will call [getExpandedLocationOrNull] to retrieve location
+     * from the Expanded grid if the grid is expandable; otherwise `null`. Implement [getExpandedLocationOrNull]
+     * when the grid is expandable.
+     *
+     * @see getExpandedLocationOrNull
      */
     fun getLocationOrNull(row: Int, column: Int): P?
+
+    /**
+     * Returns location if present at given [row] and [column] in the Expanded grid; otherwise `null`.
+     *
+     * Called by [getLocationOrNull] when location is not found in the original grid.
+     *
+     * Default implementation returns `null`. When implemented, this function must call [addLocation]
+     * to save new location in the Expanded grid, and then must call `set(location, value)` operator to save the
+     * computed value at this new location. If saving new location and computed value is costly, then
+     * expansion can be implemented without saving by calling `provideLocation(row, column)` to return
+     * new location and overriding `get(location)` operator to return computed value for this new location.
+     */
+    fun getExpandedLocationOrNull(row: Int, column: Int): P? = null
 
     /**
      * Returns location for given [row] and [column] in the grid
@@ -29,6 +45,13 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
      * @throws IllegalArgumentException when a location for given [row] and [column] does not exist in the grid.
      */
     fun getLocation(row: Int, column: Int): P
+
+    /**
+     * Adds location defined by given [row] and [column] to the grid, and then returns the location added.
+     *
+     * If the location already exists, then the same location will be returned.
+     */
+    fun addLocation(row: Int, column: Int): P
 
     /**
      * Returns all locations in the grid as [Collection]
@@ -52,11 +75,38 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
     fun swap(location1: P, location2: P)
 
     /**
+     * Returns total number of rows found in the Expanded grid
+     */
+    fun getExpandedTotalRows(): Int
+
+    /**
+     * Returns total number of columns found in the Expanded grid
+     */
+    fun getExpandedTotalColumns(): Int
+
+    /**
      * Returns this Grid Graph with current values as a [String]
      *
      * @param transform Lambda to transform value stored in type [V] to [Char]
      */
     fun gridToString(transform: (V) -> Char): String
+
+    /**
+     * Returns this Expanded Grid Graph with current values as a [String]
+     *
+     * @param defaultValue Default [Char] value to be used for locations not yet added to the Expanded grid
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    fun expandedGridToString(defaultValue: Char, transform: (V) -> Char): String
+
+    /**
+     * Returns this Expanded Grid Graph with current values as a [String]
+     *
+     * @param defaultValue Lambda to provide default [Char] value to be used for locations not yet added
+     * to the Expanded grid.
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    fun expandedGridToString(defaultValue: (row: Int, column: Int) -> Char, transform: (V) -> Char): String
 }
 
 /**
@@ -235,12 +285,12 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
         pattern
     )
 
-    // Map of locations for each row index as key
-    private val gridMap: Map<Int, List<P>> = (0 until rows).flatMap { x ->
+    // Map of Locations for each row index as key
+    private val gridLocationMap: MutableMap<Int, MutableList<P>> = (0 until rows).associateWith { x ->
         (0 until columns).map { y ->
             provideLocation(x, y)
-        }
-    }.groupBy { location: P -> location.xPos }
+        }.toMutableList()
+    }.toMutableMap()
 
     // Map of Values for each Location as key
     private val gridValueMap: MutableMap<P, V> = pattern.flatMapIndexed { x: Int, rowPattern: String ->
@@ -252,17 +302,20 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     /**
      * Returns location if present at given [row] and [column] in the grid; otherwise `null`.
      *
-     * @throws NoSuchElementException when a location for the given [row] is NOT found, or
-     * when the given [row] is found, but NOT the given [column] in the grid.
+     * When location is not found in the grid, it will call [getExpandedLocationOrNull] to retrieve location
+     * from the Expanded grid if the grid is expandable; otherwise `null`. Implement [getExpandedLocationOrNull]
+     * when the grid is expandable.
+     *
+     * @see getExpandedLocationOrNull
      */
-    override fun getLocationOrNull(row: Int, column: Int): P? = try {
-        if (!gridMap.containsKey(row)) {
+    final override fun getLocationOrNull(row: Int, column: Int): P? = try {
+        if (!gridLocationMap.containsKey(row)) {
             throw NoSuchElementException()
         } else {
-            gridMap[row]!!.single { location: P -> location.yPos == column }
+            gridLocationMap[row]!!.single { location: P -> location.yPos == column }
         }
     } catch (e: NoSuchElementException) {
-        null
+        getExpandedLocationOrNull(row, column)
     }
 
     /**
@@ -276,10 +329,25 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
         )
 
     /**
+     * Adds location defined by given [row] and [column] to the grid, and then returns the location added.
+     *
+     * If the location already exists, then the same location will be returned.
+     */
+    override fun addLocation(row: Int, column: Int): P {
+        val rowLocations = gridLocationMap.getOrPut(row) { mutableListOf() }
+
+        return rowLocations.find { location: P ->
+            location.yPos == column
+        } ?: provideLocation(row, column).apply {
+            rowLocations.add(this)
+        }
+    }
+
+    /**
      * Returns all locations in the grid as [Collection]
      */
     override fun getAllLocations(): Collection<P> =
-        gridMap.values.flatten()
+        gridLocationMap.values.flatten()
 
     /**
      * Returns value present in the grid at given [location]
@@ -315,16 +383,66 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     }
 
     /**
+     * Returns total number of rows found in the Expanded grid
+     */
+    override fun getExpandedTotalRows(): Int =
+        getAllLocations().maxOf { location: P -> location.xPos }
+
+
+    /**
+     * Returns total number of columns found in the Expanded grid
+     */
+    override fun getExpandedTotalColumns(): Int =
+        getAllLocations().maxOf { location: P -> location.yPos }
+
+    /**
      * Returns this Grid Graph with current values as a [String]
      *
      * @param transform Lambda to transform value stored in type [V] to [Char]
      */
     override fun gridToString(transform: (V) -> Char): String =
-        gridMap.entries.joinToString(System.lineSeparator()) { (_: Int, rowLocations: List<P>) ->
+        gridLocationMap.entries.joinToString(System.lineSeparator()) { (_: Int, rowLocations: List<P>) ->
             rowLocations.map { location: P ->
                 transform(location.toValue())
             }.joinToString(EMPTY)
         }
+
+    /**
+     * Returns this Expanded Grid Graph with current values as a [String]
+     *
+     * @param defaultValue Default [Char] value to be used for locations not yet added to the Expanded grid
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    override fun expandedGridToString(defaultValue: Char, transform: (V) -> Char): String {
+        val totalRows = getExpandedTotalRows()
+        val totalColumns = getExpandedTotalColumns()
+
+        return (0 until totalRows).joinToString(System.lineSeparator()) { row ->
+            (0 until totalColumns).map { column ->
+                gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
+                    ?: defaultValue
+            }.joinToString(EMPTY)
+        }
+    }
+
+    /**
+     * Returns this Expanded Grid Graph with current values as a [String]
+     *
+     * @param defaultValue Lambda to provide default [Char] value to be used for locations not yet added
+     * to the Expanded grid.
+     * @param transform Lambda to transform value stored in type [V] to [Char]
+     */
+    override fun expandedGridToString(defaultValue: (row: Int, column: Int) -> Char, transform: (V) -> Char): String {
+        val totalRows = getExpandedTotalRows()
+        val totalColumns = getExpandedTotalColumns()
+
+        return (0 until totalRows).joinToString(System.lineSeparator()) { row ->
+            (0 until totalColumns).map { column ->
+                gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
+                    ?: defaultValue(row, column)
+            }.joinToString(EMPTY)
+        }
+    }
 
     /**
      * Returns location to be used in the grid.
