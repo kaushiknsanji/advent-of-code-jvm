@@ -161,36 +161,36 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    fun P.getNeighbourOrNull(direction: DiagonalDirection): P?
+    fun P.getNeighbourOrNull(direction: OrdinalDirection): P?
 
     /**
-     * Returns a [Collection] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [OrdinalDirection]s possible
      */
     fun P.getAllNeighbours(): Collection<P>
 
     /**
-     * Returns a [Map] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible.
-     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of neighbouring locations of [this] location found in all [OrdinalDirection]s possible.
+     * [OrdinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    fun P.getAllNeighboursWithDirection(): Map<DiagonalDirection, P>
+    fun P.getAllNeighboursWithDirection(): Map<OrdinalDirection, P>
 
     /**
-     * Returns [DiagonalDirection] of travel from [this] location to the [next location][nextLocation].
+     * Returns [OrdinalDirection] of travel from [this] location to the [next location][nextLocation].
      *
      * Can return `null` if [nextLocation] is NOT one of the diagonal neighbouring locations of [this] location.
      */
-    fun P.getDirectionToNeighbourOrNull(nextLocation: P): DiagonalDirection?
+    fun P.getDirectionToNeighbourOrNull(nextLocation: P): OrdinalDirection?
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
-    fun P.getLocationsInDirection(direction: DiagonalDirection): Sequence<P>
+    fun P.getLocationsInDirection(direction: OrdinalDirection): Sequence<P>
 
     /**
-     * Returns a [Map] of all locations found from [this] location in every possible [DiagonalDirection].
-     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of all locations found from [this] location in every possible [OrdinalDirection].
+     * [OrdinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    fun P.getLocationsInAllDirections(): Map<DiagonalDirection, Sequence<P>>
+    fun P.getLocationsInAllDirections(): Map<OrdinalDirection, Sequence<P>>
 }
 
 /**
@@ -546,38 +546,38 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    override fun P.getNeighbourOrNull(direction: DiagonalDirection): P? = when (direction) {
-        DiagonalDirection.TOP_LEFT -> getLocationOrNull(xPos - 1, yPos - 1)
-        DiagonalDirection.TOP_RIGHT -> getLocationOrNull(xPos - 1, yPos + 1)
-        DiagonalDirection.BOTTOM_LEFT -> getLocationOrNull(xPos + 1, yPos - 1)
-        DiagonalDirection.BOTTOM_RIGHT -> getLocationOrNull(xPos + 1, yPos + 1)
+    override fun P.getNeighbourOrNull(direction: OrdinalDirection): P? = when (direction) {
+        OrdinalDirection.TOP_LEFT -> getLocationOrNull(xPos - 1, yPos - 1)
+        OrdinalDirection.TOP_RIGHT -> getLocationOrNull(xPos - 1, yPos + 1)
+        OrdinalDirection.BOTTOM_LEFT -> getLocationOrNull(xPos + 1, yPos - 1)
+        OrdinalDirection.BOTTOM_RIGHT -> getLocationOrNull(xPos + 1, yPos + 1)
     }
 
     /**
-     * Returns a [Collection] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [OrdinalDirection]s possible
      */
     override fun P.getAllNeighbours(): Collection<P> =
-        DiagonalDirection.entries.mapNotNull { direction: DiagonalDirection ->
+        OrdinalDirection.entries.mapNotNull { direction: OrdinalDirection ->
             getNeighbourOrNull(direction)
         }
 
     /**
-     * Returns a [Map] of neighbouring locations of [this] location found in all [DiagonalDirection]s possible.
-     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of neighbouring locations of [this] location found in all [OrdinalDirection]s possible.
+     * [OrdinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    override fun P.getAllNeighboursWithDirection(): Map<DiagonalDirection, P> =
-        DiagonalDirection.entries.filterNot { direction: DiagonalDirection ->
+    override fun P.getAllNeighboursWithDirection(): Map<OrdinalDirection, P> =
+        OrdinalDirection.entries.filterNot { direction: OrdinalDirection ->
             getNeighbourOrNull(direction) == null
-        }.associateWith { direction: DiagonalDirection ->
+        }.associateWith { direction: OrdinalDirection ->
             getNeighbourOrNull(direction)!!
         }
 
     /**
-     * Returns [DiagonalDirection] of travel from [this] location to the [next location][nextLocation].
+     * Returns [OrdinalDirection] of travel from [this] location to the [next location][nextLocation].
      *
      * Can return `null` if [nextLocation] is NOT one of the diagonal neighbouring locations of [this] location.
      */
-    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): DiagonalDirection? =
+    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): OrdinalDirection? =
         getAllNeighboursWithDirection().filterValues { location: P ->
             location == nextLocation
         }.keys.singleOrNull()
@@ -585,17 +585,17 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
-    override fun P.getLocationsInDirection(direction: DiagonalDirection): Sequence<P> =
+    override fun P.getLocationsInDirection(direction: OrdinalDirection): Sequence<P> =
         generateSequence(this) { previousLocation: P ->
             previousLocation.getNeighbourOrNull(direction)
         }
 
     /**
-     * Returns a [Map] of all locations found from [this] location in every possible [DiagonalDirection].
-     * [DiagonalDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of all locations found from [this] location in every possible [OrdinalDirection].
+     * [OrdinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    override fun P.getLocationsInAllDirections(): Map<DiagonalDirection, Sequence<P>> =
-        DiagonalDirection.entries.associateWith { direction: DiagonalDirection ->
+    override fun P.getLocationsInAllDirections(): Map<OrdinalDirection, Sequence<P>> =
+        OrdinalDirection.entries.associateWith { direction: OrdinalDirection ->
             getLocationsInDirection(direction)
         }
 

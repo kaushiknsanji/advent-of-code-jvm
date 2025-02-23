@@ -23,7 +23,7 @@ enum class TransverseDirection {
     TOP, BOTTOM, RIGHT, LEFT
 }
 
-enum class DiagonalDirection {
+enum class OrdinalDirection {
     TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
 }
 

@@ -8,7 +8,7 @@
 package year2022
 
 import base.BaseFileHandler
-import utils.grid.DiagonalDirection
+import utils.grid.OrdinalDirection
 import utils.grid.TransverseDirection
 
 private class Day9 {
@@ -68,7 +68,7 @@ private data class RopeKnotsPosition(val x: Int, val y: Int)
 
 private interface IRopeKnotGrid {
     fun RopeKnotsPosition.getNeighbour(direction: TransverseDirection): RopeKnotsPosition
-    fun RopeKnotsPosition.getNeighbour(direction: DiagonalDirection): RopeKnotsPosition
+    fun RopeKnotsPosition.getNeighbour(direction: OrdinalDirection): RopeKnotsPosition
     fun RopeKnotsPosition.getAllNeighboursInTransverseDirection(): Collection<RopeKnotsPosition>
     fun RopeKnotsPosition.getAllNeighboursInDiagonalDirection(): Collection<RopeKnotsPosition>
     fun RopeKnotsPosition.getAllNeighbours(): Collection<RopeKnotsPosition>
@@ -197,19 +197,19 @@ private class RopeKnotProcessor(
             TransverseDirection.LEFT -> RopeKnotsPosition(x, y - 1)
         }
 
-    override fun RopeKnotsPosition.getNeighbour(direction: DiagonalDirection): RopeKnotsPosition =
+    override fun RopeKnotsPosition.getNeighbour(direction: OrdinalDirection): RopeKnotsPosition =
         when (direction) {
-            DiagonalDirection.TOP_LEFT -> RopeKnotsPosition(x - 1, y - 1)
-            DiagonalDirection.TOP_RIGHT -> RopeKnotsPosition(x - 1, y + 1)
-            DiagonalDirection.BOTTOM_LEFT -> RopeKnotsPosition(x + 1, y - 1)
-            DiagonalDirection.BOTTOM_RIGHT -> RopeKnotsPosition(x + 1, y + 1)
+            OrdinalDirection.TOP_LEFT -> RopeKnotsPosition(x - 1, y - 1)
+            OrdinalDirection.TOP_RIGHT -> RopeKnotsPosition(x - 1, y + 1)
+            OrdinalDirection.BOTTOM_LEFT -> RopeKnotsPosition(x + 1, y - 1)
+            OrdinalDirection.BOTTOM_RIGHT -> RopeKnotsPosition(x + 1, y + 1)
         }
 
     override fun RopeKnotsPosition.getAllNeighboursInTransverseDirection(): Collection<RopeKnotsPosition> =
         TransverseDirection.values().map { direction -> getNeighbour(direction) }
 
     override fun RopeKnotsPosition.getAllNeighboursInDiagonalDirection(): Collection<RopeKnotsPosition> =
-        DiagonalDirection.values().map { direction -> getNeighbour(direction) }
+        OrdinalDirection.values().map { direction -> getNeighbour(direction) }
 
     override fun RopeKnotsPosition.getAllNeighbours(): Collection<RopeKnotsPosition> =
         getAllNeighboursInTransverseDirection() + getAllNeighboursInDiagonalDirection()
