@@ -7,8 +7,12 @@
 package utils.grid
 
 import utils.Constants.CARET_CHAR
+import utils.Constants.DOWN_CHAR
 import utils.Constants.GREATER_CHAR
+import utils.Constants.LEFT_CHAR
 import utils.Constants.LESSER_CHAR
+import utils.Constants.RIGHT_CHAR
+import utils.Constants.UP_CHAR
 import utils.Constants.V_SMALL_CHAR
 
 /**
@@ -118,13 +122,13 @@ enum class OmniDirection {
 }
 
 /**
- * Converts [this] directional [Char] representation to [CardinalDirection].
+ * Converts [this] Character representation to [CardinalDirection]
  */
 fun Char.toCardinalDirection(): CardinalDirection =
     when (this) {
-        CARET_CHAR -> CardinalDirection.TOP
-        V_SMALL_CHAR -> CardinalDirection.BOTTOM
-        GREATER_CHAR -> CardinalDirection.RIGHT
-        LESSER_CHAR -> CardinalDirection.LEFT
-        else -> throw Error("Unrecognized Directional character : $this")
+        CARET_CHAR, UP_CHAR -> CardinalDirection.TOP
+        V_SMALL_CHAR, DOWN_CHAR -> CardinalDirection.BOTTOM
+        GREATER_CHAR, RIGHT_CHAR -> CardinalDirection.RIGHT
+        LESSER_CHAR, LEFT_CHAR -> CardinalDirection.LEFT
+        else -> throw Error("Unrecognized character : $this")
     }

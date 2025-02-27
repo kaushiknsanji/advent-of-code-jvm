@@ -10,6 +10,7 @@ package year2022
 import base.BaseFileHandler
 import utils.grid.CardinalDirection
 import utils.grid.OrdinalDirection
+import utils.grid.toCardinalDirection
 
 private class Day9 {
     companion object : BaseFileHandler() {
@@ -223,25 +224,12 @@ private class RopeBridgeAnalyzer(
     private val headMotionList: List<String>,
     private val ropeKnotProcessor: RopeKnotProcessor = RopeKnotProcessor()
 ) {
-    companion object {
-        private const val LEFT = "L"
-        private const val RIGHT = "R"
-        private const val UP = "U"
-        private const val DOWN = "D"
-    }
-
-    private val keyToDirectionMap = mapOf(
-        LEFT to CardinalDirection.LEFT,
-        RIGHT to CardinalDirection.RIGHT,
-        UP to CardinalDirection.TOP,
-        DOWN to CardinalDirection.BOTTOM
-    )
 
     fun process(): RopeBridgeAnalyzer = this.apply {
         headMotionList.forEach { line ->
             line.split(" ").let { splitStrings ->
                 ropeKnotProcessor.moveHead(
-                    keyToDirectionMap[splitStrings[0]]!!,
+                    splitStrings[0].single().toCardinalDirection(),
                     splitStrings[1].toInt()
                 )
             }
