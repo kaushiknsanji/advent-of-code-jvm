@@ -8,8 +8,8 @@
 package year2022
 
 import base.BaseFileHandler
+import utils.grid.CardinalDirection
 import utils.grid.OrdinalDirection
-import utils.grid.TransverseDirection
 
 private class Day9 {
     companion object : BaseFileHandler() {
@@ -67,10 +67,10 @@ private fun doPart2(input: List<String>) {
 private data class RopeKnotsPosition(val x: Int, val y: Int)
 
 private interface IRopeKnotGrid {
-    fun RopeKnotsPosition.getNeighbour(direction: TransverseDirection): RopeKnotsPosition
+    fun RopeKnotsPosition.getNeighbour(direction: CardinalDirection): RopeKnotsPosition
     fun RopeKnotsPosition.getNeighbour(direction: OrdinalDirection): RopeKnotsPosition
-    fun RopeKnotsPosition.getAllNeighboursInTransverseDirection(): Collection<RopeKnotsPosition>
-    fun RopeKnotsPosition.getAllNeighboursInDiagonalDirection(): Collection<RopeKnotsPosition>
+    fun RopeKnotsPosition.getAllNeighboursInCardinalDirection(): Collection<RopeKnotsPosition>
+    fun RopeKnotsPosition.getAllNeighboursInOrdinalDirection(): Collection<RopeKnotsPosition>
     fun RopeKnotsPosition.getAllNeighbours(): Collection<RopeKnotsPosition>
     fun RopeKnotsPosition.isInVicinity(other: RopeKnotsPosition): Boolean
 }
@@ -144,7 +144,7 @@ private class RopeKnotProcessor(
 
     fun getTail(): AdditionalKnotMovement = knotsList[knotsList.lastIndex] as AdditionalKnotMovement
 
-    fun moveHead(toDirection: TransverseDirection, steps: Int) {
+    fun moveHead(toDirection: CardinalDirection, steps: Int) {
         repeat(steps) {
             // update head-knot
             head.updateKnotPosition(head.getKnotPosition().getNeighbour(toDirection))
@@ -178,23 +178,23 @@ private class RopeKnotProcessor(
             nextKnot.updateKnotPosition(
                 try {
                     (processedKnot.getKnotPosition()
-                        .getAllNeighboursInTransverseDirection() intersect nextKnot.getKnotPosition()
+                        .getAllNeighboursInCardinalDirection() intersect nextKnot.getKnotPosition()
                         .getAllNeighbours()).single()
                 } catch (e: NoSuchElementException) {
                     (processedKnot.getKnotPosition()
-                        .getAllNeighboursInDiagonalDirection() intersect nextKnot.getKnotPosition()
+                        .getAllNeighboursInOrdinalDirection() intersect nextKnot.getKnotPosition()
                         .getAllNeighbours()).single()
                 }
             )
         }
     }
 
-    override fun RopeKnotsPosition.getNeighbour(direction: TransverseDirection): RopeKnotsPosition =
+    override fun RopeKnotsPosition.getNeighbour(direction: CardinalDirection): RopeKnotsPosition =
         when (direction) {
-            TransverseDirection.TOP -> RopeKnotsPosition(x - 1, y)
-            TransverseDirection.BOTTOM -> RopeKnotsPosition(x + 1, y)
-            TransverseDirection.RIGHT -> RopeKnotsPosition(x, y + 1)
-            TransverseDirection.LEFT -> RopeKnotsPosition(x, y - 1)
+            CardinalDirection.TOP -> RopeKnotsPosition(x - 1, y)
+            CardinalDirection.BOTTOM -> RopeKnotsPosition(x + 1, y)
+            CardinalDirection.RIGHT -> RopeKnotsPosition(x, y + 1)
+            CardinalDirection.LEFT -> RopeKnotsPosition(x, y - 1)
         }
 
     override fun RopeKnotsPosition.getNeighbour(direction: OrdinalDirection): RopeKnotsPosition =
@@ -205,14 +205,14 @@ private class RopeKnotProcessor(
             OrdinalDirection.BOTTOM_RIGHT -> RopeKnotsPosition(x + 1, y + 1)
         }
 
-    override fun RopeKnotsPosition.getAllNeighboursInTransverseDirection(): Collection<RopeKnotsPosition> =
-        TransverseDirection.values().map { direction -> getNeighbour(direction) }
+    override fun RopeKnotsPosition.getAllNeighboursInCardinalDirection(): Collection<RopeKnotsPosition> =
+        CardinalDirection.entries.map { direction -> getNeighbour(direction) }
 
-    override fun RopeKnotsPosition.getAllNeighboursInDiagonalDirection(): Collection<RopeKnotsPosition> =
-        OrdinalDirection.values().map { direction -> getNeighbour(direction) }
+    override fun RopeKnotsPosition.getAllNeighboursInOrdinalDirection(): Collection<RopeKnotsPosition> =
+        OrdinalDirection.entries.map { direction -> getNeighbour(direction) }
 
     override fun RopeKnotsPosition.getAllNeighbours(): Collection<RopeKnotsPosition> =
-        getAllNeighboursInTransverseDirection() + getAllNeighboursInDiagonalDirection()
+        getAllNeighboursInCardinalDirection() + getAllNeighboursInOrdinalDirection()
 
     override fun RopeKnotsPosition.isInVicinity(other: RopeKnotsPosition): Boolean =
         this in other.getAllNeighbours() || this == other
@@ -231,10 +231,10 @@ private class RopeBridgeAnalyzer(
     }
 
     private val keyToDirectionMap = mapOf(
-        LEFT to TransverseDirection.LEFT,
-        RIGHT to TransverseDirection.RIGHT,
-        UP to TransverseDirection.TOP,
-        DOWN to TransverseDirection.BOTTOM
+        LEFT to CardinalDirection.LEFT,
+        RIGHT to CardinalDirection.RIGHT,
+        UP to CardinalDirection.TOP,
+        DOWN to CardinalDirection.BOTTOM
     )
 
     fun process(): RopeBridgeAnalyzer = this.apply {

@@ -119,36 +119,36 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    fun P.getNeighbourOrNull(direction: TransverseDirection): P?
+    fun P.getNeighbourOrNull(direction: CardinalDirection): P?
 
     /**
-     * Returns a [Collection] of neighbouring locations of [this] location found in all [TransverseDirection]s possible
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [CardinalDirection]s possible
      */
     fun P.getAllNeighbours(): Collection<P>
 
     /**
-     * Returns a [Map] of neighbouring locations of [this] location found in all [TransverseDirection]s possible.
-     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of neighbouring locations of [this] location found in all [CardinalDirection]s possible.
+     * [CardinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P>
+    fun P.getAllNeighboursWithDirection(): Map<CardinalDirection, P>
 
     /**
-     * Returns [TransverseDirection] of travel from [this] location to the [next location][nextLocation].
+     * Returns [CardinalDirection] of travel from [this] location to the [next location][nextLocation].
      *
      * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
      */
-    fun P.getDirectionToNeighbourOrNull(nextLocation: P): TransverseDirection?
+    fun P.getDirectionToNeighbourOrNull(nextLocation: P): CardinalDirection?
 
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
-    fun P.getLocationsInDirection(direction: TransverseDirection): Sequence<P>
+    fun P.getLocationsInDirection(direction: CardinalDirection): Sequence<P>
 
     /**
-     * Returns a [Map] of all locations found from [this] location in every possible [TransverseDirection].
-     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of all locations found from [this] location in every possible [CardinalDirection].
+     * [CardinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    fun P.getLocationsInAllDirections(): Map<TransverseDirection, Sequence<P>>
+    fun P.getLocationsInAllDirections(): Map<CardinalDirection, Sequence<P>>
 }
 
 /**
@@ -477,36 +477,36 @@ abstract class Lattice<P : Point2d<Int>, V>(
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
-    override fun P.getNeighbourOrNull(direction: TransverseDirection): P? = when (direction) {
-        TransverseDirection.TOP -> getLocationOrNull(xPos - 1, yPos)
-        TransverseDirection.BOTTOM -> getLocationOrNull(xPos + 1, yPos)
-        TransverseDirection.RIGHT -> getLocationOrNull(xPos, yPos + 1)
-        TransverseDirection.LEFT -> getLocationOrNull(xPos, yPos - 1)
+    override fun P.getNeighbourOrNull(direction: CardinalDirection): P? = when (direction) {
+        CardinalDirection.TOP -> getLocationOrNull(xPos - 1, yPos)
+        CardinalDirection.BOTTOM -> getLocationOrNull(xPos + 1, yPos)
+        CardinalDirection.RIGHT -> getLocationOrNull(xPos, yPos + 1)
+        CardinalDirection.LEFT -> getLocationOrNull(xPos, yPos - 1)
     }
 
     /**
-     * Returns a [Collection] of neighbouring locations of [this] location found in all [TransverseDirection]s possible
+     * Returns a [Collection] of neighbouring locations of [this] location found in all [CardinalDirection]s possible
      */
     override fun P.getAllNeighbours(): Collection<P> =
-        TransverseDirection.entries.mapNotNull { direction: TransverseDirection -> getNeighbourOrNull(direction) }
+        CardinalDirection.entries.mapNotNull { direction: CardinalDirection -> getNeighbourOrNull(direction) }
 
     /**
-     * Returns a [Map] of neighbouring locations of [this] location found in all [TransverseDirection]s possible.
-     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of neighbouring locations of [this] location found in all [CardinalDirection]s possible.
+     * [CardinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    override fun P.getAllNeighboursWithDirection(): Map<TransverseDirection, P> =
-        TransverseDirection.entries.filterNot { direction: TransverseDirection ->
+    override fun P.getAllNeighboursWithDirection(): Map<CardinalDirection, P> =
+        CardinalDirection.entries.filterNot { direction: CardinalDirection ->
             getNeighbourOrNull(direction) == null
-        }.associateWith { direction: TransverseDirection ->
+        }.associateWith { direction: CardinalDirection ->
             getNeighbourOrNull(direction)!!
         }
 
     /**
-     * Returns [TransverseDirection] of travel from [this] location to the [next location][nextLocation].
+     * Returns [CardinalDirection] of travel from [this] location to the [next location][nextLocation].
      *
      * Can return `null` if [nextLocation] is NOT one of the neighbouring locations of [this] location.
      */
-    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): TransverseDirection? =
+    override fun P.getDirectionToNeighbourOrNull(nextLocation: P): CardinalDirection? =
         getAllNeighboursWithDirection().filterValues { location: P ->
             location == nextLocation
         }.keys.singleOrNull()
@@ -514,17 +514,17 @@ abstract class Lattice<P : Point2d<Int>, V>(
     /**
      * Returns a [Sequence] of all locations found from [this] location in the given [direction]
      */
-    override fun P.getLocationsInDirection(direction: TransverseDirection): Sequence<P> =
+    override fun P.getLocationsInDirection(direction: CardinalDirection): Sequence<P> =
         generateSequence(this) { previousLocation: P ->
             previousLocation.getNeighbourOrNull(direction)
         }
 
     /**
-     * Returns a [Map] of all locations found from [this] location in every possible [TransverseDirection].
-     * [TransverseDirection]s will be the [Map.keys] of the [Map] returned.
+     * Returns a [Map] of all locations found from [this] location in every possible [CardinalDirection].
+     * [CardinalDirection]s will be the [Map.keys] of the [Map] returned.
      */
-    override fun P.getLocationsInAllDirections(): Map<TransverseDirection, Sequence<P>> =
-        TransverseDirection.entries.associateWith { direction: TransverseDirection ->
+    override fun P.getLocationsInAllDirections(): Map<CardinalDirection, Sequence<P>> =
+        CardinalDirection.entries.associateWith { direction: CardinalDirection ->
             getLocationsInDirection(direction)
         }
 

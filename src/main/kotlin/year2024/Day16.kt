@@ -12,13 +12,12 @@ import utils.Constants.DOT_CHAR
 import utils.Constants.E_CAP_CHAR
 import utils.Constants.HASH_CHAR
 import utils.Constants.S_CAP_CHAR
+import utils.grid.CardinalDirection.RIGHT
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection.RIGHT
-import utils.grid.isQuarterTurnTo
 import java.util.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day16 : BaseProblemHandler() {
 

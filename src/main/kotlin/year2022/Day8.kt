@@ -8,9 +8,9 @@
 package year2022
 
 import base.BaseFileHandler
-import utils.grid.TransverseDirection.*
+import utils.grid.CardinalDirection.*
 import utils.product
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day8 {
     companion object : BaseFileHandler() {
@@ -136,7 +136,7 @@ private class TreeHeightGrid private constructor(
         }
 
     override fun TreeLocation.getAllNeighbours(): Collection<TreeLocation> =
-        Direction.values().mapNotNull { direction -> getNeighbour(direction) }
+        Direction.entries.mapNotNull { direction -> getNeighbour(direction) }
 
     override fun TreeLocation.getTreeLocationsInDirection(direction: Direction): Sequence<TreeLocation> =
         generateSequence(this) { lastTreeLocation ->
@@ -144,7 +144,7 @@ private class TreeHeightGrid private constructor(
         }.drop(1)
 
     override fun TreeLocation.getTreeLocationsInAllDirections(): Map<Direction, Sequence<TreeLocation>> =
-        Direction.values().associateWith { direction -> getTreeLocationsInDirection(direction) }
+        Direction.entries.associateWith { direction -> getTreeLocationsInDirection(direction) }
 
 }
 

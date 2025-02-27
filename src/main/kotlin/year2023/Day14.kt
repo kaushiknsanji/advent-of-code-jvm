@@ -8,8 +8,8 @@
 package year2023
 
 import base.BaseFileHandler
-import utils.grid.TransverseDirection.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection.*
+import utils.grid.CardinalDirection as Direction
 
 private class Day14 {
     companion object : BaseFileHandler() {

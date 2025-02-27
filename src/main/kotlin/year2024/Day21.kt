@@ -25,14 +25,13 @@ import utils.Constants.NO_8_CHAR
 import utils.Constants.NO_9_CHAR
 import utils.Constants.SPACE_CHAR
 import utils.Constants.V_SMALL_CHAR
+import utils.grid.CardinalDirection.BOTTOM
+import utils.grid.CardinalDirection.TOP
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection.BOTTOM
-import utils.grid.TransverseDirection.TOP
-import utils.grid.toDirectionalChar
 import java.util.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day21 : BaseProblemHandler() {
 

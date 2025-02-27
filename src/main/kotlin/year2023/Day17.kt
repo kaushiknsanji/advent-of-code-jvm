@@ -9,9 +9,9 @@ package year2023
 
 import base.BaseFileHandler
 import extensions.whileLoop
-import utils.grid.TransverseDirection.*
+import utils.grid.CardinalDirection.*
 import java.util.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day17 {
     companion object : BaseFileHandler() {

@@ -9,9 +9,9 @@ package year2022
 
 import base.BaseFileHandler
 import extensions.whileLoop
-import utils.grid.TransverseDirection
-import utils.grid.TransverseDirection.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection
+import utils.grid.CardinalDirection.*
+import utils.grid.CardinalDirection as Direction
 
 private class Day12 {
     companion object : BaseFileHandler() {
@@ -161,7 +161,7 @@ private class HillElevationGrid private constructor(
             "${this::class.simpleName} does not have a ${HillLocation::class.simpleName} at the given coordinates ($x, $y)"
         )
 
-    override fun HillLocation.getNeighbour(direction: TransverseDirection): HillLocation? =
+    override fun HillLocation.getNeighbour(direction: CardinalDirection): HillLocation? =
         when (direction) {
             TOP -> getHillLocationOrNull(x - 1, y)
             BOTTOM -> getHillLocationOrNull(x + 1, y)
@@ -170,7 +170,7 @@ private class HillElevationGrid private constructor(
         }
 
     override fun HillLocation.getAllNeighbours(): Collection<HillLocation> =
-        Direction.values().mapNotNull { direction -> getNeighbour(direction) }
+        Direction.entries.mapNotNull { direction -> getNeighbour(direction) }
 
     override fun getFixedStartHillLocation(): HillLocation = hillLocationElevationMap.filterValues { elevationChar ->
         elevationChar == START_HILL_IDENTIFIER

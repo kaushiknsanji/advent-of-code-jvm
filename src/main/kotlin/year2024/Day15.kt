@@ -15,13 +15,13 @@ import utils.Constants.HASH_CHAR
 import utils.Constants.O_CAP_CHAR
 import utils.Constants.SQUARE_CLOSE_BRACE_CHAR
 import utils.Constants.SQUARE_OPEN_BRACE_CHAR
+import utils.grid.CardinalDirection.*
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection.*
-import utils.grid.toTransverseDirection
+import utils.grid.toCardinalDirection
 import utils.splitWhenLineBlankOrEmpty
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day15 : BaseProblemHandler() {
 
@@ -140,7 +140,7 @@ private class FishWarehouseAnalyzer private constructor(
                         }
                     },
 
-                    robotDirections = splitBlocks.last().joinToString(EMPTY).map(Char::toTransverseDirection),
+                    robotDirections = splitBlocks.last().joinToString(EMPTY).map(Char::toCardinalDirection),
                     isWarehouseWide
                 )
             }

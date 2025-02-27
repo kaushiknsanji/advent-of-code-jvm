@@ -11,12 +11,11 @@ import base.BaseProblemHandler
 import utils.Constants.CARET_CHAR
 import utils.Constants.DOT_CHAR
 import utils.Constants.HASH_CHAR
+import utils.grid.CardinalDirection.TOP
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection.TOP
-import utils.grid.toRightQuarterTurn
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day6 : BaseProblemHandler() {
 

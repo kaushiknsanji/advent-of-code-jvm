@@ -8,9 +8,9 @@
 package year2021
 
 import base.BaseFileHandler
-import utils.grid.TransverseDirection.*
+import utils.grid.CardinalDirection.*
 import utils.product
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day9 {
     companion object : BaseFileHandler() {
@@ -121,7 +121,7 @@ private class FloorHeightGrid private constructor(rows: Int, columns: Int, heigh
     }
 
     override fun FloorPoint.getAllNeighbours(): Collection<FloorPoint> =
-        Direction.values().mapNotNull { direction: Direction -> getNeighbour(direction) }
+        Direction.entries.mapNotNull { direction: Direction -> getNeighbour(direction) }
 
     override fun FloorPoint.getFloorPointsInSingleDirection(direction: Direction): Sequence<FloorPoint> =
         generateSequence(this) { lastFloorPoint ->
@@ -134,7 +134,7 @@ private class FloorHeightGrid private constructor(rows: Int, columns: Int, heigh
         directions.associateWith { direction: Direction -> getFloorPointsInSingleDirection(direction) }
 
     override fun FloorPoint.getFloorPointsInAllDirections(): Map<Direction, Sequence<FloorPoint>> =
-        Direction.values().associateWith { direction: Direction -> getFloorPointsInSingleDirection(direction) }
+        Direction.entries.associateWith { direction: Direction -> getFloorPointsInSingleDirection(direction) }
 }
 
 private class FloorLayout private constructor(

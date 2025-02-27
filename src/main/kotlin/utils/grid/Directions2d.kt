@@ -11,22 +11,94 @@ import utils.Constants.GREATER_CHAR
 import utils.Constants.LESSER_CHAR
 import utils.Constants.V_SMALL_CHAR
 
+/**
+ * Enum class for Vertical Directions
+ */
 enum class VerticalDirection {
     TOP, BOTTOM
 }
 
+/**
+ * Enum class for Horizontal Directions
+ */
 enum class HorizontalDirection {
     RIGHT, LEFT
 }
 
-enum class TransverseDirection {
-    TOP, BOTTOM, RIGHT, LEFT
+/**
+ * Enum class for Directions having both Vertical and Horizontal Directions, which are known as Cardinal Directions
+ */
+enum class CardinalDirection {
+    TOP, BOTTOM, RIGHT, LEFT;
+
+    /**
+     * Returns a [CardinalDirection] at 180-degree angle to `this`.
+     */
+    fun toHalfTurn(): CardinalDirection = when (this) {
+        TOP -> BOTTOM
+        BOTTOM -> TOP
+        RIGHT -> LEFT
+        LEFT -> RIGHT
+    }
+
+    /**
+     * Returns a [CardinalDirection] at right angle with clockwise rotation to `this`.
+     */
+    fun toRightQuarterTurn(): CardinalDirection = when (this) {
+        TOP -> RIGHT
+        BOTTOM -> LEFT
+        RIGHT -> BOTTOM
+        LEFT -> TOP
+    }
+
+    /**
+     * Returns a [CardinalDirection] at right angle with anticlockwise rotation to `this`.
+     */
+    fun toLeftQuarterTurn(): CardinalDirection = when (this) {
+        TOP -> LEFT
+        BOTTOM -> RIGHT
+        RIGHT -> TOP
+        LEFT -> BOTTOM
+    }
+
+    /**
+     * Verifies whether `this` direction is in Quarter rotation to given [other direction][otherDirection].
+     *
+     * @return `true` when `this` and [otherDirection] are at right angles to each other; `false` otherwise.
+     */
+    fun isQuarterTurnTo(otherDirection: CardinalDirection): Boolean =
+        toLeftQuarterTurn() == otherDirection || toRightQuarterTurn() == otherDirection
+
+    /**
+     * Verifies whether `this` direction is in Half rotation to given [other direction][otherDirection].
+     *
+     * @return `true` when `this` and [otherDirection] are at 180-degree angles to each other; `false` otherwise.
+     */
+    fun isHalfTurnTo(otherDirection: CardinalDirection): Boolean =
+        toHalfTurn() == otherDirection
+
+    /**
+     * Converts `this` direction to its [Directional character][Char] representation form.
+     */
+    fun toDirectionalChar(): Char =
+        when (this) {
+            TOP -> CARET_CHAR
+            BOTTOM -> V_SMALL_CHAR
+            RIGHT -> GREATER_CHAR
+            LEFT -> LESSER_CHAR
+        }
 }
 
+/**
+ * Enum class for Directions in-between Cardinal Directions, which are known as Ordinal Directions
+ */
 enum class OrdinalDirection {
     TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
 }
 
+/**
+ * Enum class for Directions having both Cardinal and Ordinal Directions
+ */
 enum class OmniDirection {
     TOP, BOTTOM, RIGHT, LEFT, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;
 
@@ -46,70 +118,13 @@ enum class OmniDirection {
 }
 
 /**
- * Returns a [TransverseDirection] at 180-degree angle to [this].
+ * Converts [this] directional [Char] representation to [CardinalDirection].
  */
-fun TransverseDirection.toHalfTurn(): TransverseDirection = when (this) {
-    TransverseDirection.TOP -> TransverseDirection.BOTTOM
-    TransverseDirection.BOTTOM -> TransverseDirection.TOP
-    TransverseDirection.RIGHT -> TransverseDirection.LEFT
-    TransverseDirection.LEFT -> TransverseDirection.RIGHT
-}
-
-/**
- * Returns a [TransverseDirection] at right angle with clockwise rotation to [this].
- */
-fun TransverseDirection.toRightQuarterTurn(): TransverseDirection = when (this) {
-    TransverseDirection.TOP -> TransverseDirection.RIGHT
-    TransverseDirection.BOTTOM -> TransverseDirection.LEFT
-    TransverseDirection.RIGHT -> TransverseDirection.BOTTOM
-    TransverseDirection.LEFT -> TransverseDirection.TOP
-}
-
-/**
- * Returns a [TransverseDirection] at right angle with anticlockwise rotation to [this].
- */
-fun TransverseDirection.toLeftQuarterTurn(): TransverseDirection = when (this) {
-    TransverseDirection.TOP -> TransverseDirection.LEFT
-    TransverseDirection.BOTTOM -> TransverseDirection.RIGHT
-    TransverseDirection.RIGHT -> TransverseDirection.TOP
-    TransverseDirection.LEFT -> TransverseDirection.BOTTOM
-}
-
-/**
- * Verifies whether [this] direction is in Quarter rotation to given [current direction][currentDirection].
- *
- * @return `true` when [this] and [currentDirection] are at right angles to each other; `false` otherwise.
- */
-fun TransverseDirection.isQuarterTurnTo(currentDirection: TransverseDirection): Boolean =
-    toLeftQuarterTurn() == currentDirection || toRightQuarterTurn() == currentDirection
-
-/**
- * Verifies whether [this] direction is in Half rotation to given [current direction][currentDirection].
- *
- * @return `true` when [this] and [currentDirection] are at 180-degree angles to each other; `false` otherwise.
- */
-fun TransverseDirection.isHalfTurnTo(currentDirection: TransverseDirection): Boolean =
-    toHalfTurn() == currentDirection
-
-/**
- * Converts [this] direction to its [character][Char] representation form.
- */
-fun TransverseDirection.toDirectionalChar(): Char =
+fun Char.toCardinalDirection(): CardinalDirection =
     when (this) {
-        TransverseDirection.TOP -> CARET_CHAR
-        TransverseDirection.BOTTOM -> V_SMALL_CHAR
-        TransverseDirection.RIGHT -> GREATER_CHAR
-        TransverseDirection.LEFT -> LESSER_CHAR
-    }
-
-/**
- * Converts [this] directional [Char] representation to [TransverseDirection].
- */
-fun Char.toTransverseDirection(): TransverseDirection =
-    when (this) {
-        CARET_CHAR -> TransverseDirection.TOP
-        V_SMALL_CHAR -> TransverseDirection.BOTTOM
-        GREATER_CHAR -> TransverseDirection.RIGHT
-        LESSER_CHAR -> TransverseDirection.LEFT
+        CARET_CHAR -> CardinalDirection.TOP
+        V_SMALL_CHAR -> CardinalDirection.BOTTOM
+        GREATER_CHAR -> CardinalDirection.RIGHT
+        LESSER_CHAR -> CardinalDirection.LEFT
         else -> throw Error("Unrecognized Directional character : $this")
     }

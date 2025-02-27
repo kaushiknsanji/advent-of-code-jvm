@@ -10,9 +10,9 @@ package year2024
 import base.BaseProblemHandler
 import utils.Constants.DOT_CHAR
 import utils.Constants.HASH_CHAR
+import utils.grid.CardinalDirection.*
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection.*
 import utils.splitWhenLineBlankOrEmpty
 
 private class Day25 : BaseProblemHandler() {

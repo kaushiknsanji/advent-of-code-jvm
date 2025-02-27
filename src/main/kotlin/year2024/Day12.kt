@@ -9,12 +9,12 @@ package year2024
 
 import base.BaseProblemHandler
 import extensions.toIntRanges
+import utils.grid.CardinalDirection
+import utils.grid.CardinalDirection.*
 import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
-import utils.grid.TransverseDirection
-import utils.grid.TransverseDirection.*
-import utils.grid.TransverseDirection as Direction
+import utils.grid.CardinalDirection as Direction
 
 private class Day12 : BaseProblemHandler() {
 
@@ -209,7 +209,7 @@ private class GardenFenceAnalyzer private constructor(
             }.groupBy { (direction, _) ->
                 // Group resulting pairs by their direction
                 direction
-            }.mapValues { (_, pair: List<Pair<TransverseDirection, GardenPlot>>) ->
+            }.mapValues { (_, pair: List<Pair<CardinalDirection, GardenPlot>>) ->
                 // Convert pairs to list of plots for the direction
                 pair.map { it.second }
             }.mapValues { (direction, plots: List<GardenPlot>) ->
