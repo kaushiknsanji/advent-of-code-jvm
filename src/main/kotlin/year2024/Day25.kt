@@ -15,7 +15,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day25 : BaseProblemHandler() {
+class Day25 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -36,13 +36,23 @@ private class Day25 : BaseProblemHandler() {
         TumblerLockAndKeyAnalyzer.parse(input)
             .getCountOfCompatibleLockKeyPairs()
 
-}
-
-fun main() {
-    with(Day25()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 3)
         solveActual(1, false, 0, 2824)
     }
+
+}
+
+fun main() {
+    Day25().start()
 }
 
 private enum class LockKeySchemaType(val type: Char) {

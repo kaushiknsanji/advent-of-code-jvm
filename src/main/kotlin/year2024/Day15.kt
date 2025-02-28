@@ -23,7 +23,7 @@ import utils.grid.toCardinalDirection
 import utils.splitWhenLineBlankOrEmpty
 import utils.grid.CardinalDirection as Direction
 
-private class Day15 : BaseProblemHandler() {
+class Day15 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -53,15 +53,25 @@ private class Day15 : BaseProblemHandler() {
         FishWarehouseAnalyzer.parse(input, isWarehouseWide = true)
             .getTotalBoxGPSCoordinates()
 
-}
-
-fun main() {
-    with(Day15()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 10092)
         solveActual(1, false, 0, 1526673)
         solveSample(2, false, 0, 9021)
         solveActual(2, false, 0, 1535509)
     }
+
+}
+
+fun main() {
+    Day15().start()
 }
 
 private enum class FishWarehouseType(val type: Char) {

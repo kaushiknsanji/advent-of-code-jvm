@@ -12,7 +12,7 @@ import utils.grid.ILattice
 import utils.grid.Lattice
 import utils.grid.Point2d
 
-private class Day10 : BaseProblemHandler() {
+class Day10 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day10 : BaseProblemHandler() {
         HikingTrailBuilder.parse(input)
             .getTotalRatingOfAllTrailheads()
 
-}
-
-fun main() {
-    with(Day10()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 36)
         solveActual(1, false, 0, 717)
         solveSample(2, false, 0, 81)
         solveActual(2, false, 0, 1686)
     }
+
+}
+
+fun main() {
+    Day10().start()
 }
 
 private class TrailLocation(x: Int, y: Int) : Point2d<Int>(x, y)

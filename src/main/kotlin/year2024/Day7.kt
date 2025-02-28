@@ -13,7 +13,7 @@ import utils.Constants.NO_0_CHAR
 import utils.findAllLong
 import kotlin.math.pow
 
-private class Day7 : BaseProblemHandler() {
+class Day7 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -43,15 +43,25 @@ private class Day7 : BaseProblemHandler() {
         BridgeRepairProcessor.parse(input)
             .getTotalCalibratedResult(operatorTypesCount = 3)
 
-}
-
-fun main() {
-    with(Day7()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 3749L)
         solveActual(1, false, 0, 3119088655389L)
         solveSample(2, false, 0, 11387L)
         solveActual(2, false, 0, 264184041398847L)
     }
+
+}
+
+fun main() {
+    Day7().start()
 }
 
 private class BridgeRepairProcessor private constructor(

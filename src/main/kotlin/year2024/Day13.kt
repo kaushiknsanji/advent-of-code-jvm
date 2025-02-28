@@ -12,7 +12,7 @@ import utils.findAllLong
 import utils.grid.Point2d
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day13 : BaseProblemHandler() {
+class Day13 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day13 : BaseProblemHandler() {
         ClawMachineAnalyzer.parse(input)
             .getFewestTokensSpentToWin(prizeOffset = 10000000000000L)
 
-}
-
-fun main() {
-    with(Day13()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 480L)
         solveActual(1, false, 0, 30413L)
         solveSample(2, false, 0, 875318608908L)
         solveActual(2, false, 0, 92827349540204L)
     }
+
+}
+
+fun main() {
+    Day13().start()
 }
 
 private class ClawLocation(x: Long, y: Long) : Point2d<Long>(x, y)

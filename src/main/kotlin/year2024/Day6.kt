@@ -17,7 +17,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.CardinalDirection as Direction
 
-private class Day6 : BaseProblemHandler() {
+class Day6 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -47,15 +47,25 @@ private class Day6 : BaseProblemHandler() {
         LabGuardTracer.parse(input)
             .getCountOfSingleObstructingPositionsThatSetsGuardStuckInLoop()
 
-}
-
-fun main() {
-    with(Day6()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 41)
         solveActual(1, false, 0, 5177)
         solveSample(2, false, 0, 6)
         solveActual(2, false, 0, 1686)
     }
+
+}
+
+fun main() {
+    Day6().start()
 }
 
 private class LabLayoutPlanTile(x: Int, y: Int) : Point2d<Int>(x, y)

@@ -16,7 +16,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.CardinalDirection as Direction
 
-private class Day12 : BaseProblemHandler() {
+class Day12 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -46,10 +46,15 @@ private class Day12 : BaseProblemHandler() {
         GardenFenceAnalyzer.parse(input)
             .getTotalFencingPriceForAllRegions(isDiscounted = true)
 
-}
-
-fun main() {
-    with(Day12()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 1, 140)
         solveSample(1, false, 2, 772)
         solveSample(1, false, 3, 1930)
@@ -61,6 +66,11 @@ fun main() {
         solveSample(2, true, 2, 368)
         solveActual(2, false, 0, 858684)
     }
+
+}
+
+fun main() {
+    Day12().start()
 }
 
 private class GardenPlot(x: Int, y: Int) : Point2d<Int>(x, y)

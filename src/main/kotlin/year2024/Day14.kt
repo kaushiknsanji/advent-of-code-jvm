@@ -12,7 +12,7 @@ import utils.findAllInt
 import utils.grid.Point2d
 import utils.product
 
-private class Day14 : BaseProblemHandler() {
+class Day14 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -55,14 +55,24 @@ private class Day14 : BaseProblemHandler() {
                 )
         }
 
-}
-
-fun main() {
-    with(Day14()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 12, 7, 11, 100)
         solveActual(1, false, 0, 229632480, 103, 101, 100)
         solveActual(2, false, 0, 7051, 103, 101, 0)
     }
+
+}
+
+fun main() {
+    Day14().start()
 }
 
 /**

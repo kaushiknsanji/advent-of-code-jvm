@@ -145,8 +145,10 @@ abstract class BaseProblemHandler : BaseFileHandler() {
      * in the input file name, value passed to this identifier should be 0.
      * @param expectedResult Expected result of execution of nullable type [Any]. Can be `null` when unknown.
      * @param otherArgs Vararg list of arguments of nullable type [Any] needed to solve the problem.
+     *
+     * @throws org.opentest4j.AssertionFailedError when the result of execution is not the same as [expectedResult]
      */
-    fun solveSample(
+    protected fun solveSample(
         executeProblemPart: Int,
         includeProblemPartInFileName: Boolean,
         inputVariantId: Int,
@@ -179,8 +181,10 @@ abstract class BaseProblemHandler : BaseFileHandler() {
      * in the input file name, value passed to this identifier should be 0.
      * @param expectedResult Expected result of execution of nullable type [Any]. Can be `null` when unknown.
      * @param otherArgs Vararg list of arguments of nullable type [Any] needed to solve the problem.
+     *
+     * @throws org.opentest4j.AssertionFailedError when the result of execution is not the same as [expectedResult]
      */
-    fun solveActual(
+    protected fun solveActual(
         executeProblemPart: Int,
         includeProblemPartInFileName: Boolean,
         inputVariantId: Int,
@@ -215,6 +219,8 @@ abstract class BaseProblemHandler : BaseFileHandler() {
     /**
      * Verifies the [actual result][actualResult] of execution with
      * the [expected result][expectedResult] when provided.
+     *
+     * @throws org.opentest4j.AssertionFailedError when [actualResult] is not the same as [expectedResult]
      */
     private fun verify(expectedResult: Any?, actualResult: Any) {
         if (expectedResult != null) {
@@ -244,7 +250,7 @@ abstract class BaseProblemHandler : BaseFileHandler() {
      *
      * @return Result of type [Any]
      */
-    abstract fun doPart1(
+    protected abstract fun doPart1(
         input: List<String>,
         otherArgs: Array<out Any?>
     ): Any
@@ -254,7 +260,7 @@ abstract class BaseProblemHandler : BaseFileHandler() {
      *
      * @return Result of type [Any]
      */
-    open fun doPart2(
+    protected open fun doPart2(
         input: List<String>,
         otherArgs: Array<out Any?>
     ): Any = {}
@@ -264,9 +270,19 @@ abstract class BaseProblemHandler : BaseFileHandler() {
      *
      * @return Result of type [Any]
      */
-    open fun doPart3(
+    protected open fun doPart3(
         input: List<String>,
         otherArgs: Array<out Any?>
     ): Any = {}
+
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    abstract fun start()
 
 }

@@ -17,7 +17,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import utils.grid.manhattanDistance
 
-private class Day20 : BaseProblemHandler() {
+class Day20 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -57,10 +57,15 @@ private class Day20 : BaseProblemHandler() {
                 otherArgs[1] as (Int, Int) -> Boolean
             )
 
-}
-
-fun main() {
-    with(Day20()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         val timeComparisonAtLeast: (timeSaved: Int, timeToSave: Int) -> Boolean = { timeSaved, timeToSave ->
             timeSaved >= timeToSave
         }
@@ -93,6 +98,11 @@ fun main() {
         solveSample(2, false, 0, 3, 76, Int::equals)
         solveActual(2, false, 0, 1016066, 100, timeComparisonAtLeast)
     }
+
+}
+
+fun main() {
+    Day20().start()
 }
 
 private enum class RaceTrackType(val type: Char) {

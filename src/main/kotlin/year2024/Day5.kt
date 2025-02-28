@@ -11,7 +11,7 @@ import base.BaseProblemHandler
 import utils.findAllInt
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day5 : BaseProblemHandler() {
+class Day5 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -41,15 +41,25 @@ private class Day5 : BaseProblemHandler() {
         PrintQueueProcessor.parse(input)
             .getSumOfRectifiedIncorrectlyOrderedMiddlePageNumbers()
 
-}
-
-fun main() {
-    with(Day5()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 143)
         solveActual(1, false, 0, 5509)
         solveSample(2, false, 0, 123)
         solveActual(2, false, 0, 4407)
     }
+
+}
+
+fun main() {
+    Day5().start()
 }
 
 private class PrintQueueProcessor private constructor(

@@ -14,7 +14,7 @@ import utils.Constants.COMMA_STRING
 import utils.Constants.HYPHEN_STRING
 import utils.Constants.T_SMALL_STRING
 
-private class Day23 : BaseProblemHandler() {
+class Day23 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -44,15 +44,25 @@ private class Day23 : BaseProblemHandler() {
         ComputerNetworkAnalyzer.parse(input)
             .getPassword()
 
-}
-
-fun main() {
-    with(Day23()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 7)
         solveActual(1, false, 0, 1344)
         solveSample(2, false, 0, "co,de,ka,ta")
         solveActual(2, false, 0, "ab,al,cq,cr,da,db,dr,fw,ly,mn,od,py,uh")
     }
+
+}
+
+fun main() {
+    Day23().start()
 }
 
 /**

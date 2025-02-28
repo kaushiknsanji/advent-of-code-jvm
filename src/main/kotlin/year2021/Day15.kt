@@ -13,7 +13,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import java.util.*
 
-private class Day15 : BaseProblemHandler() {
+class Day15 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -43,15 +43,25 @@ private class Day15 : BaseProblemHandler() {
         ChitonDensityAnalyzer.parse(input, 5)
             .getLeastTotalRisk()
 
-}
-
-fun main() {
-    with(Day15()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 40)
         solveActual(1, false, 0, 458)
         solveSample(2, false, 0, 315)
         solveActual(2, false, 0, 2800)
     }
+
+}
+
+fun main() {
+    Day15().start()
 }
 
 /**

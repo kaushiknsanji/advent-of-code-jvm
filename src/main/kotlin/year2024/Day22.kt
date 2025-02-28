@@ -9,7 +9,7 @@ package year2024
 
 import base.BaseProblemHandler
 
-private class Day22 : BaseProblemHandler() {
+class Day22 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -39,15 +39,25 @@ private class Day22 : BaseProblemHandler() {
         SecretNumberAnalyzer.parse(input)
             .getMaxCountOfBananasPossible(2000)
 
-}
-
-fun main() {
-    with(Day22()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, true, 0, 37327623L)
         solveActual(1, false, 0, 17960270302L)
         solveSample(2, true, 0, 23)
         solveActual(2, false, 0, 2042)
     }
+
+}
+
+fun main() {
+    Day22().start()
 }
 
 private class SecretNumberAnalyzer private constructor(

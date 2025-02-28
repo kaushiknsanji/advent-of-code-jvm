@@ -13,7 +13,7 @@ import utils.Constants.EMPTY
 import utils.Constants.UNDERSCORE_CHAR
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day19 : BaseProblemHandler() {
+class Day19 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -43,15 +43,25 @@ private class Day19 : BaseProblemHandler() {
         TowelPatternAnalyzer.parse(input)
             .getTotalCountOfArrangementsOfAllPossibleDesigns()
 
-}
-
-fun main() {
-    with(Day19()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 6)
         solveActual(1, false, 0, 365)
         solveSample(2, false, 0, 16L)
         solveActual(2, false, 0, 730121486795169L)
     }
+
+}
+
+fun main() {
+    Day19().start()
 }
 
 private class TowelPatternAnalyzer private constructor(

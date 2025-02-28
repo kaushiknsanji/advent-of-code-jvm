@@ -11,7 +11,7 @@ import base.BaseProblemHandler
 import extensions.swap
 import utils.Constants.DOT_STRING
 
-private class Day9 : BaseProblemHandler() {
+class Day9 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -41,15 +41,25 @@ private class Day9 : BaseProblemHandler() {
         DiskDefragmenter.parse(input)
             .getFilesystemChecksum(moveWholeBlocks = true)
 
-}
-
-fun main() {
-    with(Day9()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 1928L)
         solveActual(1, false, 0, 6154342787400L)
         solveSample(2, false, 0, 2858L)
         solveActual(2, false, 0, 6183632723350L)
     }
+
+}
+
+fun main() {
+    Day9().start()
 }
 
 private class DiskDefragmenter private constructor(

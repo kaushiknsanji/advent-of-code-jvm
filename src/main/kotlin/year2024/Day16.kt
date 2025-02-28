@@ -19,7 +19,7 @@ import utils.grid.Point2d
 import java.util.*
 import utils.grid.CardinalDirection as Direction
 
-private class Day16 : BaseProblemHandler() {
+class Day16 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -49,10 +49,15 @@ private class Day16 : BaseProblemHandler() {
         ReindeerMazeAnalyzer.parse(input)
             .getCountOfTilesAlongBestPaths()
 
-}
-
-fun main() {
-    with(Day16()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 1, 7036)
         solveSample(1, false, 2, 11048)
         solveActual(1, false, 0, 143580)
@@ -60,6 +65,11 @@ fun main() {
         solveSample(2, false, 2, 64)
         solveActual(2, false, 0, 645)
     }
+
+}
+
+fun main() {
+    Day16().start()
 }
 
 private enum class ReindeerMazeType(val type: Char) {

@@ -12,7 +12,7 @@ import extensions.generateCombinations
 import utils.Constants.COMMA_STRING
 import java.util.*
 
-private class Day16 : BaseProblemHandler() {
+class Day16 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day16 : BaseProblemHandler() {
         VolcanoTunnelsAnalyzer.parse(input)
             .getMostPressureReleased(2, 26)
 
-}
-
-fun main() {
-    with(Day16()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 1651)
         solveActual(1, false, 0, 2077)
         solveSample(2, false, 0, 1707)
         solveActual(2, false, 0, 2741)
     }
+
+}
+
+fun main() {
+    Day16().start()
 }
 
 /**

@@ -9,7 +9,7 @@ package year2022
 
 import base.BaseProblemHandler
 
-private class Day20 : BaseProblemHandler() {
+class Day20 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -39,15 +39,25 @@ private class Day20 : BaseProblemHandler() {
         GrovePositioningSystemAnalyzer.parse(input, otherArgs[0] as Long)
             .getSumOfGroveCoordinates(otherArgs[1] as Int)
 
-}
-
-fun main() {
-    with(Day20()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 3L)
         solveActual(1, false, 0, 9687L)
         solveSample(2, false, 0, 1623178306L, 811589153L, 10)
         solveActual(2, false, 0, 1338310513297L, 811589153L, 10)
     }
+
+}
+
+fun main() {
+    Day20().start()
 }
 
 /**

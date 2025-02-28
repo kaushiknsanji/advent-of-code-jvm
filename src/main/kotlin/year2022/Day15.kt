@@ -16,7 +16,7 @@ import utils.grid.Point2d
 import utils.grid.manhattanDistance
 import utils.grid.manhattanDistantLocations
 
-private class Day15 : BaseProblemHandler() {
+class Day15 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -46,15 +46,25 @@ private class Day15 : BaseProblemHandler() {
         BeaconAnalyzer.parse(input)
             .getDistressBeaconTuningFrequency(otherArgs[0] as IntRange)
 
-}
-
-fun main() {
-    with(Day15()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 26, 10)
         solveActual(1, false, 0, 5166077, 2000000)
         solveSample(2, false, 0, 56000011L, 0..20)
         solveActual(2, false, 0, 13071206703981L, 0..4000000)
     }
+
+}
+
+fun main() {
+    Day15().start()
 }
 
 /**

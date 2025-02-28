@@ -12,7 +12,7 @@ import utils.Quadruple
 import utils.findAllInt
 import kotlin.math.absoluteValue
 
-private class Day2 : BaseProblemHandler() {
+class Day2 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day2 : BaseProblemHandler() {
         NuclearReportsAnalyzer.parse(input)
             .getTotalSafeReports(hasDampener = true)
 
-}
-
-fun main() {
-    with(Day2()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 2)
         solveActual(1, false, 0, 598)
         solveSample(2, false, 0, 4)
         solveActual(2, false, 0, 634)
     }
+
+}
+
+fun main() {
+    Day2().start()
 }
 
 private class NuclearReportsAnalyzer private constructor(

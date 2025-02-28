@@ -18,7 +18,7 @@ import utils.grid.Lattice
 import utils.grid.Point2d
 import java.util.*
 
-private class Day18 : BaseProblemHandler() {
+class Day18 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -48,15 +48,25 @@ private class Day18 : BaseProblemHandler() {
         MemoryAnalyzer.parse(input, otherArgs[0] as Int, otherArgs[1] as Int)
             .getFirstBytePositionPreventingExit(otherArgs[2] as Int)
 
-}
-
-fun main() {
-    with(Day18()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 22, 7, 7, 12)
         solveActual(1, false, 0, 302, 71, 71, 1024)
         solveSample(2, false, 0, "6,1", 7, 7, 12)
         solveActual(2, false, 0, "24,32", 71, 71, 1024)
     }
+
+}
+
+fun main() {
+    Day18().start()
 }
 
 private enum class MemorySpaceType(val type: Char) {

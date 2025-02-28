@@ -13,7 +13,7 @@ import utils.Constants.COMMA_STRING
 import utils.findAllInt
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day17 : BaseProblemHandler() {
+class Day17 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -43,15 +43,25 @@ private class Day17 : BaseProblemHandler() {
         ComputerDebugger.parse(input)
             .getProgramReplicatingLowestRegisterA()
 
-}
-
-fun main() {
-    with(Day17()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, "4,6,3,5,6,3,5,2,1,0")
         solveActual(1, false, 0, "6,5,4,7,1,6,0,3,1")
         solveSample(2, true, 0, 117440L)
         solveActual(2, false, 0, 106086382266778L)
     }
+
+}
+
+fun main() {
+    Day17().start()
 }
 
 private class ComputerDebugger private constructor(

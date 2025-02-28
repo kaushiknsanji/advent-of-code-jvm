@@ -12,7 +12,7 @@ import utils.Constants.EMPTY
 import utils.Constants.RIGHT_ARROW
 import utils.splitWhenLineBlankOrEmpty
 
-private class Day14 : BaseProblemHandler() {
+class Day14 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day14 : BaseProblemHandler() {
         PolymerGrowthAnalyzer.parse(input)
             .getDifferenceOfMostAndLeastCommonElements(40)
 
-}
-
-fun main() {
-    with(Day14()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 1588L)
         solveActual(1, false, 0, 3411L)
         solveSample(2, false, 0, 2188189693529L)
         solveActual(2, false, 0, 7477815755570L)
     }
+
+}
+
+fun main() {
+    Day14().start()
 }
 
 private class PolymerGrowthAnalyzer private constructor(

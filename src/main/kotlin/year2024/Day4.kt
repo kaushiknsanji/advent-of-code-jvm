@@ -17,7 +17,7 @@ import utils.grid.OmniLattice
 import utils.grid.Point2d
 import utils.grid.OmniDirection as Direction
 
-private class Day4 : BaseProblemHandler() {
+class Day4 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -45,15 +45,25 @@ private class Day4 : BaseProblemHandler() {
     override fun doPart2(input: List<String>, otherArgs: Array<out Any?>): Any =
         WordSearcher.parse(input).getCountOfXShapedMAS()
 
-}
-
-fun main() {
-    with(Day4()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 18)
         solveActual(1, false, 0, 2549)
         solveSample(2, false, 0, 9)
         solveActual(2, false, 0, 2003)
     }
+
+}
+
+fun main() {
+    Day4().start()
 }
 
 private class XmasLetterCell(x: Int, y: Int) : Point2d<Int>(x, y)

@@ -9,7 +9,7 @@ package year2024
 
 import base.BaseProblemHandler
 
-private class Day3 : BaseProblemHandler() {
+class Day3 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -39,15 +39,25 @@ private class Day3 : BaseProblemHandler() {
         CorruptComputer.parse(input)
             .getSumOfProducts(processConditions = true)
 
-}
-
-fun main() {
-    with(Day3()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, true, 0, 161L)
         solveActual(1, false, 0, 174960292L)
         solveSample(2, true, 0, 48L)
         solveActual(2, false, 0, 56275602L)
     }
+
+}
+
+fun main() {
+    Day3().start()
 }
 
 private class CorruptComputer private constructor(

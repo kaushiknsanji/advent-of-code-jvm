@@ -33,7 +33,7 @@ import utils.grid.Point2d
 import java.util.*
 import utils.grid.CardinalDirection as Direction
 
-private class Day21 : BaseProblemHandler() {
+class Day21 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -63,15 +63,25 @@ private class Day21 : BaseProblemHandler() {
         MultiKeypadAnalyzer.parse(input)
             .getTotalOfAllCodeComplexity(26)
 
-}
-
-fun main() {
-    with(Day21()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 126384L)
         solveActual(1, false, 0, 157230L)
         solveSample(2, false, 0, 154115708116294L)
         solveActual(2, false, 0, 195969155897936L)
     }
+
+}
+
+fun main() {
+    Day21().start()
 }
 
 private enum class NumericKeyType(val type: Char) {

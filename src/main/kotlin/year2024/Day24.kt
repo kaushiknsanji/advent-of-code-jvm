@@ -25,7 +25,7 @@ import utils.splitContentByWhitespaces
 import utils.splitWhenLineBlankOrEmpty
 import java.math.BigInteger
 
-private class Day24 : BaseProblemHandler() {
+class Day24 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -55,14 +55,24 @@ private class Day24 : BaseProblemHandler() {
         MonitoringDeviceAnalyzer.parse(input)
             .getOrderedNamesOfWiresInvolvedInASwap()
 
-}
-
-fun main() {
-    with(Day24()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, BigInteger.valueOf(2024L))
         solveActual(1, false, 0, BigInteger.valueOf(51107420031718L))
         solveActual(2, false, 0, "cpm,ghp,gpr,krs,nks,z10,z21,z33")
     }
+
+}
+
+fun main() {
+    Day24().start()
 }
 
 /**

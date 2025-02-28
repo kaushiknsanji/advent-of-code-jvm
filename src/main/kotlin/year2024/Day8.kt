@@ -12,7 +12,7 @@ import extensions.distinctPairs
 import utils.Constants.DOT_CHAR
 import utils.grid.*
 
-private class Day8 : BaseProblemHandler() {
+class Day8 : BaseProblemHandler() {
 
     /**
      * Returns the Package name of this problem class
@@ -42,15 +42,25 @@ private class Day8 : BaseProblemHandler() {
         AntennaAntinodeAnalyzer.parse(input)
             .getDistinctCountOfAntinodes(isDistanceBased = false)
 
-}
-
-fun main() {
-    with(Day8()) {
+    /**
+     * Called by the `main` function of the problem class to begin solving problem parts
+     * with various problem inputs.
+     *
+     * Call to [solveSample] for sample inputs and [solveActual] for actual inputs, to start solving problem parts.
+     *
+     * @throws org.opentest4j.AssertionFailedError when any result of execution is not the same as its expected result
+     */
+    override fun start() {
         solveSample(1, false, 0, 14)
         solveActual(1, false, 0, 299)
         solveSample(2, false, 0, 34)
         solveActual(2, false, 0, 1032)
     }
+
+}
+
+fun main() {
+    Day8().start()
 }
 
 private class AntennaCell(x: Int, y: Int) : Point2d<Int>(x, y)

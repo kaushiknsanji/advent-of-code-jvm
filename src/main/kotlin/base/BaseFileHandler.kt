@@ -27,7 +27,7 @@ abstract class BaseFileHandler {
      *
      * Returns the Package name of this problem class
      */
-    abstract fun getCurrentPackageName(): String
+    protected abstract fun getCurrentPackageName(): String
 
     /**
      * To be implemented by the problem class to retrieve its Class name
