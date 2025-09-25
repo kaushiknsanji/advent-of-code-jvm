@@ -36,6 +36,8 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
      * computed value at this new location. If saving new location and computed value is costly, then
      * expansion can be implemented without saving by calling `provideLocation(row, column)` to return
      * new location and overriding `get(location)` operator to return computed value for this new location.
+     * A hybrid approach can also be followed by saving only the required new location and its computed value and
+     * overriding `get(location)` operator to return default value for those unsaved locations.
      */
     fun getExpandedLocationOrNull(row: Int, column: Int): P? = null
 
@@ -386,14 +388,18 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
      * Returns total number of rows found in the Expanded grid
      */
     override fun getExpandedTotalRows(): Int =
-        getAllLocations().maxOf { location: P -> location.xPos }
+        with(getAllLocations()) {
+            maxOf { location: P -> location.xPos } - minOf { location: P -> location.xPos } + 1
+        }
 
 
     /**
      * Returns total number of columns found in the Expanded grid
      */
     override fun getExpandedTotalColumns(): Int =
-        getAllLocations().maxOf { location: P -> location.yPos }
+        with(getAllLocations()) {
+            maxOf { location: P -> location.yPos } - minOf { location: P -> location.yPos } + 1
+        }
 
     /**
      * Returns this Grid Graph with current values as a [String]
@@ -413,17 +419,20 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
      * @param defaultValue Default [Char] value to be used for locations not yet added to the Expanded grid
      * @param transform Lambda to transform value stored in type [V] to [Char]
      */
-    override fun expandedGridToString(defaultValue: Char, transform: (V) -> Char): String {
-        val totalRows = getExpandedTotalRows()
-        val totalColumns = getExpandedTotalColumns()
+    override fun expandedGridToString(defaultValue: Char, transform: (V) -> Char): String =
+        with(getAllLocations()) {
+            val maxRow = maxOf { location: P -> location.xPos }
+            val minRow = minOf { location: P -> location.xPos }
+            val maxColumn = maxOf { location: P -> location.yPos }
+            val minColumn = minOf { location: P -> location.yPos }
 
-        return (0 until totalRows).joinToString(System.lineSeparator()) { row ->
-            (0 until totalColumns).map { column ->
-                gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
-                    ?: defaultValue
-            }.joinToString(EMPTY)
+            (minRow..maxRow).joinToString(System.lineSeparator()) { row ->
+                (minColumn..maxColumn).map { column ->
+                    gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
+                        ?: defaultValue
+                }.joinToString(EMPTY)
+            }
         }
-    }
 
     /**
      * Returns this Expanded Grid Graph with current values as a [String]
@@ -432,17 +441,23 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
      * to the Expanded grid.
      * @param transform Lambda to transform value stored in type [V] to [Char]
      */
-    override fun expandedGridToString(defaultValue: (row: Int, column: Int) -> Char, transform: (V) -> Char): String {
-        val totalRows = getExpandedTotalRows()
-        val totalColumns = getExpandedTotalColumns()
+    override fun expandedGridToString(
+        defaultValue: (row: Int, column: Int) -> Char,
+        transform: (V) -> Char
+    ): String =
+        with(getAllLocations()) {
+            val maxRow = maxOf { location: P -> location.xPos }
+            val minRow = minOf { location: P -> location.xPos }
+            val maxColumn = maxOf { location: P -> location.yPos }
+            val minColumn = minOf { location: P -> location.yPos }
 
-        return (0 until totalRows).joinToString(System.lineSeparator()) { row ->
-            (0 until totalColumns).map { column ->
-                gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
-                    ?: defaultValue(row, column)
-            }.joinToString(EMPTY)
+            (minRow..maxRow).joinToString(System.lineSeparator()) { row ->
+                (minColumn..maxColumn).map { column ->
+                    gridLocationMap[row]?.find { it.yPos == column }?.toValue()?.let(transform)
+                        ?: defaultValue(row, column)
+                }.joinToString(EMPTY)
+            }
         }
-    }
 
     /**
      * Returns location to be used in the grid.
