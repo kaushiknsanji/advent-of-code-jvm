@@ -51,14 +51,29 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
     /**
      * Adds location defined by given [row] and [column] to the grid, and then returns the location added.
      *
-     * If the location already exists, then the same location will be returned.
+     * If the location already exists, then the location found will be returned.
      */
     fun addLocation(row: Int, column: Int): P
+
+    /**
+     * Adds given [location][newLocation] to the grid, and then returns the same [location][newLocation].
+     *
+     * If the [location][newLocation] already exists, then no update will be done
+     * and the same [location][newLocation] will be returned.
+     */
+    fun addLocation(newLocation: P): P
 
     /**
      * Returns all locations in the grid as [Collection]
      */
     fun getAllLocations(): Collection<P>
+
+    /**
+     * Returns all locations found at the given [row] in the grid.
+     *
+     * If the given [row] does not exist, then the [Collection] returned will be empty.
+     */
+    fun getRowLocations(row: Int): Collection<P>
 
     /**
      * Returns value found at the given [location] if present in the grid; otherwise
@@ -333,7 +348,7 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     /**
      * Adds location defined by given [row] and [column] to the grid, and then returns the location added.
      *
-     * If the location already exists, then the same location will be returned.
+     * If the location already exists, then the location found will be returned.
      */
     override fun addLocation(row: Int, column: Int): P {
         val rowLocations = gridLocationMap.getOrPut(row) { mutableListOf() }
@@ -346,10 +361,34 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
     }
 
     /**
+     * Adds given [location][newLocation] to the grid, and then returns the same [location][newLocation].
+     *
+     * If the [location][newLocation] already exists, then no update will be done
+     * and the same [location][newLocation] will be returned.
+     */
+    override fun addLocation(newLocation: P): P {
+        val rowLocations = gridLocationMap.getOrPut(newLocation.xPos) { mutableListOf() }
+
+        return rowLocations.find { location: P ->
+            location.yPos == newLocation.yPos
+        } ?: newLocation.apply {
+            rowLocations.add(this)
+        }
+    }
+
+    /**
      * Returns all locations in the grid as [Collection]
      */
     override fun getAllLocations(): Collection<P> =
         gridLocationMap.values.flatten()
+
+    /**
+     * Returns all locations found at the given [row] in the grid.
+     *
+     * If the given [row] does not exist, then the [Collection] returned will be empty.
+     */
+    override fun getRowLocations(row: Int): Collection<P> =
+        gridLocationMap.getOrElse(row) { emptyList() }
 
     /**
      * Returns value present in the grid at given [location]
