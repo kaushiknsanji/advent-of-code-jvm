@@ -122,6 +122,26 @@ enum class OmniDirection {
 }
 
 /**
+ * Converts [this] Character representation to [VerticalDirection]
+ */
+fun Char.toVerticalDirection(): VerticalDirection =
+    when (this) {
+        CARET_CHAR, UP_CHAR -> VerticalDirection.TOP
+        V_SMALL_CHAR, DOWN_CHAR -> VerticalDirection.BOTTOM
+        else -> throw Error("Unrecognized character : $this")
+    }
+
+/**
+ * Converts [this] Character representation to [HorizontalDirection]
+ */
+fun Char.toHorizontalDirection(): HorizontalDirection =
+    when (this) {
+        GREATER_CHAR, RIGHT_CHAR -> HorizontalDirection.RIGHT
+        LESSER_CHAR, LEFT_CHAR -> HorizontalDirection.LEFT
+        else -> throw Error("Unrecognized character : $this")
+    }
+
+/**
  * Converts [this] Character representation to [CardinalDirection]
  */
 fun Char.toCardinalDirection(): CardinalDirection =
