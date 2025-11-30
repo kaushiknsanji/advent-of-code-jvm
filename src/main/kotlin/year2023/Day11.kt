@@ -9,7 +9,7 @@ package year2023
 
 import base.BaseFileHandler
 import extensions.distinctPairs
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.manhattanDistance
 
 private class Day11 {
@@ -59,7 +59,7 @@ private fun doPart2(input: List<String>, expansionRate: Int) {
         .also { println(it) }
 }
 
-private class CosmicLocation(val x: Int, val y: Int) : Point2d<Int>(x, y)
+private class CosmicLocation(val x: Int, val y: Int) : Point2D<Int>(x, y)
 
 private enum class CosmicType(val type: Char) {
     GALAXY('#'),

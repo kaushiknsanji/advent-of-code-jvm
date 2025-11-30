@@ -12,7 +12,7 @@ import utils.Constants.DOT_CHAR
 import utils.Constants.HASH_CHAR
 import utils.grid.CardinalDirection.*
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.splitWhenLineBlankOrEmpty
 
 class Day25 : BaseProblemHandler() {
@@ -66,7 +66,7 @@ private enum class LockKeySchemaType(val type: Char) {
     }
 }
 
-private class LockKeySchemaPin(x: Int, y: Int) : Point2d<Int>(x, y)
+private class LockKeySchemaPin(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class LockKeySchemaGrid(
     pattern: List<String>

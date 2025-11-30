@@ -12,7 +12,7 @@ import extensions.intersectRange
 import extensions.mergeIntRanges
 import extensions.rangeLength
 import utils.findAllInt
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.manhattanDistance
 import utils.grid.manhattanDistantLocations
 
@@ -73,7 +73,7 @@ fun main() {
  * @param x [Int] value of x-coordinate
  * @param y [Int] value of y-coordinate
  */
-private class SensorLocus(x: Int, y: Int) : Point2d<Int>(x, y)
+private class SensorLocus(x: Int, y: Int) : Point2D<Int>(x, y)
 
 /**
  * Class for Beacon Location.
@@ -81,7 +81,7 @@ private class SensorLocus(x: Int, y: Int) : Point2d<Int>(x, y)
  * @param x [Int] value of x-coordinate
  * @param y [Int] value of y-coordinate
  */
-private class BeaconLocus(x: Int, y: Int) : Point2d<Int>(x, y)
+private class BeaconLocus(x: Int, y: Int) : Point2D<Int>(x, y)
 
 /**
  * Class to parse the input, analyze and solve the problem at hand.
@@ -122,16 +122,16 @@ private class BeaconAnalyzer private constructor(
     /**
      * Returns column ranges of Sensor coverage of all Sensors at given [row][yRow].
      *
-     * Using [sensorManhattanDistancePairs], it gets Sensor coordinate [Points][Point2d] at given [row][yRow]
+     * Using [sensorManhattanDistancePairs], it gets Sensor coordinate [Points][Point2D] at given [row][yRow]
      * and returns the merged coverage range of all Sensors along the row.
      */
     private fun getSensorCoverageSpotsAtRow(yRow: Int): Collection<IntRange> =
         sensorManhattanDistancePairs.map { (sensorLocus, distance) ->
             sensorLocus.manhattanDistantLocations(distance) { x, y ->
-                Point2d(x, y)
-            }.filterNotNull().filter { coveragePoint: Point2d<Int> ->
+                Point2D(x, y)
+            }.filterNotNull().filter { coveragePoint: Point2D<Int> ->
                 coveragePoint.yPos == yRow
-            }.map { coveragePoint: Point2d<Int> ->
+            }.map { coveragePoint: Point2D<Int> ->
                 coveragePoint.xPos
             }.toList()
                 .takeUnless(List<Int>::isEmpty)?.sorted()?.let { rowCoveragePoints: List<Int> ->
@@ -140,12 +140,12 @@ private class BeaconAnalyzer private constructor(
         }.mergeIntRanges()
 
     /**
-     * Returns a single [Point][Point2d] within the given [search range][searchRange] which is not reachable by
+     * Returns a single [Point][Point2D] within the given [search range][searchRange] which is not reachable by
      * any Sensor.
      *
      * @throws NoSuchElementException when dead spot could not be found.
      */
-    private fun getSingleSensorCoverageDeadSpot(searchRange: IntRange): Point2d<Int> {
+    private fun getSingleSensorCoverageDeadSpot(searchRange: IntRange): Point2D<Int> {
         // Coverage Map of all Sensors within the search range of both rows and columns
         val fullCoverageMap = mutableMapOf<Int, MutableList<IntRange>>()
 
@@ -155,10 +155,10 @@ private class BeaconAnalyzer private constructor(
 
             // Get Manhattan Distant Points of the current Sensor within the search range of rows only
             sensorLocus.manhattanDistantLocations(distance) { x, y ->
-                Point2d(x, y)
-            }.filterNotNull().filter { coveragePoint: Point2d<Int> ->
+                Point2D(x, y)
+            }.filterNotNull().filter { coveragePoint: Point2D<Int> ->
                 coveragePoint.yPos in searchRange
-            }.forEach { coveragePoint: Point2d<Int> ->
+            }.forEach { coveragePoint: Point2D<Int> ->
                 // Update coverage point to [sensorRowCoverageMap] for the identified row
                 val rowCoveragePoints = sensorRowCoverageMap.getOrPut(coveragePoint.yPos) { mutableListOf() }
                 rowCoveragePoints.add(coveragePoint.xPos)
@@ -183,7 +183,7 @@ private class BeaconAnalyzer private constructor(
             rowCoverageRanges.mergeIntRanges().takeIf { it.size > 1 }?.zipWithNext { currentRange, nextRange ->
                 (currentRange.last + 1) until nextRange.first
             }?.flatten()?.singleOrNull()?.let { xColumn: Int ->
-                Point2d(xColumn, yRow)
+                Point2D(xColumn, yRow)
             }
         }
 
@@ -192,7 +192,7 @@ private class BeaconAnalyzer private constructor(
     /**
      * Returns a [Long] of the Tuning Frequency value for [this] location containing the distress Beacon
      */
-    private fun Point2d<Int>.getTuningFrequency(): Long = xPos * 4000000L + yPos
+    private fun Point2D<Int>.getTuningFrequency(): Long = xPos * 4000000L + yPos
 
     /**
      * [Solution for Part-1]

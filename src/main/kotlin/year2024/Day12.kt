@@ -13,7 +13,7 @@ import utils.grid.CardinalDirection
 import utils.grid.CardinalDirection.*
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.CardinalDirection as Direction
 
 class Day12 : BaseProblemHandler() {
@@ -73,7 +73,7 @@ fun main() {
     Day12().start()
 }
 
-private class GardenPlot(x: Int, y: Int) : Point2d<Int>(x, y)
+private class GardenPlot(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class GardenPlotGrid(
     plotPattern: List<String>

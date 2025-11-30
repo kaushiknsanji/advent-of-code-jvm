@@ -18,7 +18,7 @@ import utils.Constants.SQUARE_OPEN_BRACE_CHAR
 import utils.grid.CardinalDirection.*
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.toCardinalDirection
 import utils.splitWhenLineBlankOrEmpty
 import utils.grid.CardinalDirection as Direction
@@ -89,7 +89,7 @@ private enum class FishWarehouseType(val type: Char) {
     }
 }
 
-private class FishWarehouseLocation(x: Int, y: Int) : Point2d<Int>(x, y)
+private class FishWarehouseLocation(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class FishWarehouseGrid(
     pattern: List<String>

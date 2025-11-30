@@ -29,7 +29,7 @@ import utils.grid.CardinalDirection.BOTTOM
 import utils.grid.CardinalDirection.TOP
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import java.util.*
 import utils.grid.CardinalDirection as Direction
 
@@ -105,7 +105,7 @@ private enum class NumericKeyType(val type: Char) {
     }
 }
 
-private class NumericKeypadButtonLocation(x: Int, y: Int) : Point2d<Int>(x, y)
+private class NumericKeypadButtonLocation(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class NumericKeypadGrid(
     pattern: List<String> = listOf(
@@ -292,7 +292,7 @@ private enum class DirectionalKeyType(val type: Char) {
     }
 }
 
-private class DirectionalKeypadButtonLocation(x: Int, y: Int) : Point2d<Int>(x, y)
+private class DirectionalKeypadButtonLocation(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class DirectionalKeypadGrid(
     pattern: List<String> = listOf(

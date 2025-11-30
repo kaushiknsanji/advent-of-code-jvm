@@ -10,7 +10,7 @@ package year2022
 import base.BaseFileHandler
 import utils.grid.OmniDirection
 import utils.grid.OmniDirection.*
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.OmniDirection as Direction
 
 private class Day14 {
@@ -67,7 +67,7 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private data class StructureLocus(val x: Int, val y: Int) : Point2d<Int>(x, y) {
+private data class StructureLocus(val x: Int, val y: Int) : Point2D<Int>(x, y) {
     companion object {
         fun parse(coordinatesLine: String) = coordinatesLine.split(",").let { coordinates ->
             StructureLocus(coordinates.first().trim().toInt(), coordinates.last().trim().toInt())

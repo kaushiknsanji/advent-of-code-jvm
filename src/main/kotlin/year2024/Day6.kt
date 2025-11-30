@@ -14,7 +14,7 @@ import utils.Constants.HASH_CHAR
 import utils.grid.CardinalDirection.TOP
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.CardinalDirection as Direction
 
 class Day6 : BaseProblemHandler() {
@@ -68,7 +68,7 @@ fun main() {
     Day6().start()
 }
 
-private class LabLayoutPlanTile(x: Int, y: Int) : Point2d<Int>(x, y)
+private class LabLayoutPlanTile(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private enum class LabLayoutPlanTileType(val type: Char) {
     PATH(DOT_CHAR),

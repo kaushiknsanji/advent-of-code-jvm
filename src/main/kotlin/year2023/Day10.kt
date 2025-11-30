@@ -10,7 +10,7 @@ package year2023
 import base.BaseFileHandler
 import extensions.whileLoop
 import utils.grid.CardinalDirection.*
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.toTotalPointsEnclosedByPolygon
 import utils.grid.CardinalDirection as Direction
 
@@ -87,7 +87,7 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private class PipeTileLocation(val x: Int, val y: Int) : Point2d<Int>(x, y)
+private class PipeTileLocation(val x: Int, val y: Int) : Point2D<Int>(x, y)
 
 private enum class PipeType(val type: Char) {
     VERTICAL_PIPE('|'),

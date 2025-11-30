@@ -14,7 +14,7 @@ import utils.Constants.HASH_CHAR
 import utils.Constants.S_CAP_CHAR
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.manhattanDistance
 
 class Day20 : BaseProblemHandler() {
@@ -118,7 +118,7 @@ private enum class RaceTrackType(val type: Char) {
     }
 }
 
-private class RaceTrackLocation(x: Int, y: Int) : Point2d<Int>(x, y)
+private class RaceTrackLocation(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class RaceTrackGrid(
     pattern: List<String>

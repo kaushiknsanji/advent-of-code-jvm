@@ -15,7 +15,7 @@ import utils.Constants.S_CAP_CHAR
 import utils.grid.CardinalDirection.RIGHT
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import java.util.*
 import utils.grid.CardinalDirection as Direction
 
@@ -85,7 +85,7 @@ private enum class ReindeerMazeType(val type: Char) {
     }
 }
 
-private class ReindeerMazeTile(x: Int, y: Int) : Point2d<Int>(x, y)
+private class ReindeerMazeTile(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class ReindeerMazeGrid(
     pattern: List<String>

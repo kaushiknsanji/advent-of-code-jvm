@@ -14,7 +14,7 @@ import utils.Constants.X_CAP_CHAR
 import utils.grid.IOmniLattice
 import utils.grid.OmniDirection.*
 import utils.grid.OmniLattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.OmniDirection as Direction
 
 class Day4 : BaseProblemHandler() {
@@ -66,7 +66,7 @@ fun main() {
     Day4().start()
 }
 
-private class XmasLetterCell(x: Int, y: Int) : Point2d<Int>(x, y)
+private class XmasLetterCell(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class XmasLetterGrid(
     xmasPattern: List<String>

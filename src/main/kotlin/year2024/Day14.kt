@@ -9,7 +9,7 @@ package year2024
 
 import base.BaseProblemHandler
 import utils.findAllInt
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.product
 
 class Day14 : BaseProblemHandler() {
@@ -78,13 +78,13 @@ fun main() {
 /**
  * Class for a Robot.
  *
- * @property location [Point2d] location of a Robot
- * @property velocity [Point2d] denoting the velocity of a Robot moving by [Point2d.xPos] and [Point2d.yPos]
+ * @property location [Point2D] location of a Robot
+ * @property velocity [Point2D] denoting the velocity of a Robot moving by [Point2D.xPos] and [Point2D.yPos]
  * tiles per second along both X and Y directions.
  *
  * @constructor Constructs a [Robot] at [location] moving with [velocity].
  */
-private class Robot(val location: Point2d<Int>, val velocity: Point2d<Int>) {
+private class Robot(val location: Point2D<Int>, val velocity: Point2D<Int>) {
 
     /**
      * Moves [Robot] to its next location updated by its [velocity].
@@ -96,7 +96,7 @@ private class Robot(val location: Point2d<Int>, val velocity: Point2d<Int>) {
         yRows: Int,
         xColumns: Int
     ): Robot = Robot(
-        location = Point2d(
+        location = Point2D(
             // Wrapped X position
             xPos = (location.xPos + velocity.xPos).mod(xColumns),
             // Wrapped Y position
@@ -119,7 +119,7 @@ private class RobotAnalyzer private constructor(
                     "Error: Parsed number count in the input should be 4, was ${numbers.size}"
                 }
 
-                Robot(Point2d(numbers[0], numbers[1]), Point2d(numbers[2], numbers[3]))
+                Robot(Point2D(numbers[0], numbers[1]), Point2D(numbers[2], numbers[3]))
             }
         }.let { robots: List<Robot> ->
             RobotAnalyzer(robots)
@@ -153,7 +153,7 @@ private class RobotAnalyzer private constructor(
      * Returns a Quadrant [this] location of a [Robot] belongs to. Can be `null` when [this] does not fall into
      * any of the [quadrants] provided.
      */
-    private fun Point2d<Int>.toQuadrant(quadrants: List<Pair<IntRange, IntRange>>): Pair<IntRange, IntRange>? =
+    private fun Point2D<Int>.toQuadrant(quadrants: List<Pair<IntRange, IntRange>>): Pair<IntRange, IntRange>? =
         quadrants.singleOrNull { (rowRange: IntRange, columnRange: IntRange) ->
             xPos in columnRange && yPos in rowRange
         }

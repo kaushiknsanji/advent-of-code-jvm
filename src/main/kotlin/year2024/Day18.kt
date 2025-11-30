@@ -15,7 +15,7 @@ import utils.Constants.HASH_CHAR
 import utils.findAllInt
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import java.util.*
 
 class Day18 : BaseProblemHandler() {
@@ -80,7 +80,7 @@ private enum class MemorySpaceType(val type: Char) {
     }
 }
 
-private class BytePosition(x: Int, y: Int) : Point2d<Int>(x, y)
+private class BytePosition(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class MemorySpaceGrid(
     pattern: List<String>

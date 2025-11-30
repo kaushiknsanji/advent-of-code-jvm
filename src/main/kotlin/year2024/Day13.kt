@@ -9,7 +9,7 @@ package year2024
 
 import base.BaseProblemHandler
 import utils.findAllLong
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.splitWhenLineBlankOrEmpty
 
 class Day13 : BaseProblemHandler() {
@@ -63,7 +63,7 @@ fun main() {
     Day13().start()
 }
 
-private class ClawLocation(x: Long, y: Long) : Point2d<Long>(x, y)
+private class ClawLocation(x: Long, y: Long) : Point2D<Long>(x, y)
 
 private class ClawMachineAnalyzer private constructor(
     private val buttonBehaviors: List<Triple<ClawLocation, ClawLocation, ClawLocation>>

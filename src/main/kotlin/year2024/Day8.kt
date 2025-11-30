@@ -63,11 +63,11 @@ fun main() {
     Day8().start()
 }
 
-private class AntennaCell(x: Int, y: Int) : Point2d<Int>(x, y)
+private class AntennaCell(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class AntennaGrid(
     gridPattern: List<String>
-) : Grid2dGraph<AntennaCell, Char>(gridPattern) {
+) : Grid2DGraph<AntennaCell, Char>(gridPattern) {
 
     /**
      * Returns location to be used in the grid.
@@ -89,7 +89,7 @@ private class AntennaGrid(
 
 private class AntennaAntinodeAnalyzer private constructor(
     private val antennaGrid: AntennaGrid
-) : IGrid2dGraph<AntennaCell, Char> by antennaGrid {
+) : IGrid2DGraph<AntennaCell, Char> by antennaGrid {
 
     companion object {
 

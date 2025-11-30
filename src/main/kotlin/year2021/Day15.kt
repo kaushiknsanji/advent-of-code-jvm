@@ -10,7 +10,7 @@ package year2021
 import base.BaseProblemHandler
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 import java.util.*
 
 class Day15 : BaseProblemHandler() {
@@ -70,7 +70,7 @@ fun main() {
  * @param x [Int] value of x-coordinate
  * @param y [Int] value of y-coordinate
  */
-private class ChitonLocus(x: Int, y: Int) : Point2d<Int>(x, y)
+private class ChitonLocus(x: Int, y: Int) : Point2D<Int>(x, y)
 
 /**
  * A [Lattice] of the Cavern constructed from the given `pattern`.

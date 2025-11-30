@@ -9,7 +9,7 @@ package year2021
 
 import base.BaseFileHandler
 import utils.grid.OmniDirection.*
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.OmniDirection as Direction
 
 private class Day11 {
@@ -57,7 +57,7 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private class OctopusLocus(val x: Int, val y: Int) : Point2d<Int>(x, y)
+private class OctopusLocus(val x: Int, val y: Int) : Point2D<Int>(x, y)
 
 private interface EnergyLevelGrid {
     fun getOctopusLocusOrNull(x: Int, y: Int): OctopusLocus?

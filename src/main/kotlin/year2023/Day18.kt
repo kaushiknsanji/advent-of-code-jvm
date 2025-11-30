@@ -8,7 +8,7 @@
 package year2023
 
 import base.BaseFileHandler
-import utils.grid.Point2d
+import utils.grid.Point2D
 import utils.grid.toTotalPointsEnclosedByPolygon
 
 private class Day18 {
@@ -56,7 +56,7 @@ private fun doPart2(input: List<String>) {
         .also { println(it) }
 }
 
-private class DigPoint(val x: Int, val y: Int) : Point2d<Int>(x, y)
+private class DigPoint(val x: Int, val y: Int) : Point2D<Int>(x, y)
 
 private enum class DigDirection(val type: String) {
     RIGHT("R"), DOWN("D"), LEFT("L"), UP("U")

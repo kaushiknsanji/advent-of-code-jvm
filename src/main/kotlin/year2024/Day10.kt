@@ -10,7 +10,7 @@ package year2024
 import base.BaseProblemHandler
 import utils.grid.ILattice
 import utils.grid.Lattice
-import utils.grid.Point2d
+import utils.grid.Point2D
 
 class Day10 : BaseProblemHandler() {
 
@@ -63,7 +63,7 @@ fun main() {
     Day10().start()
 }
 
-private class TrailLocation(x: Int, y: Int) : Point2d<Int>(x, y)
+private class TrailLocation(x: Int, y: Int) : Point2D<Int>(x, y)
 
 private class HikingTrailGrid(
     topographyPattern: List<String>

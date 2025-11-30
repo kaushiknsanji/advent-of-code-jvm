@@ -11,10 +11,10 @@ import utils.Constants.EMPTY
 /**
  * Interface for Two Dimensional Grid Graph to initialize and get started with.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  */
-interface IGrid2dGraph<P : Point2d<Int>, V> {
+interface IGrid2DGraph<P : Point2D<Int>, V> {
     /**
      * Returns location if present at given [row] and [column] in the grid; otherwise `null`.
      *
@@ -129,10 +129,10 @@ interface IGrid2dGraph<P : Point2d<Int>, V> {
 /**
  * Interface for Two Dimensional Lattice-4 to facilitate traversing the Grid in Cardinal directions.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  */
-interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
+interface ILattice<P : Point2D<Int>, V> : IGrid2DGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
@@ -171,10 +171,10 @@ interface ILattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
 /**
  * Interface for Two Dimensional Diagonal Lattice to facilitate traversing the Grid in Ordinal directions only.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  */
-interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
+interface IDiagonalLattice<P : Point2D<Int>, V> : IGrid2DGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
@@ -214,10 +214,10 @@ interface IDiagonalLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
  * Interface for Two Dimensional Lattice-8 to facilitate traversing the Grid in both
  * Cardinal and Ordinal directions.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  */
-interface IOmniLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
+interface IOmniLattice<P : Point2D<Int>, V> : IGrid2DGraph<P, V> {
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
      */
@@ -282,19 +282,19 @@ interface IOmniLattice<P : Point2d<Int>, V> : IGrid2dGraph<P, V> {
 /**
  * Abstract class for Two Dimensional Grid Graph to initialize and get started with.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  * @property rows [Int] number of rows in the Grid.
  * @property columns [Int] number of columns in the Grid.
  * @param pattern [List] of Strings having the input pattern for Two Dimensional Grid construction.
  *
- * @constructor Constructs [Grid2dGraph] using the provided grid `pattern` input.
+ * @constructor Constructs [Grid2DGraph] using the provided grid `pattern` input.
  */
-abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
+abstract class Grid2DGraph<P : Point2D<Int>, V> private constructor(
     val rows: Int,
     val columns: Int,
     pattern: List<String>
-) : IGrid2dGraph<P, V> {
+) : IGrid2DGraph<P, V> {
 
     constructor(pattern: List<String>) : this(
         pattern.size,
@@ -342,7 +342,7 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
      */
     override fun getLocation(row: Int, column: Int): P =
         getLocationOrNull(row, column) ?: throw IllegalArgumentException(
-            "${this::class.simpleName} does not have a ${Point2d::class.simpleName} at the given location ($row, $column)"
+            "${this::class.simpleName} does not have a ${Point2D::class.simpleName} at the given location ($row, $column)"
         )
 
     /**
@@ -518,15 +518,15 @@ abstract class Grid2dGraph<P : Point2d<Int>, V> private constructor(
 /**
  * Abstract Lattice-4 class to facilitate traversing the Grid in Cardinal directions.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  * @param pattern [List] of Strings having the input pattern for Two Dimensional Grid construction.
  *
  * @constructor Constructs [Lattice] using the provided grid `pattern` input.
  */
-abstract class Lattice<P : Point2d<Int>, V>(
+abstract class Lattice<P : Point2D<Int>, V>(
     pattern: List<String>
-) : ILattice<P, V>, Grid2dGraph<P, V>(pattern) {
+) : ILattice<P, V>, Grid2DGraph<P, V>(pattern) {
 
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
@@ -587,15 +587,15 @@ abstract class Lattice<P : Point2d<Int>, V>(
 /**
  * Abstract Diagonal Lattice class to facilitate traversing the Grid in Ordinal directions only.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  * @param pattern [List] of Strings having the input pattern for Two Dimensional Grid construction.
  *
  * @constructor Constructs [DiagonalLattice] using the provided grid `pattern` input.
  */
-abstract class DiagonalLattice<P : Point2d<Int>, V>(
+abstract class DiagonalLattice<P : Point2D<Int>, V>(
     pattern: List<String>
-) : IDiagonalLattice<P, V>, Grid2dGraph<P, V>(pattern) {
+) : IDiagonalLattice<P, V>, Grid2DGraph<P, V>(pattern) {
 
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`
@@ -659,15 +659,15 @@ abstract class DiagonalLattice<P : Point2d<Int>, V>(
  * Abstract Lattice-8 class to facilitate traversing the Grid in both
  * Cardinal and Ordinal directions.
  *
- * @param P type of [Point2d] representing locations in the Grid.
+ * @param P type of [Point2D] representing locations in the Grid.
  * @param V type of value stored in all locations of the Grid.
  * @param pattern [List] of Strings having the input pattern for Two Dimensional Grid construction.
  *
  * @constructor Constructs [OmniLattice] using the provided grid `pattern` input.
  */
-abstract class OmniLattice<P : Point2d<Int>, V>(
+abstract class OmniLattice<P : Point2D<Int>, V>(
     pattern: List<String>
-) : IOmniLattice<P, V>, Grid2dGraph<P, V>(pattern) {
+) : IOmniLattice<P, V>, Grid2DGraph<P, V>(pattern) {
 
     /**
      * Returns neighbouring location of [this] location in the given [direction] if present; otherwise `null`

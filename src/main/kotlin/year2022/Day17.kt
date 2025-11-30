@@ -93,14 +93,14 @@ private class ChamberSpaceData(val type: ChamberSpaceType, val id: Long = 0L)
  * @param x [Int] value of x-coordinate
  * @param y [Int] value of y-coordinate
  */
-private class RockLocus(x: Int, y: Int) : Point2d<Int>(x, y)
+private class RockLocus(x: Int, y: Int) : Point2D<Int>(x, y)
 
 /**
  * A Grid Graph representation class for various peculiar Rock shapes of the given `pattern`.
  */
 private class RockGrid(
     pattern: List<String>
-) : Grid2dGraph<RockLocus, ChamberSpaceType>(pattern) {
+) : Grid2DGraph<RockLocus, ChamberSpaceType>(pattern) {
 
     /**
      * Returns location to be used in the grid.
@@ -124,7 +124,7 @@ private class RockGrid(
 /**
  * Class for Location in the [Chamber Grid][ChamberGrid].
  */
-private class ChamberLocus(x: Int, y: Int) : Point2d<Int>(x, y)
+private class ChamberLocus(x: Int, y: Int) : Point2D<Int>(x, y)
 
 /**
  * A [Lattice] of Chamber constructed with only the floor pattern read from `initPattern` for the given `width`.

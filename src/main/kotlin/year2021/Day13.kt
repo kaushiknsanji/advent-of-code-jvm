@@ -8,7 +8,7 @@
 package year2021
 
 import base.BaseFileHandler
-import utils.grid.Point2d
+import utils.grid.Point2D
 
 private class Day13 {
     companion object : BaseFileHandler() {
@@ -54,7 +54,7 @@ private fun doPart2(input: List<String>) {
         .executeAndRevealCode()
 }
 
-private class DotLocus(val x: Int, val y: Int) : Point2d<Int>(x, y) {
+private class DotLocus(val x: Int, val y: Int) : Point2D<Int>(x, y) {
     companion object {
         fun parse(coordinatesLine: String): DotLocus = coordinatesLine.split(",").let { coordinates: List<String> ->
             DotLocus(coordinates.first().toInt(), coordinates.last().toInt())
