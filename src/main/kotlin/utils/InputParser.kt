@@ -11,6 +11,9 @@ import extensions.splitWhen
 // Regular expression to capture numbers
 private val numberRegex = """(-?\d+)""".toRegex()
 
+// Regular expression to capture positive numbers only (including zero)
+private val positiveNumberRegex = """(\d+)""".toRegex()
+
 // Regular expression for one or more whitespaces
 private val whitespacesRegex = """\s+""".toRegex()
 
@@ -30,10 +33,26 @@ fun String.findAllInt(): List<Int> =
     }.toList()
 
 /**
+ * Extracts and returns a [List] of Positive [Int] found in [this] input line
+ */
+fun String.findAllPositiveInt(): List<Int> =
+    positiveNumberRegex.findAll(this).map { matchResult ->
+        matchResult.groupValues[1].toInt()
+    }.toList()
+
+/**
  * Extracts and returns a [List] of [Long] found in [this] input line
  */
 fun String.findAllLong(): List<Long> =
     numberRegex.findAll(this).map { matchResult ->
+        matchResult.groupValues[1].toLong()
+    }.toList()
+
+/**
+ * Extracts and returns a [List] of Positive [Long] found in [this] input line
+ */
+fun String.findAllPositiveLong(): List<Long> =
+    positiveNumberRegex.findAll(this).map { matchResult ->
         matchResult.groupValues[1].toLong()
     }.toList()
 
