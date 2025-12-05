@@ -60,5 +60,9 @@ class ${NAME} : BaseProblemHandler() {
 }
 
 fun main() {
-    ${NAME}().start()
+    try {
+        ${NAME}().start()
+    } catch (e: Throwable) {
+        e.printStackTrace()
+    }
 }
