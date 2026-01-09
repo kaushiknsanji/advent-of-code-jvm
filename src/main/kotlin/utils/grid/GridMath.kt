@@ -8,6 +8,8 @@ package utils.grid
 
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * Extension function on an [Iterable] of [Point2D] to compute the Area enclosed by the path of [Point2D]s in a
@@ -103,3 +105,18 @@ fun <T : Point2D<Int>> T.manhattanDistantLocations(
             }
         }
     }
+
+/**
+ * Extension function on [Point3D] of type [Int] to compute Euclidean Distance to the [destination]
+ * from source [this].
+ *
+ * To be used in 3D Grid system.
+ */
+fun Point3D<Int>.euclideanDistance(destination: Point3D<Int>): Double =
+    sqrt(
+        listOf(
+            (destination.xPos - xPos).toDouble().pow(2),
+            (destination.yPos - yPos).toDouble().pow(2),
+            (destination.zPos - zPos).toDouble().pow(2)
+        ).sum()
+    )
